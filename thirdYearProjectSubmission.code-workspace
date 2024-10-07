@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../code/data"
+		},
+		{
+			"path": "../code/testRunData"
+		}
+	],
+	"settings": {}
+}
