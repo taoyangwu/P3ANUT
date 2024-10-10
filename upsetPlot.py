@@ -221,7 +221,8 @@ class upsetPlot(tk.Frame):
         
         self.insertsectionDict = {}
         
-        self.fig = Figure(figsize=(6, 4), dpi=100)
+        self.fig = Figure(figsize=(14, 6), dpi=100)
+        # Above works, but causes issue of figure having a lot of white space. Still needs work
         self.figureCanvas = FigureCanvasTkAgg(self.fig, self)
         
         #Set the title for the figure
@@ -268,7 +269,7 @@ class upsetPlot(tk.Frame):
         t = [f"{round(x/maxInsersection * 100)}%" for x in self.sortedInsersectionCounts]
         
         for i in range(len(self.sortedInsersectionCounts)):
-            rect = Rectangle((i,max(0,i-1)), 0.8,self.sortedInsersectionCounts[i] , color='black', alpha=0.5)
+            rect = Rectangle((i,0)), 0.8,self.sortedInsersectionCounts[i] , color='black', alpha=0.5)
             # modifedSizeLabel = np.format_float_scientific(self.sortedInsersectionCounts[i], precision = 2)
             label = self.ax2.text(i + 0.4, self.sortedInsersectionCounts[i], t[i] , ha="center", va="bottom", color="black", fontsize="x-small")
             
