@@ -174,7 +174,7 @@ class pairedAssemblerFrame(tk.Frame):
     def run(self):
         
         #Check that all the parameters are loaded
-        if(self.forwardFile == "" or self.reverseFile == "" or self.outPutFile == ""):
+        if(self.forwardFile == "" or self.outPutFile == ""):
             return
         
         print("Running")
