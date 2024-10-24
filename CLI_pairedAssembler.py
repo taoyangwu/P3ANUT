@@ -44,7 +44,6 @@ def main():
     parsedData = {}
     print(trimmedYaml)
     
-    
     pairedassembler.parse(args.forwardFile, args.reverseFile, parsedData, **trimmedYaml)
 
     
@@ -107,7 +106,7 @@ if(__name__ == "__main__"):
                         required=True, help='The forward fastq file')
     #Reverse File - optional, support the single assembler
     parser.add_argument('-r', '--reverseFile', metavar='reverseFile', type=dir_path,
-                        required=True, help='The reverse fastq file')
+                        required=False, help='The reverse fastq file', default=None)
     #Output File - optional, default to pairedAssembleDate.json
     parser.add_argument('-o','--outputFile', metavar='outputFile', type=str,
                         default='pairedAssembleOutput.json', help='Name of the output file')
