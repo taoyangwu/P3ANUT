@@ -43,16 +43,23 @@ def parse(forwardFile, ReverseFile,data = None, globalPatameters = {}, addToLogF
     metadata["forwardTime"] = endTime - startTime
     d1 = len(data)
     
-    startTime = time.time()
-    parseFastqFile(ReverseFile, data, flip=True, **kwargs)
-    endTime = time.time()
-    metadata["ReverseTime"] = endTime - startTime
-    d2 = len(data)
+    #
+    if ReverseFile:
+        startTime = time.time()
+        parseFastqFile(ReverseFile, data, flip=True, **kwargs)
+        endTime = time.time()
+        metadata["ReverseTime"] = endTime - startTime
+        d2 = len(data)
     
-    metadata["forwardFileCount"] = d1
-    metadata["ReverseFileCount"] = d2
-    metadata["uniqueCount"] = d2-d1
-    
+        metadata["forwardFileCount"] = d1
+        metadata["ReverseFileCount"] = d2
+        metadata["uniqueCount"] = d2-d1
+    else:
+        metadata["ReverseTime"] = 0
+        metadata["ReverseFileCount"] = d1
+        metadata["uniqueCount"] = 0
+        d2 = d1
+        
     errorData = []
     startTime = time.time()
     multiprocess(data, errorData=errorData, metadata=metadata, **kwargs)
