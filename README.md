@@ -1,4 +1,4 @@
-# P3ANUT: Python Pipeline for PhageAnalysis through a Normative UnifiedToolset
+# P3ANUT: Python Pipeline for Phage Analysis through a Normative UnifiedToolset
 
 ## How to run software
 1. The project was developed using Python 3.12.3. It is recommended to use this version to run the project; to ensure compatibility.
