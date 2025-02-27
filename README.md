@@ -1,9 +1,17 @@
 # P3ANUT
 
 ## How to run overall project
-1. The project was developed using Python 3.12.3. It is recommended to use this version of Python to run the project.
+1. The project was developed using Python 3.12.3. It is recommended to use this version to run the project;  to ensure compatibility.
 2. Install the required packages within the requirements.txt file
-3. Run the unifiedGUI.py file. This is a GUI that contains all the features of the project.
+   bash
+pip install -r requirements.txt
+
+4. Run the unifiedGUI.py file.This is a GUI that contains all the features of the project.
+5. Install the required dependencies using the requirements.txt file:
+   bash
+python unifiedGUI.py
+This GUI provides access to all the features of the project.
+
 
 ### How to operate the Paired Assembler GUI
 1. Click load a File in the Forward Read section and select a forward FASTQ file. These are denoted by a _001 in the file name.
