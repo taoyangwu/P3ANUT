@@ -1,15 +1,14 @@
-# P3ANUT
+# P3ANUT: Python Pipeline for PhageAnalysis through a Normative UnifiedToolset
 
-## How to run overall project
-1. The project was developed using Python 3.12.3. It is recommended to use this version to run the project;  to ensure compatibility.
+## How to run software
+1. The project was developed using Python 3.12.3. It is recommended to use this version to run the project; to ensure compatibility.
 2. Install the required packages within the requirements.txt file
    bash
-pip install -r requirements.txt
+*pip install -r requirements.txt*
 
 4. Run the unifiedGUI.py file.This is a GUI that contains all the features of the project.
 5. Install the required dependencies using the requirements.txt file:
-   bash
-python unifiedGUI.py
+  * bash python unifiedGUI.py*
 This GUI provides access to all the features of the project.
 
 
@@ -54,6 +53,12 @@ This GUI provides access to all the features of the project.
 6. Click Save AS to create a new yaml file.
 7. Click Apply changes to apply the settings to the script.
 8. Click Close to close the advanced settings window without returning the settings to the script.
+
+### Software Developed and Associated paper written by By:
+
+Liam Tucker†1, Ethan Koland†2, Jasmyn Gooding†2, Hassan Boudjelal†1, Derek T. Warren†1, David Baker†3, Maria Marin†4, Taoyang Wu†2, Chris J. Morris†1,5.
+
+† Corresponding authors
 
 
 
