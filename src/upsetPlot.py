@@ -399,8 +399,7 @@ class upsetPlot(tk.Frame):
         intersectionSet = pd.Index(fileSets[unionOrDifferencedToggle[0]])
         difference = pd.Index([])
         
-        print(key, refrenceNumber)
-        
+   
         if(max(refrenceNumber) == 0):
             return []
 
@@ -409,7 +408,7 @@ class upsetPlot(tk.Frame):
             comparision = pd.Index(fileSets[unionOrDifferencedToggle[i]])
             
             t = refrenceNumber[unionOrDifferencedToggle[i]]
-            print(t)
+ 
 
             if(refrenceNumber[unionOrDifferencedToggle[i]] == 1):
                 
