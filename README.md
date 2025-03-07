@@ -1,16 +1,54 @@
-# P3ANUT: Python Pipeline for Phage Analysis through a Normative UnifiedToolset
+# P3ANUT: Python Pipeline for Phage Analysis through a Normative Unified Toolset
 
 ## How to run software
-1. The project was developed using Python 3.12.3. It is recommended to use this version to run the project; to ensure compatibility.
-2. Install the required packages within the requirements.txt file
-   bash
-*pip install -r requirements.txt*
+Prerequisites
+1.Python 3.12.3 (recommended- The project was developed using Python 3.12.3. It is recommended to use this version to run the project; to ensure compatibility.)
+2.Conda (Miniconda or Anaconda) for environment management
 
-4. Run the unifiedGUI.py file.This is a GUI that contains all the features of the project.
-5. Install the required dependencies using the requirements.txt file:
-  * bash python unifiedGUI.py*
-This GUI provides access to all the features of the project.
+2. Install Conda (Miniconda or Anaconda)
+Visit the Miniconda documentation or Anaconda.com/download.
+(Optional) Submit your email to register with Anaconda.
+Download and install the appropriate version for your operating system.
 
+4. Create a Conda Environment
+3.1 Open a Terminal
+Make sure Conda is available in your PATH. If you are on Windows, use the “Anaconda Prompt” or “Miniconda Prompt.”
+
+3.2 Create a New Environment
+Option A: From an environment file (recommended if you have P3ANUT_Env.yml)
+
+'''bash
+conda env create -n P3ANUT --file P3ANUT_Env.yml--
+This command will create an environment named P3ANUT using all required dependencies as defined in the YAML file.
+
+Option B: From scratch
+
+'''bash
+conda create -n P3ANUT python=3.12
+conda activate P3ANUT
+conda install pyyaml numpy pandas matplotlib scikit-learn logomaker anytree conda-forge::python-levenshtein--
+This installs the core libraries needed for P3ANUT. Adjust or add additional packages as required.
+
+3.3 Verify Your Environment
+'''bash
+conda env list--
+Make sure the P3ANUT environment is listed, and confirm it’s activated (indicated by (P3ANUT) at the beginning of your terminal prompt).
+
+4. Install Required Packages (Alternative: pip)
+If you prefer to install dependencies via pip instead of conda:
+
+'''bash
+pip install -r requirements.txt--
+Make sure you are inside the P3ANUT environment before running this command.
+
+5. Run the Software
+5.1 Unified GUI
+To launch the main GUI, run:
+
+'''bash
+python unifiedGUI.py--
+
+This graphical interface provides access to all features of P3ANUT.
 
 ### How to operate the Paired Assembler GUI
 1. Click load a File in the Forward Read section and select a forward FASTQ file. These are denoted by a _001 in the file name.
