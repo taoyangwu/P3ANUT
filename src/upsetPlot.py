@@ -263,13 +263,13 @@ class upsetPlot(tk.Frame):
         # for i in range(len(data)):
         #     ax.bar(i, data[i],0.5, align='center', color="black")
         
-        maxInsersection = max(self.sortedInsersectionCounts)
+        maxInsersection = self.totalUnionSize
        
         #Create the labels for the graph 
         t = [f"{round(x/maxInsersection * 100)}%" for x in self.sortedInsersectionCounts]
         
         for i in range(len(self.sortedInsersectionCounts)):
-            rect = Rectangle((i,0)), 0.8,self.sortedInsersectionCounts[i] , color='black', alpha=0.5)
+            rect = Rectangle((i,0), 0.8,self.sortedInsersectionCounts[i] , color='black', alpha=0.5)
             # modifedSizeLabel = np.format_float_scientific(self.sortedInsersectionCounts[i], precision = 2)
             label = self.ax2.text(i + 0.4, self.sortedInsersectionCounts[i], t[i] , ha="center", va="bottom", color="black", fontsize="x-small")
             
@@ -379,8 +379,6 @@ class upsetPlot(tk.Frame):
         self.ax1.set(ylabel='File Names')
         self.ax1.yaxis.label.set_size(10)
         
-        
-
     
     @staticmethod
     def fileInsersection(key, fileSets):
@@ -398,8 +396,10 @@ class upsetPlot(tk.Frame):
         #Seperate the files to be unioned and the files to be differenced
         unionOrDifferencedToggle = np.argsort(refrenceNumber * -1, kind="stable")
 
-        unions = pd.Index(fileSets[unionOrDifferencedToggle[0]])
+        intersectionSet = pd.Index(fileSets[unionOrDifferencedToggle[0]])
         difference = pd.Index([])
+        
+        print(key, refrenceNumber)
         
         if(max(refrenceNumber) == 0):
             return []
@@ -407,16 +407,19 @@ class upsetPlot(tk.Frame):
         for i in range(1, len(unionOrDifferencedToggle)):
 
             comparision = pd.Index(fileSets[unionOrDifferencedToggle[i]])
+            
+            t = refrenceNumber[unionOrDifferencedToggle[i]]
+            print(t)
 
             if(refrenceNumber[unionOrDifferencedToggle[i]] == 1):
                 
-                unions = unions.intersection(comparision)
+                intersectionSet = intersectionSet.intersection(comparision)
             else:
                 # s = np.setdiff1d(s, c)
                 difference = difference.union(comparision)
                 
         # print(len(unions), len(difference))
-        return unions.difference(difference)
+        return intersectionSet.difference(difference)
     
     @staticmethod
     def fileSetComparision(fileNames, intersectionDict = {}):
@@ -424,18 +427,22 @@ class upsetPlot(tk.Frame):
         insersectionConuts = []
         fileLengths = []
         
+        totalFileUnion = pd.Index([])
         files = []
         for i in fileNames:
             pdData = pd.read_csv(i)
             fileLengths.append(len(pdData))
-            files.append(pdData.loc[:, "sequence"].values)
+            files.append(sequenceValues := pdData.loc[:, "sequence"].values)
+            totalFileUnion = totalFileUnion.union(sequenceValues)
+            
+        totalUnionSize = len(totalFileUnion)
         
         for i in range(maxNumber):
             
             insersectionConuts.append(t := len(upsetPlot.fileInsersection(i, files)))
             intersectionDict[i] = t
             
-        return insersectionConuts, fileLengths
+        return insersectionConuts, fileLengths, totalUnionSize
     
     @staticmethod
     def fileOutput(fileNames, output,key):
@@ -489,7 +496,7 @@ class upsetPlot(tk.Frame):
         
         self.insertsectionDict = {}
         
-        self.insersectionConuts, self.fileLengths = upsetPlot.fileSetComparision(fileNames, self.insertsectionDict)
+        self.insersectionConuts, self.fileLengths, self.totalUnionSize = upsetPlot.fileSetComparision(fileNames, self.insertsectionDict)
         
         self.sortedAxis = np.argsort([t * -1 for t in self.insersectionConuts], kind="stable")
         self.sortedInsersectionCounts = np.take(self.insersectionConuts, self.sortedAxis)
