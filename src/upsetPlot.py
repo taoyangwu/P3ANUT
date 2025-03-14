@@ -329,8 +329,7 @@ class upsetPlot(tk.Frame):
                 
         positives = np.array(positives)
         negatives = np.array(negatives)           
-        self.ax4.scatter(positives[:,0], positives[:,1], c="green")
-        self.ax4.scatter(negatives[:,0], negatives[:,1], c="black", alpha = 0.25)
+        
 
         
         background = np.array([x%2 ==  0 for x in range(len(self.fileNames))])
@@ -339,6 +338,10 @@ class upsetPlot(tk.Frame):
         self.ax4.xaxis.label.set_size(10)
         self.ax4.get_yaxis().set_visible(False)
         self.ax4.set(xlabel='Set Association')
+        
+        self.ax4.scatter(positives[:,0], positives[:,1], c="green", s = 50)
+        self.ax4.scatter(negatives[:,0], negatives[:,1], c="black", alpha = 0.5, s = 30, zorder=2)
+        self.ax4.scatter(negatives[:,0], negatives[:,1], c="white", alpha = 1, s = 20, zorder=3)
     
     def fileSizeGraph(self):
         reference = "ABCDEFGHIJKLMNOP"
