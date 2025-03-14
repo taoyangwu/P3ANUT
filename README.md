@@ -92,7 +92,11 @@ This graphical interface provides access to all features of P3ANUT.
 7. Click Apply changes to apply the settings to the script.
 8. Click Close to close the advanced settings window without returning the settings to the script.
 
-### Software Developed and Associated paper written by By:
+### Software Developed and 
+
+
+### Reference
+Associated paper written by By:
 
 Liam Tucker†1, Ethan Koland†2, Jasmyn Gooding†2, Hassan Boudjelal†1, Derek T. Warren†1, David Baker†3, Maria Marin†4, Taoyang Wu†2, Chris J. Morris†1,5.
 
