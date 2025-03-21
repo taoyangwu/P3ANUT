@@ -3,6 +3,7 @@
 ## How to run software
 Prerequisites
 1.Python 3.12.3 (recommended- The project was developed using Python 3.12.3. It is recommended to use this version to run the project; to ensure compatibility.)
+
 2.Conda (Miniconda or Anaconda) for environment management
 
 2. Install Conda (Miniconda or Anaconda)
