@@ -2,3 +2,6 @@
 **/__pycache__/
 __pycache__/
 *.code-workspace
+merged.csv
+log.csv
+.DS_Store

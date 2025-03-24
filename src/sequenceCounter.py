@@ -556,9 +556,9 @@ def createFrequencyDataFrame(sequenceDF, logoName, validBases = "*ACDEFGHIKLMNPQ
         count = row["mean"]
         
         # tempMatrix = np.add(tempMatrix, count, dtype=np.uint32)
-        tempMatrix = np.multiply(tempMatrix, count, dtype=np.uint32)
+        tempMatrix = np.multiply(tempMatrix, count).astype(np.uint32)
         #Add the temp matrix to the main matrix
-        frequencyMatrix = np.add(frequencyMatrix, tempMatrix, dtype=np.uint32)
+        frequencyMatrix = np.add(frequencyMatrix, tempMatrix).astype(np.uint32)
         # print(m2)
 
     #Remove the padding from the matrix
