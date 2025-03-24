@@ -3,6 +3,7 @@
 ## How to run software
 Prerequisites
 1.Python 3.12.3 (recommended- The project was developed using Python 3.12.3. It is recommended to use this version to run the project; to ensure compatibility.)
+
 2.Conda (Miniconda or Anaconda) for environment management
 
 2. Install Conda (Miniconda or Anaconda)
@@ -18,7 +19,8 @@ Make sure Conda is available in your PATH. If you are on Windows, use the “Ana
 Option A: From an environment file (recommended if you have P3ANUT_Env.yml)
 
 '''bash
-conda env create -n P3ANUT --file P3ANUT_Env.yml--
+conda env create -n P3ANUT --file P3ANUT_Env.yml--'''
+
 This command will create an environment named P3ANUT using all required dependencies as defined in the YAML file.
 
 Option B: From scratch
@@ -92,15 +94,26 @@ This graphical interface provides access to all features of P3ANUT.
 7. Click Apply changes to apply the settings to the script.
 8. Click Close to close the advanced settings window without returning the settings to the script.
 
-### Software Developed and 
+### Software Development Team
+This software application is developed by Ethan Koland, Liam Tucker, Jasmyn Gooding, and Taoyang Wu.
 
 
 ### Reference
-Associated paper written by By:
+Please cite the associated paper written by By:
 
-Liam Tucker†1, Ethan Koland†2, Jasmyn Gooding†2, Hassan Boudjelal†1, Derek T. Warren†1, David Baker†3, Maria Marin†4, Taoyang Wu†2, Chris J. Morris†1,5.
+Liam Tucker†1, Ethan Koland†2, Jasmyn Gooding†2, Hassan Boudjelal1, Derek T. Warren1, David Baker3, Maria Marin4, Taoyang Wu2, Chris J. Morris1,5.
 
 † Corresponding authors
+
+1 School of Pharmacy, University of East Anglia, Norwich, Norfolk, NR47TJ, United Kingdom
+
+2 School of Computing Sciences, University of East Anglia, Norwich, Norfolk, NR47TJ, United Kingdom
+
+3 Quadrum Institute of Bioscience, Norwich, Norfolk, NR47UQ, United Kingdom
+
+4 School of Chemistry, University of East Anglia, Norwich, Norfolk, NR47TJ, United Kingdom 
+
+5 School of Pharmacy, University Collage London, Greater London, WC1N 1AX, United Kingdom
 
 
 
