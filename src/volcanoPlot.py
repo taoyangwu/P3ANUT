@@ -33,8 +33,8 @@ class volcanoPlotFrame(tk.Frame):
         self.grid_columnconfigure(0, weight=3)
         self.grid_columnconfigure(1, weight=1)
         
-        self.currentRatio = 0.5
-        self.currentPvalue = 0.5
+        self.currentRatio = 5
+        self.currentPvalue = 1.3
         
         self.fileA = tk.StringVar(value="VolcanoPlot/mergedSorted copy.csv")
         self.fileB = tk.StringVar(value="VolcanoPlot/7 copy.csv")
@@ -55,49 +55,52 @@ class volcanoPlotFrame(tk.Frame):
         self.maxRatio, self.minRatio = 1, 0
         self.maxPvalue, self.minPvalue = 1, 0
         
-        self.ratioSliderFrame = tk.LabelFrame(self.parametersFrame, text="Ratio Settings", background="#7C8594")
-        self.ratioSliderFrame.grid(row=2, column=0, sticky="nsew")
-        self.ratioSliderFrame.grid_columnconfigure(0, weight=1)
+        self.ratioEntryFrame = tk.LabelFrame(self.parametersFrame, text="Ratio Settings", background="#7C8594")
+        self.ratioEntryFrame.grid(row=0, column=0, sticky="nsew")
+        self.ratioEntryFrame.grid_columnconfigure(0, weight=1)
         
-        self.ratioSlider = tk.Scale(self.ratioSliderFrame, from_=self.minRatio, to=self.maxRatio, orient=tk.HORIZONTAL, digits = 3, resolution = 0.01,
-                                    command=self.updateRatio)
-        self.ratioSlider.grid(row=0, column=0, sticky="nsew")
-        self.ratioSlider.set(50)
+        self.ratioEntry = tk.Entry(self.ratioEntryFrame, validate="key", validatecommand=(self.register(volcanoPlotFrame.validateRatio), '%P'))
+        self.ratioEntry.grid(row=0, column=0, sticky="nsew")
+        self.ratioEntry.insert(0, str(self.currentRatio))
+        self.ratioEntry.bind("<Return>", lambda event: self.updateRatio(float(self.ratioEntry.get())))
+        self.ratioEntry.bind("<FocusOut>", lambda event: self.updateRatio(float(self.ratioEntry.get())))
         
         #self.ratioExtInput =
         
         #update the ratio slider range
-        self.ratioSlider.grid(row=0, column=0, sticky="nsew")
         
-        self.pValueSliderFrame = tk.LabelFrame(self.parametersFrame, text="P-Value Settings", background="#6C8193")
-        self.pValueSliderFrame.grid(row=2, column=0, sticky="nsew")
-        self.pValueSliderFrame.grid_columnconfigure(0, weight=1)
         
-        self.pValueSlider = tk.Scale(self.pValueSliderFrame, from_=self.minPvalue, to=self.maxPvalue, orient=tk.HORIZONTAL, digits = 3, resolution = 0.01, 
-                                    command=self.updatePvalue)
-        self.pValueSlider.set(self.currentPvalue)
-        self.pValueSlider.grid(row=0, column=0, sticky="nsew")
+        self.pValueEntryFrame = tk.LabelFrame(self.parametersFrame, text="P-Value Settings", background="#6C8193")
+        self.pValueEntryFrame.grid(row=1, column=0, sticky="nsew")
+        self.pValueEntryFrame.grid_columnconfigure(0, weight=1)
+        
+        self.pValueEntry = tk.Entry(self.pValueEntryFrame, validate="key", validatecommand=(self.register(volcanoPlotFrame.validatePvalue), '%P'))
+        self.pValueEntry.grid(row=0, column=0, sticky="nsew")
+        self.pValueEntry.insert(0, str(self.currentPvalue))
+        self.pValueEntry.bind("<Return>", lambda event: self.updatePvalue(float(self.pValueEntry.get())))
+        self.pValueEntry.bind("<FocusOut>", lambda event: self.updatePvalue(float(self.pValueEntry.get())))
         
         #self.pValue
         
         self.graph = None
         
-        self.fileAFrame = tk.LabelFrame(self.parametersFrame, text="File A", background="#7C8594")
+        self.fileAFrame = tk.LabelFrame(self.parametersFrame, text="1st File", background="#7C8594")
         self.fileAFrame.grid(row=2, column=0, sticky="nsew")
         self.fileAFrame.grid_columnconfigure(0, weight=1)
         
-        self.fileAButton = tk.Button(self.fileAFrame, text="File A", command=self.setfileA)
+        self.fileAButton = tk.Button(self.fileAFrame, text="1st File", command=self.setfileA)
         self.fileAButton.grid(row=0, column=0, sticky="nsew")
         
-        self.fileBFrame = tk.LabelFrame(self.parametersFrame, text="File B", background="#6C8193")
+        self.fileBFrame = tk.LabelFrame(self.parametersFrame, text="2nd File", background="#6C8193")
         self.fileBFrame.grid(row=3, column=0, sticky="nsew")    
         self.fileBFrame.grid_columnconfigure(0, weight=1)
         
-        self.fileBButton = tk.Button(self.fileBFrame, text="File B", command=self.setfileB)
+        self.fileBButton = tk.Button(self.fileBFrame, text="2nd File", command=self.setfileB)
         self.fileBButton.grid(row=0, column=0, sticky="nsew")
         
         self.exportFrame = tk.LabelFrame(self.parametersFrame, text="Export", background="#7C8594")
         self.exportFrame.grid(row=4, column=0, sticky="nsew")
+        self.exportFrame.grid_columnconfigure(0, weight=4)
         self.exportFrame.grid_columnconfigure(0, weight=1)
         
         self.quadrantList = ["Q1 - Red", "Q2 - Blue", "Q3 - Green", "Q4 - Yellow"]
@@ -105,6 +108,16 @@ class volcanoPlotFrame(tk.Frame):
         self.exportQuarant.set(self.quadrantList[0])
         self.exportQuarantMenu = tk.OptionMenu(self.exportFrame, self.exportQuarant, *self.quadrantList)
         self.exportQuarantMenu.grid(row=0, column=0, sticky="nsew")
+        
+        
+        self.exportBaseText = tk.Label(self.exportFrame, text="Export Base Name")
+        self.exportBaseText.grid(row=1, column=0, sticky="nsew")
+        self.exportBaseText.config(background="#7C8594")
+        
+        self.exportBaseName = tk.StringVar(value="A")
+        self.exportBaseNameText = tk.Entry(self.exportFrame, textvariable=self.exportBaseName)
+        self.exportBaseNameText.grid(row=1, column=1, sticky="nsew")
+        
         
         self.exportButton = tk.Button(self.exportFrame, text="Export", command=self.export)
         self.exportButton.grid(row=0, column=1)
@@ -119,14 +132,17 @@ class volcanoPlotFrame(tk.Frame):
         
         self.exportGraphButton = tk.Button(self.createGraphFrame, text="Export Graph", command=self.exportGraph)
         self.exportGraphButton.grid(row=1, column=0, sticky="nsew")
-        
-   
+      
+    #Print out the value within the ratio entry box  
+    def temp(self):
+        print(self.ratioEntry.get())
         
     def updateRatio(self, new_val):
         print("new Ratio val: ", new_val)
+        self.currentRatio = float(new_val)
         
         if(self.graph is not None):
-            self.currentRatio = (self.maxRatio - self.minRatio) * float(new_val) + self.minRatio
+            
             self.graph.setRatio(self.currentRatio)
         
 
@@ -143,9 +159,10 @@ class volcanoPlotFrame(tk.Frame):
         
     def updatePvalue(self, new_val):
         print("new pValue val: ", new_val)
+        self.currentPvalue = float(new_val)
         
         if(self.graph is not None):
-            self.currentPvalue = float(new_val)
+            
             self.graph.setPvalue(new_val)
         
     def setfileA(self):
@@ -192,27 +209,30 @@ class volcanoPlotFrame(tk.Frame):
         self.maxPvalue = max(self.data["-log10(P-Value)"])
         self.minPvalue = min(self.data["-log10(P-Value)"])
         
-        self.currentPvalue = (self.maxPvalue + self.minPvalue) / 2
-        self.currentRatio = (self.maxRatio + self.minRatio) / 2
+        # self.currentPvalue = float(self.pValueEntry.get())
+        # self.currentRatio = float(self.ratioEntry.get())
+        
+        self.updateRatio(self.ratioEntry.get())
+        self.updatePvalue(self.pValueEntry.get())
         
         # self.ratioSlider.config(from_=self.minRatio, to=self.maxRatio, resolution=(self.maxRatio - self.minRatio)/100)
-        self.pValueSlider.config(from_=self.minPvalue, to=self.maxPvalue)
+        # self.pValueSlider.config(from_=self.minPvalue, to=self.maxPvalue)
         
-        #Set the current slider values to the average of the max and min values
-        self.ratioSlider.set(self.currentRatio)
-        self.pValueSlider.set(self.currentPvalue)
+        # #Set the current slider values to the average of the max and min values
+        # self.ratioSlider.set(self.currentRatio)
+        # self.pValueSlider.set(self.currentPvalue)
         
         #Remove the old graph
         if(self.graph is not None):
             self.graph.destroy()
         
-        self.graph = moveableLine(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()],self.currentPvalue, self.currentRatio)
+        self.graph = moveableLine(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()], self.exportBaseName.get(),self.currentPvalue, self.currentRatio)
         self.graph.pack()
         
         runPopUp.finishedProgram()
         
-        self.updateRatio(self.currentRatio)
-        self.updatePvalue(self.currentPvalue)
+        self.updateRatio(self.ratioEntry.get())
+        self.updatePvalue(self.pValueEntry.get())
         
     def export(self):
         
@@ -231,10 +251,16 @@ class volcanoPlotFrame(tk.Frame):
         
         exportDF.to_csv(filename)
         
+    def validateRatio(P):
+        return P.isdigit() or P == "" or P.replace(".", "", 1).isdigit()
+    
+    def validatePvalue(P):
+        return P.isdigit() or P == "" or P.replace(".", "", 1).isdigit()
+        
         
         
 class moveableLine(tk.Frame):
-    def __init__(self, controller, data, filenames, pValue = 0.5, ratio = 0.5, displayResolution = 0.01, distabutionBins = 10, 
+    def __init__(self, controller, data, filenames, exportBaseName, pValue = 0.5, ratio = 0.5, displayResolution = 0.01, distabutionBins = 10, 
                  **kwargs):
         super().__init__(controller)
         
@@ -244,6 +270,7 @@ class moveableLine(tk.Frame):
         self.displayResolution = displayResolution
         self.distabutionBins = distabutionBins
         self.fileNames = filenames
+        self.exportBaseName = exportBaseName
         
         #Change this later to mathc the change in the data
         self.maxRatio = max(self.data["AvB_Ratio"])
@@ -279,9 +306,11 @@ class moveableLine(tk.Frame):
         
         trimmedFileNames = [os.path.basename(i) for i in self.fileNames]
         
-        for i in range(len(self.fileNames)):
-            self.ax1.text(i + 1, 0.5, f"{chr(ord('A') + i )} - {trimmedFileNames[i]}", ha="center", va="center", fontsize=8, rotation=90)
-            
+        # for i in range(len(self.fileNames)):
+        #     self.ax1.text(i + 1, 0.5, f"{chr(ord('A') + i )} - {trimmedFileNames[i]}", ha="center", va="center", fontsize=8, rotation=90)
+        self.ax1.text(1, 0.5, f"{self.exportBaseName}1 - {trimmedFileNames[0]}", ha="center", va="center", fontsize=8, rotation=90)
+        self.ax1.text(2, 0.5, f"{self.exportBaseName}2 - {trimmedFileNames[1]}", ha="center", va="center", fontsize=8, rotation=90)     
+        
         self.ax1.set_yticklabels([])
         self.ax1.set_yticks([])
         
@@ -312,7 +341,7 @@ class moveableLine(tk.Frame):
         
         self.ax2.set_xlim(self.minRatio,self.maxRatio)
         self.ax2.set_ylim(self.minPvalue,self.maxPvalue)
-        self.ax2.set_xlabel("AvB_Ratio")
+        self.ax2.set_xlabel(f"{self.exportBaseName}1v{self.exportBaseName}2_Ratio")
         self.ax2.set_ylabel("-log10(P-Value)")
         self.ax2.yaxis.tick_right()
         self.ax2.yaxis.set_label_position("right")
@@ -364,7 +393,7 @@ class moveableLine(tk.Frame):
         self.ax4.set_xticks([])
         
         self.ax4.text(1, 0.1, f"P-Value {round(self.pValue,2)}", ha="right", va="top", fontsize=10)
-        self.ax4.text(1, 0.4, f"AvBRatio {round(self.ratio,2)}", ha="right", va="top", fontsize=10)
+        self.ax4.text(1, 0.4, f"{self.exportBaseName}1v{self.exportBaseName}2_Ratio {round(self.ratio,2)}", ha="right", va="top", fontsize=10)
         
     def exportGraph(self, fileName):
         self.fig.savefig(fileName)
@@ -382,7 +411,8 @@ class moveableLine(tk.Frame):
         self.pValue = float(new_val)
         print("new pValue val: ", new_val)
 
-        self.yLine.set_ydata(self.pValue)
+
+        self.yLine.set_ydata([self.pValue])
         
         self.drawCurrentValues()
         self.drawQuadrantSquares()
@@ -394,7 +424,7 @@ class moveableLine(tk.Frame):
         self.ratio = float(new_val)
         print("new Ratio val: ", new_val)
 
-        self.xLine.set_xdata(self.ratio)
+        self.xLine.set_xdata([self.ratio])
         self.drawCurrentValues()
         self.drawQuadrantSquares()
         self.calculateQuadrant()
@@ -435,52 +465,31 @@ class supportingLogic:
 
 
     def  csvComparision(fileA, fileB):
-        # MF_ratio = pd.DataFrame(np.where(((combPD.iloc[:, 2:(1+N_MF)].sum(axis=1)) / (MF_list.to_numpy().sum()) ) == 0, (0.3 / ((MF_list.to_numpy().sum()))), ((combPD.iloc[:, 2:(1+N_MF)].sum(axis=1)) / (MF_list.to_numpy().sum()) )))
-        # CMP_ratio = pd.DataFrame(np.where(((combPD.iloc[:, 9:(8+N_CMP)].sum(axis=1)) / (CMP_list.to_numpy().sum()) ) == 0, (0.3 / (CMP_list.to_numpy().sum())), ((combPD.iloc[:, 9:(8+N_CMP)].sum(axis=1)) / (CMP_list.to_numpy().sum()) )))
-                
-        # print(MF_ratio)
-        # print(CMP_ratio)
         
-        # combPD['Ratio (AvB)'] = (MF_ratio) / (CMP_ratio)
-        # print(combPD.to_string()) # print in full to check check
         
-        # # T-test, assuming unequal variances and that A-vals is greater than B-vals is what shows significance
-        # combPD['T-Test (AvB) Statistic']= sp.stats.ttest_ind_from_stats(combPD.iloc[:, 5], combPD.iloc[:, 6], N_MF, combPD.iloc[:, 12], combPD.iloc[:, 13], N_CMP, equal_var=False, alternative='greater').statistic
-        # combPD['T-Test (AvB) P-Value']= sp.stats.ttest_ind_from_stats(combPD.iloc[:, 5], combPD.iloc[:, 6], N_MF, combPD.iloc[:, 12], combPD.iloc[:, 13], N_CMP, equal_var=False, alternative='greater').pvalue
-        # print(combPD)
+        dataFrameA = pd.read_csv(fileA, index_col=0)
+        dataFrameB = pd.read_csv(fileB, index_col=0)
         
-        # # Log10 of P-Val
-        # combPD['-log10(P-Value)'] = -(np.log10(combPD['T-Test (AvB) P-Value'].astype(float)))
+        dfa_ColumnCount = len(dataFrameA.columns) - 3 if len(dataFrameA.columns) < 3 else 3
+        dfb_ColumnCount = len(dataFrameB.columns) - 3 if len(dataFrameB.columns) < 3 else 3
         
-        dataFrameA = pd.read_csv(fileA)
-        dataFrameB = pd.read_csv(fileB)
-        
-        # print(dataFrameA)
-        
-        dataFrameA.set_index('sequence', inplace=True)
-        dataFrameB.set_index('sequence', inplace=True)
+        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
         
         joined = dataFrameA.join(dataFrameB, how='outer', lsuffix='_a', rsuffix='_b')
         
         joined.fillna(0, inplace=True)
         
-        sumA, sumB = joined.iloc[:, 1].sum(), joined.iloc[:, 2].sum()
+        sumA, sumB = joined.iloc[:, 0].sum(), joined.iloc[:, 2].sum()
         
         
-        #joined['mean_a'] = joined['mean_a'] / sumA
-        #joined['mean_b'] = joined['mean_b'] / sumB
-        joined['mean_a'] = joined['mean_a'].replace(0, 1)
-        joined['mean_b'] = joined['mean_b'].replace(0, 1)
+        joined['mean_a'] = joined['mean_a'].replace(0, 0.3)
+        joined['mean_b'] = joined['mean_b'].replace(0, 0.3)
+        joined['mean_a'] = joined['mean_a'] / sumA
+        joined['mean_b'] = joined['mean_b'] / sumB
         
         
-        #[statistic, pValue] = sp.stats.ttest_ind_from_stats(sumA, joined.iloc[:, 1].mean(), joined.iloc[:, 1].std(), 2, joined.iloc[:, 2].mean(), joined.iloc[:, 2].std(), 3, equal_var=False, alternative='greater')
-        # To note: the 2 and 3 are currently hardcoded, this is your N values aka repetitions, NOT summary values, let a user specify this
-        [statistic, pValue] = sp.stats.ttest_ind_from_stats(joined['mean_a'], joined['std_a'], 3, joined['mean_b'], joined['std_b'], 3, equal_var=False, alternative='greater')
+        [statistic, pValue] = sp.ttest_ind_from_stats(joined['mean_a'], joined['std_a'], dfa_ColumnCount, joined['mean_b'], joined['std_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
         
-        
-        
-        # pValueDF = pd.DataFrame(pValue, index=joined.index, columns=['pValue'])
-        # joined['statistic'] = statistic
         
         joined['AvB_Ratio'] = (joined['mean_a'] / sumA) / (joined['mean_b'] / sumB)
         joined['-log10(P-Value)'] = -(np.log10(pValue + 1e-10))

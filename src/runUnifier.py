@@ -273,30 +273,45 @@ def merge(finePaths, outputPath="merged.csv"):
         return None
     
     DFs = []
+    columnNames = ["mean", "std"]
     for path in finePaths:
         DFs.append(pd.read_csv(path))
+        columnNames.append(path.split("/")[-1])
+        
+    
         
     currentDF = DFs[0]
     currentDF.set_index('sequence', inplace=True)
+    currentDF.rename(columns={'mean': columnNames[2]}, inplace=True)
     currentDF.drop(['std'], axis=1, inplace=True)   
     
     for i in range(1, len(DFs)):
         DF = DFs[i]
         DF.set_index('sequence', inplace=True)
         DF.drop(['std'], axis=1, inplace=True)
-        currentDF = currentDF.join(DF, how='outer', rsuffix='_{}'.format(i))
+        #Rename the mean col to count
+        DF.rename(columns={'mean': columnNames[i + 2]}, inplace=True)
+        currentDF = currentDF.join(DF, how='outer')
+        
       
-    currentDF.fillna(0, inplace=True)
+    currentDF.fillna(0.3, inplace=True)
     print(currentDF)
+    
+    colSums = currentDF.sum(axis=0)
+    currentDF = currentDF.div(colSums, axis=1)
+    
     
     means = np.mean(currentDF.values, axis=1)
     stds = np.std(currentDF.values, axis=1)
     
-    final = pd.DataFrame({'sequence' : currentDF.index, 'mean' : means, 'std' : stds})
-    final.to_csv("merged.csv", index=False)  
+    #Add the means and stds to the currentDF
+    currentDF['mean'] = means
+    currentDF['std'] = stds
     
-    final.sort_values(by=['mean'], inplace=True, ascending=False)
-    final.to_csv(outputPath, index=False)
+    
+    
+    currentDF.sort_values(by=['mean'], inplace=True, ascending=False)
+    currentDF.to_csv(outputPath, index=True, columns = columnNames)
         
     
     
