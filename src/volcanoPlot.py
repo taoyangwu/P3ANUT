@@ -468,12 +468,14 @@ class supportingLogic:
         
         
         dataFrameA = pd.read_csv(fileA, index_col=0)
-        dataFrameB = pd.read_csv(fileB, index_col=0)
-        
-        dfa_ColumnCount = len(dataFrameA.columns) - 3 if len(dataFrameA.columns) < 3 else 3
-        dfb_ColumnCount = len(dataFrameB.columns) - 3 if len(dataFrameB.columns) < 3 else 3
-        
         dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        
+        dataFrameB = pd.read_csv(fileB, index_col=0)
+        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        
+        dfa_ColumnCount = 3
+        dfb_ColumnCount = 3
+        
         
         joined = dataFrameA.join(dataFrameB, how='outer', lsuffix='_a', rsuffix='_b')
         
