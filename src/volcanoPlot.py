@@ -247,7 +247,7 @@ class volcanoPlotFrame(tk.Frame):
         
         exportDF = supportingLogic.exportDF(self.fileA.get(), self.fileB.get(), quadDf)
        
-        
+        quadDf.drop([x for x in quadDf.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
         
         exportDF.to_csv(filename)
         
@@ -470,8 +470,21 @@ class supportingLogic:
         dataFrameA = pd.read_csv(fileA, index_col=0)
         dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
         
+        #Check in the NORMALIZED_ONE_COUNT row is within the file
+        if("NORMALIZED_ONE_COUNT" in dataFrameA.index):
+            dfA_oneCount = dataFrameA.loc["NORMALIZED_ONE_COUNT"][0]
+            dataFrameA.drop("NORMALIZED_ONE_COUNT", inplace=True)
+        else:
+            dfA_oneCount = dataFrameA["mean"].min()
+        
         dataFrameB = pd.read_csv(fileB, index_col=0)
         dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        
+        if("NORMALIZED_ONE_COUNT" in dataFrameB.index):
+            dfB_oneCount = dataFrameB.loc["NORMALIZED_ONE_COUNT"][0]
+            dataFrameB.drop("NORMALIZED_ONE_COUNT", inplace=True)
+        else:
+            dfB_oneCount = dataFrameB["mean"].min()
         
         dfa_ColumnCount = 3
         dfb_ColumnCount = 3
@@ -483,15 +496,11 @@ class supportingLogic:
         
         sumA, sumB = joined.iloc[:, 0].sum(), joined.iloc[:, 2].sum()
         
-        
-        joined['mean_a'] = joined['mean_a'].replace(0, 0.3)
-        joined['mean_b'] = joined['mean_b'].replace(0, 0.3)
-        joined['mean_a'] = joined['mean_a'] / sumA
-        joined['mean_b'] = joined['mean_b'] / sumB
-        
-        
         [statistic, pValue] = sp.ttest_ind_from_stats(joined['mean_a'], joined['std_a'], dfa_ColumnCount, joined['mean_b'], joined['std_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
         
+        
+        joined['mean_a'] = joined['mean_a'].replace(0, dfA_oneCount)
+        joined['mean_b'] = joined['mean_b'].replace(0, dfB_oneCount)
         
         joined['AvB_Ratio'] = (joined['mean_a'] / sumA) / (joined['mean_b'] / sumB)
         joined['-log10(P-Value)'] = -(np.log10(pValue + 1e-10))

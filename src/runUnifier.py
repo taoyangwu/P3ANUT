@@ -266,15 +266,15 @@ class tableEntry(ttk.Frame):
                 
         self.draw()
         
-def merge(finePaths, outputPath="merged.csv"):
+def merge(filePaths, outputPath="merged.csv"):
     
     
-    if(len(finePaths) < 1):
+    if(len(filePaths) < 1):
         return None
     
     DFs = []
     columnNames = ["mean", "std"]
-    for path in finePaths:
+    for path in filePaths:
         DFs.append(pd.read_csv(path))
         columnNames.append(path.split("/")[-1])
         
@@ -294,7 +294,7 @@ def merge(finePaths, outputPath="merged.csv"):
         currentDF = currentDF.join(DF, how='outer')
         
       
-    currentDF.fillna(0.3, inplace=True)
+    currentDF.fillna(0, inplace=True)
     print(currentDF)
     
     colSums = currentDF.sum(axis=0)
@@ -305,13 +305,26 @@ def merge(finePaths, outputPath="merged.csv"):
     stds = np.std(currentDF.values, axis=1)
     
     #Add the means and stds to the currentDF
+    
     currentDF['mean'] = means
     currentDF['std'] = stds
     
+    total_row = [ 1/ (len(filePaths) * x) for x in colSums.values]
+    t =  np.mean(total_row)
+    total_row = ["NORMALIZED_ONE_COUNT", t, 0.0] + total_row
+    
+    dfColumns = columnNames
+    dfColumns.insert(0, "sequence")
+    
+    header_DF = pd.DataFrame([total_row], columns=dfColumns)
+    header_DF.set_index('sequence', inplace=True)
     
     
     currentDF.sort_values(by=['mean'], inplace=True, ascending=False)
-    currentDF.to_csv(outputPath, index=True, columns = columnNames)
+    
+    totalDF = pd.concat([header_DF, currentDF])
+    totalDF.to_csv(outputPath, index=True, columns = columnNames[1:])
+    
         
     
     
