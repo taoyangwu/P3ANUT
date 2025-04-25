@@ -101,6 +101,10 @@ This software application is developed by Ethan Koland, Liam Tucker, Jasmyn Good
 ### Reference
 Please cite the associated paper written by By:
 
+Uncovering and Correcting Errors in Peptide Phage Display Library Sequencing
+
+by
+
 Liam Tucker†1, Ethan Koland†2, Jasmyn Gooding†2, Hassan Boudjelal1, Derek T. Warren1, David Baker3, Maria Marin4, Taoyang Wu2, Chris J. Morris1,5.
 
 † Corresponding authors
