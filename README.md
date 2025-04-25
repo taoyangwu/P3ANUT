@@ -1,54 +1,68 @@
 # P3ANUT: Python Pipeline for Phage Analysis through a Normative Unified Toolset
 
-## How to run software
-Prerequisites
-1.Python 3.12.3 (recommended- The project was developed using Python 3.12.3. It is recommended to use this version to run the project; to ensure compatibility.)
+## Prerequisites
+### 0. Prerequisites libaries or softwares
+- Conda (Miniconda or Anaconda) for environment management
 
-2.Conda (Miniconda or Anaconda) for environment management
+### 1. Creating Conda Environment - Recommended
 
-2. Install Conda (Miniconda or Anaconda)
-Visit the Miniconda documentation or Anaconda.com/download.
-(Optional) Submit your email to register with Anaconda.
-Download and install the appropriate version for your operating system.
+#### 1. Install Conda (Miniconda or Anaconda)
+   1.1 Visit the [Miniconda documentation](https://www.anaconda.com/docs/getting-started/miniconda/main) or [Anaconda.com/download](https://www.anaconda.com/download).
+   
+   1.2 Download and install the appropriate version for your operating system.
+#### 2. Create a Conda Environment
+  ##### 2.1 Open a Terminal
+  Make sure Conda is available in your PATH. If you are on Windows, use the “Anaconda Prompt” or “Miniconda Prompt.”
+    
+  ##### 2.2 Create a New Environment
+  ###### 2.2.1 Option A: From an environment file (recommended if you have P3ANUT_Env.yml)
+  This command will create an environment named P3ANUT using all required dependencies as defined in the YAML file.
 
-4. Create a Conda Environment
-3.1 Open a Terminal
-Make sure Conda is available in your PATH. If you are on Windows, use the “Anaconda Prompt” or “Miniconda Prompt.”
+``` bash 
+conda env create -n P3ANUT --file P3ANUT_Env.yml
+```
+  ###### 2.2.2 Option B: From scratch
+  This installs the core libraries needed for P3ANUT. Adjust or add additional packages as required.
 
-3.2 Create a New Environment
-Option A: From an environment file (recommended if you have P3ANUT_Env.yml)
-
-'''bash
-conda env create -n P3ANUT --file P3ANUT_Env.yml--'''
-
-This command will create an environment named P3ANUT using all required dependencies as defined in the YAML file.
-
-Option B: From scratch
-
-'''bash
+``` bash
 conda create -n P3ANUT python=3.12
 conda activate P3ANUT
-conda install pyyaml numpy pandas matplotlib scikit-learn logomaker anytree conda-forge::python-levenshtein--
-This installs the core libraries needed for P3ANUT. Adjust or add additional packages as required.
+conda install pyyaml numpy pandas matplotlib scikit-learn logomaker anytree conda-forge::python-levenshtein
+```
 
-3.3 Verify Your Environment
-'''bash
-conda env list--
-Make sure the P3ANUT environment is listed, and confirm it’s activated (indicated by (P3ANUT) at the beginning of your terminal prompt).
+#### 3. Verify Your Environment
+  Make sure the P3ANUT environment is listed, and confirm it’s activated (indicated by (P3ANUT) at the beginning of your terminal prompt).
+  ```bash
+  conda env list
+  ```
 
-4. Install Required Packages (Alternative: pip)
-If you prefer to install dependencies via pip instead of conda:
+#### 4. Actavate the environment
+```bash
+conda activate P3ANUT
+```
 
-'''bash
-pip install -r requirements.txt--
-Make sure you are inside the P3ANUT environment before running this command.
+### (OPTIONAL Alterinative to Conda) Install Required Packages (Alternative: pip)
+#### 1. Install python 3.12 or check the version is installed with one of the following commands. 
+```bash
+python3.12 --version
+python3 --version
+```
 
-5. Run the Software
-5.1 Unified GUI
-To launch the main GUI, run:
+#### 2. Install the dependencies via pip
+```bash
+pip install -r requirements.txt
+```
+#### 3. Make sure you are inside the P3ANUT environment before running this command.
 
-'''bash
-python unifiedGUI.py--
+## Running the scripts
+### Running the gui
+
+1. Run the Unified GUI
+  To launch the main GUI, run:
+  
+  ```bash
+  python unifiedGUI.py
+  ```
 
 This graphical interface provides access to all features of P3ANUT.
 
@@ -96,7 +110,6 @@ This graphical interface provides access to all features of P3ANUT.
 
 ### Software Development Team
 This software application is developed by Ethan Koland, Liam Tucker, Jasmyn Gooding, and Taoyang Wu.
-
 
 ### Reference
 Please cite the associated paper written by By:
