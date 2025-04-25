@@ -118,19 +118,9 @@ Uncovering and Correcting Errors in Peptide Phage Display Library Sequencing
 
 by
 
-Liam Tucker†1, Ethan Koland†2, Jasmyn Gooding†2, Hassan Boudjelal1, Derek T. Warren1, David Baker3, Maria Marin4, Taoyang Wu2, Chris J. Morris1,5.
+Liam Tucker, Ethan Koland, Jasmyn Gooding, Hassan Boudjelal, Derek T. Warren, David Baker, Maria Marin, Taoyang Wu, Chris J. Morris.
 
-† Corresponding authors
 
-1 School of Pharmacy, University of East Anglia, Norwich, Norfolk, NR47TJ, United Kingdom
-
-2 School of Computing Sciences, University of East Anglia, Norwich, Norfolk, NR47TJ, United Kingdom
-
-3 Quadrum Institute of Bioscience, Norwich, Norfolk, NR47UQ, United Kingdom
-
-4 School of Chemistry, University of East Anglia, Norwich, Norfolk, NR47TJ, United Kingdom 
-
-5 School of Pharmacy, University Collage London, Greater London, WC1N 1AX, United Kingdom
 
 
 
