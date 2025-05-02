@@ -5,3 +5,5 @@ __pycache__/
 merged.csv
 log.csv
 .DS_Store
+dist/
+build/

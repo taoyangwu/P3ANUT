@@ -352,10 +352,10 @@ class moveableLine(tk.Frame):
         
         self.countDistabution = supportingLogic.quarantCounts(self.data, self.ratio, self.pValue)
         
-        self.ax3_T1 = self.ax3.text(0.75, 0.75, self.countDistabution[0], ha="center", va="center", color="black", fontsize=8)
-        self.ax3_T2 = self.ax3.text(0.25, 0.75, self.countDistabution[1], ha="center", va="center", color="black", fontsize=8)
-        self.ax3_T3 = self.ax3.text(0.25, 0.25, self.countDistabution[2], ha="center", va="center", color="black", fontsize=8)
-        self.ax3_T4 = self.ax3.text(0.75, 0.25, self.countDistabution[3], ha="center", va="center", color="black", fontsize=8)
+        self.ax3_T1 = self.ax3.text(0.75, 0.75, self.countDistabution[0], ha="center", va="center", color="black", fontsize=6)
+        self.ax3_T2 = self.ax3.text(0.25, 0.75, self.countDistabution[1], ha="center", va="center", color="black", fontsize=6)
+        self.ax3_T3 = self.ax3.text(0.25, 0.25, self.countDistabution[2], ha="center", va="center", color="black", fontsize=6)
+        self.ax3_T4 = self.ax3.text(0.75, 0.25, self.countDistabution[3], ha="center", va="center", color="black", fontsize=6)
         
         countRect1 = Rectangle((0.5,0.5), 0.5,0.5 , color='red', alpha=0.5)
         countRect2 = Rectangle((0,0.5), 0.5,0.5 , color='blue', alpha=0.5)
