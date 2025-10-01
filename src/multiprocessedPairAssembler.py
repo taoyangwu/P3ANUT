@@ -130,12 +130,11 @@ def parseFastqFile(filePath, data, flip = False, **kwargs ):
     #Load and Read the file
     with open(filePath, "r") as file:
         #Example Entry after regex as a tuple
-        #('NB501061:163:HVYLLAFX3:1:11101:1980:1063' - Run ID, 
-        # '1' - Run Number, 
-        # ':N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
+        #('NB501061:163:HVYLLAFX3:1:11101:1980:1063' - Run ID,  
+        # '1:N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
         # 'TGTAGACTATTCTCACTCTTCTTGTCTGGTTCCTCCGCGTCCGACGTGTGGTGGAGGTTCGGTCGACG', - DNA Sequence 
         # 'AAAAAEE<EE<EEEEEEEEEEAEEEE/EEAEEEEA//AA/EAAEEEEEEEEAEEEEEE/EA<EEEEE6' - DNA Quality Score)
-        regexExpression = r"@([A-Z0-9:]+)(?:\s)(\d)([A-Z0-9:+]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
+        regexExpression = r"@([A-Z0-9:]+)(?:\s)([A-Z0-9:+\/-]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
         regexExpression = regexExpression.replace("CODONS", "ATGCN" if includeN else "ATGC")
         
         cleanedFileSeparator = fileSeperator.replace("\\\\", "\\")
@@ -203,16 +202,16 @@ def conversion(entry, flip = False):
     flipBaseConversionArray[ord('C')] = 2
     flipBaseConversionArray[ord('A')] = 1
     #Prevent edge conditions where the sequence and the score are not the same length
-    if(len(entry[3]) != len(entry[4])):
+    if(len(entry[2]) != len(entry[3])):
         #mismatchCount += 1
         return None, None, None
     
     #Convert the sequence into a numpy array of ints
-    sequnceByteArray = bytearray(entry[3], 'utf-8')
+    sequnceByteArray = bytearray(entry[2], 'utf-8')
     sequence = np.frombuffer(sequnceByteArray, dtype=np.uint8)
     
     #Convert the scores into a numpy array of ints
-    qualityByteArray = bytearray(entry[4], 'utf-8')
+    qualityByteArray = bytearray(entry[3], 'utf-8')
     qualityScore = np.frombuffer(qualityByteArray, dtype=np.uint8)
     
     if(flip):
@@ -875,8 +874,8 @@ def stripParmDictionary(dict):
     
 
 if(__name__ == "__main__"):
-    forFile = "/Users/ethankoland/Desktop/3rd Year Project/code/data/forclean_PID-1309-GAL-LB1-PC_S93_R1_001.fastq"
-    revFile = "/Users/ethankoland/Desktop/3rd Year Project/code/data/r2ffastq_PID-1309-GAL-LB1-PC_S93_R2_001.fastq"
+    forFile = "data/example-cut-for.fastq"
+    revFile = "data/example-cut-rev.fastq"
     
     # configFile = "configV2.yaml"
     # with open(configFile, 'r') as stream:
@@ -888,6 +887,6 @@ if(__name__ == "__main__"):
     
     # profileParseFastQ("data/PID-1309-GAL-BSA-2-PC_S108_R1_001.fastq")
     data = {}
-    meta = parse(forFile, revFile, data=data, multiprocess=True)
+    meta = parse(forFile, revFile, data=data, multiprocess=False)
     print(meta)
     # print(data)
