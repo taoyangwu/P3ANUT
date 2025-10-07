@@ -132,6 +132,9 @@ class volcanoPlotFrame(tk.Frame):
         
         self.exportGraphButton = tk.Button(self.createGraphFrame, text="Export Graph", command=self.exportGraph)
         self.exportGraphButton.grid(row=1, column=0, sticky="nsew")
+        
+        self.distrabutionFrame = tk.Button(self.createGraphFrame, text="Show Distrabution", command=self.createDistrabution)
+        self.distrabutionFrame.grid(row=2, column=0, sticky="nsew")
       
     #Print out the value within the ratio entry box  
     def temp(self):
@@ -154,6 +157,19 @@ class volcanoPlotFrame(tk.Frame):
         
         if(self.graph is not None):
             self.graph.exportGraph(fileName)
+            
+    def createDistrabution(self):
+        
+        
+        if(self.fileA.get() == "" or self.fileB.get() == ""):
+            return
+        
+        fileName = tk.filedialog.asksaveasfilename(filetypes=[("Txt Files", "*.txt")])
+        
+        supportingLogic.createDistrabution(self.fileA.get(), self.fileB.get(), fileName)
+        
+        
+        
         
         
         
@@ -580,6 +596,56 @@ class supportingLogic:
         
         
         return trimmed
+    
+    def createDistrabution(fileA, fileB, fileName):
+        dataFrameA = pd.read_csv(fileA, index_col=0)
+        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        
+        #Check in the NORMALIZED_ONE_COUNT row is within the file
+        if("NORMALIZED_ONE_COUNT" in dataFrameA.index):
+            dfA_oneCount = dataFrameA.loc["NORMALIZED_ONE_COUNT"][0]
+            dataFrameA.drop("NORMALIZED_ONE_COUNT", inplace=True)
+        else:
+            dfA_oneCount = dataFrameA["mean"].min()
+        
+        dataFrameB = pd.read_csv(fileB, index_col=0)
+        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        
+        if("NORMALIZED_ONE_COUNT" in dataFrameB.index):
+            dfB_oneCount = dataFrameB.loc["NORMALIZED_ONE_COUNT"][0]
+            dataFrameB.drop("NORMALIZED_ONE_COUNT", inplace=True)
+        else:
+            dfB_oneCount = dataFrameB["mean"].min()
+        
+        dfa_ColumnCount = 3
+        dfb_ColumnCount = 3
+        
+        
+        joined = dataFrameA.join(dataFrameB, how='outer', lsuffix='_a', rsuffix='_b')
+        
+        joined.fillna(0, inplace=True)
+        
+        sumA, sumB = joined.iloc[:, 0].sum(), joined.iloc[:, 2].sum()
+        
+        [statistic, pValue] = sp.ttest_ind_from_stats(joined['mean_a'], joined['std_a'], dfa_ColumnCount, joined['mean_b'], joined['std_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
+        
+        joined['AvB_Ratio'] = (joined['mean_a'] / sumA) / (joined['mean_b'] / sumB)
+        joined['-log10(P-Value)'] = -(np.log10(pValue + 1e-10))
+        
+        ratioCount = {}
+        
+        start, end, step = 0, 10, 0.1
+        stepDecimal = len(str(step).split(".")[-1])
+        for i in np.linspace(start, end, int((end - start)/step) + 1):
+            ratioCount[float(i)] = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step)])
+            
+        with open(fileName, 'w') as f:
+            f.write("Ratio Range,Count\n")
+            for key in ratioCount:
+                roundedKey = round(key, stepDecimal)
+                f.write(f"{roundedKey}-{roundedKey+step},{ratioCount[key]}\n")
+            
+        pass
     
     
     
