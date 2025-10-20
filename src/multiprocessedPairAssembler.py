@@ -134,7 +134,7 @@ def parseFastqFile(filePath, data, flip = False, **kwargs ):
         # '1:N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
         # 'TGTAGACTATTCTCACTCTTCTTGTCTGGTTCCTCCGCGTCCGACGTGTGGTGGAGGTTCGGTCGACG', - DNA Sequence 
         # 'AAAAAEE<EE<EEEEEEEEEEAEEEE/EEAEEEEA//AA/EAAEEEEEEEEAEEEEEE/EA<EEEEE6' - DNA Quality Score)
-        regexExpression = r"@([A-Z0-9:]+)(?:\s)([A-Z0-9:+\/-]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
+        regexExpression = r"@([A-Z0-9.:\-\s]+)(?:\/*)([A-Z0-9:+\/-]+)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
         regexExpression = regexExpression.replace("CODONS", "ATGCN" if includeN else "ATGC")
         
         cleanedFileSeparator = fileSeperator.replace("\\\\", "\\")
