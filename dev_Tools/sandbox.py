@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats as sp
 import re
+from os.path import join, splitext, basename
 
 
 '''
 Each file has the entry on every other line
 '''
 
-def intermediateProcessing(filePath):
+def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=36, normalizeCount=True, outputDirectory='', outputAmino= True, createLogoplot=True):
     raw_data = []
     
     with open(filePath, 'r') as file:
@@ -30,24 +31,63 @@ def intermediateProcessing(filePath):
     for key, value in sequence_Counts.items():
         sequence_Counts[key] = dict(sorted(value.items(), key=lambda item: item[1], reverse=True))    
         
+    totalCount = 0
     for key, value in sequence_Counts.items():
-        totalCount = 0
+        sequenceLengthCount = 0
         for seq, count in value.items():
+            sequenceLengthCount += count
             totalCount += count
             
-        print(f'Length: {key}, Unique Sequences: {len(value)}, Total Sequences: {totalCount}')
+        print(f'Length: {key}, Unique Sequences: {len(value)}, Total Sequences: {sequenceLengthCount}')
     
-    aminoDictionary = {}
-    for seq, counts in sequence_Counts[36].items():
-        amio_seq = aminoConversion(seq)
-        aminoDictionary[amio_seq] = aminoDictionary.get(amio_seq, 0) + counts
+    if(outputAmino):
+        aminoDictionary = {}
+        for seq, counts in sequence_Counts[targetBaseLength].items():
+            amio_seq = aminoConversion(seq)
+            aminoDictionary[amio_seq] = aminoDictionary.get(amio_seq, 0) + counts
+    else:
+        aminoDictionary = sequence_Counts[targetBaseLength].copy()
+        
+        
+    fileBaseName = splitext(basename(filePath))[0]
+    if (createLogoplot):
+        logoplot(aminoDictionary, fileBase=fileBaseName, outputDirectory=outputDirectory)
+        
+    if(includeSurrounding):
+        #Include the sequences that are one base pair shorter
+        for seq, counts in sequence_Counts.get(targetBaseLength - 1, {}).items():
+            largest_matched = ""
+            debug_Scores = []
+            for i in range(len(seq) + 1):
+                for base in ['A', 'T', 'C', 'G']:
+                    modified_seq = seq[:i] + base + seq[i:]
+                    amio_seq = aminoConversion(modified_seq)
+                    debug_Scores.append((amio_seq, aminoDictionary.get(amio_seq, -1)))
+                    if(aminoDictionary.get(amio_seq, 0) > aminoDictionary.get(largest_matched, 0)):
+                        largest_matched = amio_seq
+            if(largest_matched != ""):
+                aminoDictionary[largest_matched] = aminoDictionary.get(largest_matched, 0) + counts
+                totalCount += counts
+            pass
+                
+        for seq, counts in sequence_Counts.get(targetBaseLength + 1, {}).items():
+            largest_matched = ""
+            for i in range(len(seq)):
+                modified_seq = seq[:i] + seq[i+1:]
+                amio_seq = aminoConversion(modified_seq)
+                if(aminoDictionary.get(amio_seq, 0) > aminoDictionary.get(largest_matched, 0)):
+                    largest_matched = amio_seq
+            if(largest_matched != ""):
+                aminoDictionary[largest_matched] = aminoDictionary.get(largest_matched, 0) + counts
+                totalCount += counts
         
     sorted_amino = dict(sorted(aminoDictionary.items(), key=lambda item: item[1], reverse=True))
     
-    with open('dev_Tools/Amino_36.csv', 'w') as f:
-        f.write("Sequence,Count,std\n")
+    with open(join(outputDirectory, f"{fileBaseName}.csv"), 'w') as f:
+        f.write("sequence,mean,std\n")
+        f.write(f"NORMALIZED_ONE_COUNT,{1/totalCount if normalizeCount else 1},0\n")
         for seq, count in sorted_amino.items():
-            f.write(f"{seq},{count},0\n")
+            f.write(f"{seq},{count/totalCount if normalizeCount else count},0\n")
                 
                 
 #------------------------------------------------------------------------------#
@@ -57,27 +97,8 @@ def intermediateProcessing(filePath):
 #          **kwargs - a dictionary of optional arguments, generally loaded from a yaml
 # Outputs: proteinSequence - the protein sequence - str
 #------------------------------------------------------------------------------#
-def aminoConversion(seqParameter, desiredStartingProteinBase="RVPFYSHS", desiredEndingProteinBase="RVPFYSHS", aminoBaseRange=3):
+def aminoConversion(seqParameter):
   
-    
-    #First row comment denotes the sequence, second row denotes the ascii representation of the amino acid
-    correspondingIndex = np.array([
-        #TTT, TTG, TTC, TTA, TGT, TGG, TGC, TGA, TCT, TCG, TCC, TCA, TAT, TAG, TAC, TAA
-        #"F", "L", "F", "L", "C", "W", "C", "*", "S", "S", "S", "S", "Y", "Q", "Y", "*",
-        70,   76,  70,  76,  67,  87,  67,  42,  83,  83,  83,  83,  89,  81,  89,  42,
-        
-        #GTT, GTG, GTC, GTA, GGT, GGG, GGC, GGA, GCT, GCG, GCC, GCA, GAT, GGG, GAC, GGA
-        #"V", "V", "V", "V", "G", "G", "G", "G", "A", "A", "A", "A", "D", "E", "D", "E", 
-        86,   86,  86,  86,  71,  71,  71,  71,  65,  65,  65,  65,  68,  69,  68,  69,
-        
-        #CTT, CTG, CTC, CTA, CGT, CGG, CGC, CGA, CCT, CCG, CCC, CCA, CAT, CAG, CAC, CAA
-        #"L", "L", "L", "L", "R", "R", "R", "R", "P", "P", "P", "P", "H", "Q", "H", "Q", 
-        76,   76,  76,  76,  82,  82,  82,  82,  80,  80,  80,  80,  72,  81,  72,  81, 
-        
-        #ATT, ATG, ATC, ATA, AGT, AGG, AGC, AGA, ACT, ACG, ACC, ACA, AAT, AAG, AAC, AAA
-        #"I", "M", "I", "I", "S", "R", "S", "R", "T", "T", "T", "T", "N", "K", "N", "K", 
-        73,   77,  73,  73,  83,  82,  83,  82,  84,  84,  84,  84,  78,  75, 78,  75
-    ])
     
     conversionDicitionary = {
         "TTT":"F", "TTG":"L", "TTC":"F", "TTA":"L", "TGT":"C", "TGG":"W", "TGC":"C", "TGA":"*", "TCT":"S", "TCG":"S", "TCC":"S", "TCA":"S", "TAT":"Y", "TAG":"*", "TAC":"Y", "TAA":"*",
@@ -88,28 +109,54 @@ def aminoConversion(seqParameter, desiredStartingProteinBase="RVPFYSHS", desired
     
     return "".join(conversionDicitionary[t] for t in ["".join([seqParameter[j] for j in range(i, i+3)]) for i in range(0, len(seqParameter) - 2, 3) ])
     
-   
+    
+def logoplot(sequenceCounts, fileBase="TempLogoPlot", outputDirectory="."):
+    import logomaker as lm
+    validBases = "CS*TAGPDEQNHKRMILVWYF"
+    
+    validBasedict = {base: idx for idx, base in enumerate(validBases)}
+    
+    matrix = np.zeros((len(validBases), max(len(seq) for seq in sequenceCounts.keys())))
+    
+    for seq, count in sequenceCounts.items():
+        for position, base in enumerate(seq):
+            matrix[validBasedict[base], position] += count
+            
+    matrixDataFrame = pd.DataFrame(matrix.T, columns=list(validBases))
+    logo = lm.Logo(matrixDataFrame, color_scheme= {
+        'A': '#f76ab4',
+        'C': '#ff7f00',
+        'D': '#e41a1c',
+        'E': '#e41a1c',
+        'F': '#84380b',
+        'G': '#f76ab4',
+        'H': '#3c58e5',
+        'I': '#12ab0d',
+        'K': '#3c58e5',
+        'L': '#12ab0d',
+        'M': '#12ab0d',
+        'N': '#972aa8',
+        'P': '#12ab0d',
+        'Q': '#972aa8',
+        'R': '#3c58e5',
+        'S': '#ff7f00',
+        'T': '#ff7f00',
+        'V': '#12ab0d',
+        'W': '#84380b',
+        'Y': '#84380b',
+        '*' : '#000000'
+    })
+    logo.ax.set_ylabel('Frequency')
+    logo.ax.set_xlabel('Position')
+    logo.ax.set_title('Amino Acid Frequency')
+    logo.ax.figure.savefig(join(outputDirectory, f"{fileBase}_logoplot.png"))
 
-        
-def conversion(entry):
-    
-    #Set up conversion arrays that will convert the bases into ints. Additionally it provides additional protection against invalid bases
-    baseConversionArray = np.full(ord('T') + 1, 0, dtype=np.uint8)
-    baseConversionArray[ord('T')] = 1
-    baseConversionArray[ord('G')] = 2
-    baseConversionArray[ord('C')] = 3
-    baseConversionArray[ord('A')] = 4
-    
-    #Convert the sequence into a numpy array of ints
-    sequnceByteArray = bytearray(entry, 'utf-8')
-    sequence = np.frombuffer(sequnceByteArray, dtype=np.uint8)
-    
-    np.take(baseConversionArray, sequence, out=sequence)
-    
-    return sequence
                 
-# intermediateProcessing("dev_Tools/P1.merge.fa")
+intermediateProcessing("dev_Tools/P1.merge.fa", includeSurrounding=True, targetBaseLength=36,
+                       outputDirectory='dev_Tools/', outputAmino=True, normalizeCount=False, createLogoplot=True)
+# print(aminoConversion("GCGCAGCGTTAGCATCCTCATGTGCCTAAGTGTCAG"))
+
 
 #Flip sequence
-t = np.arr
+
             

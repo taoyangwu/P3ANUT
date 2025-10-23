@@ -7,4 +7,6 @@ log.csv
 .DS_Store
 dist/
 build/
-*.fa
+*.fad
+dev_Tools/*.csv
+dev_Tools/*.fa

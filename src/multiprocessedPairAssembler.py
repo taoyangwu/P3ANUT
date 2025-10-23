@@ -105,7 +105,7 @@ def parse(forwardFile, ReverseFile,data = None, globalPatameters = {}, addToLogF
 def parseFastqFile(filePath, data, flip = False, **kwargs ):
 
     #Load the optional arguments from the kwargs
-    cull_maxlength = kwargs.get("cull_maxlength",90)
+    cull_maxlength = kwargs.get("cull_maxlength",512)
     cull_minlength = kwargs.get("cull_minlength",20)
     includeN = kwargs.get("includeN",False)
     fileSeperator = kwargs.get("fileSeperator",r"\+")
@@ -134,7 +134,7 @@ def parseFastqFile(filePath, data, flip = False, **kwargs ):
         # '1:N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
         # 'TGTAGACTATTCTCACTCTTCTTGTCTGGTTCCTCCGCGTCCGACGTGTGGTGGAGGTTCGGTCGACG', - DNA Sequence 
         # 'AAAAAEE<EE<EEEEEEEEEEAEEEE/EEAEEEEA//AA/EAAEEEEEEEEAEEEEEE/EA<EEEEE6' - DNA Quality Score)
-        regexExpression = r"@([A-Z0-9.:\-\s]+)(?:\/*)([A-Z0-9:+\/-]+)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
+        regexExpression = r"@([A-Z0-9.:\-\s]+)(?:\s)([A-Z0-9:+\/-]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
         regexExpression = regexExpression.replace("CODONS", "ATGCN" if includeN else "ATGC")
         
         cleanedFileSeparator = fileSeperator.replace("\\\\", "\\")
@@ -874,8 +874,8 @@ def stripParmDictionary(dict):
     
 
 if(__name__ == "__main__"):
-    forFile = "data/example-cut-for.fastq"
-    revFile = "data/example-cut-rev.fastq"
+    forFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R1_001.fastq"
+    revFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R2_001.fastq"
     
     # configFile = "configV2.yaml"
     # with open(configFile, 'r') as stream:

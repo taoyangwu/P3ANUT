@@ -105,7 +105,7 @@ def countCSVFile(csvFile,basedirectory, aminoConversion = True, **kwargs):
         for row in reader:
             sequenceArray.append(row[0])
             
-    parse(sequenceArray, basedirectory, aminoConversion **kwargs)
+    parse(sequenceArray, aminoConversion,basedirectory, **kwargs)
 
 #---------------------------------------------------------#
 #Function: parse
@@ -514,7 +514,30 @@ def createFrequencyDataFrame(sequenceDF, logoName, validBases = "*ACDEFGHIKLMNPQ
     
     csvName = kwargs.get("dataFequencyCSV", True)
     
-    logoColor = "colorblind_safe" if len(validBases) < 10 else "dmslogo_funcgroup"
+    #dmslogo_colorground is expanded to account for the * base
+    logoColor = "colorblind_safe" if len(validBases) < 10 else {
+        'A': '#f76ab4',
+        'C': '#ff7f00',
+        'D': '#e41a1c',
+        'E': '#e41a1c',
+        'F': '#84380b',
+        'G': '#f76ab4',
+        'H': '#3c58e5',
+        'I': '#12ab0d',
+        'K': '#3c58e5',
+        'L': '#12ab0d',
+        'M': '#12ab0d',
+        'N': '#972aa8',
+        'P': '#12ab0d',
+        'Q': '#972aa8',
+        'R': '#3c58e5',
+        'S': '#ff7f00',
+        'T': '#ff7f00',
+        'V': '#12ab0d',
+        'W': '#84380b',
+        'Y': '#84380b',
+        '*' : '#000000'
+    }
     
     longestSequence = 0
     sequenceLength = len(sequenceDF.index[0])
@@ -819,10 +842,10 @@ def createTree(sequenceDF, **kwargs):
 
 
 if(__name__ == "__main__"):
-    file = "testRunData/GAL-LB-2.json"
+    file = "dev_Tools/P1.merge.csv"
     
     runAmino = True
     runDNA = True
     
-    output = "testRunData/t"
-    countJsonFile(file, runAmino, runDNA, output)
+    output = "dev_Tools"
+    countCSVFile(file, output, sequenceStart = "*", sequenceEnd = "*")
