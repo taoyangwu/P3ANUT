@@ -1,0 +1,42 @@
+{
+  "fields": [
+    {
+      "name": "sequence",
+      "type": "string",
+      "format": "default"
+    },
+    {
+      "name": "mean",
+      "type": "number",
+      "format": "default"
+    },
+    {
+      "name": "std",
+      "type": "number",
+      "format": "default"
+    },
+    {
+      "name": "Amino_36_1.csv",
+      "type": "yearmonth",
+      "format": "default"
+    },
+    {
+      "name": "Amino_36_2.csv",
+      "type": "yearmonth",
+      "format": "default"
+    },
+    {
+      "name": "Amino_36_3.csv",
+      "type": "number",
+      "format": "default"
+    },
+    {
+      "name": "Amino_36_4.csv",
+      "type": "number",
+      "format": "default"
+    }
+  ],
+  "missingValues": [
+    ""
+  ]
+}

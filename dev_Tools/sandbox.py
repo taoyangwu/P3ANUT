@@ -150,12 +150,133 @@ def logoplot(sequenceCounts, fileBase="TempLogoPlot", outputDirectory="."):
     logo.ax.set_xlabel('Position')
     logo.ax.set_title('Amino Acid Frequency')
     logo.ax.figure.savefig(join(outputDirectory, f"{fileBase}_logoplot.png"))
+    
+def comparisionScatter(file1, file2, point = 25, minCount = 0.003):
+    data1 = {}
+    remaining_1 = {}
+    
+    with open(file1, 'r') as f:
+        next(f)  # Skip header
+        next(f)  # Skip NORMALIZED_ONE_COUNT line
+        for i, line in enumerate(f):
+            seq, mean, std = line.strip().split(',')
+            if(float(mean) > 0.0001 and i < 1000):
+                data1[seq] = i + 1
+                
+            remaining_1[seq] = i + 1
+            
+    data2 = {}
+    remaining_2 = {}
+    with open(file2, 'r') as f:
+        next(f)  # Skip header
+        next(f)  # Skip NORMALIZED_ONE_COUNT line
+        for i, line in enumerate(f):
+            seq, mean, std = line.strip().split(',')
+            if(float(mean) > 0.0001 and i < point):
+                data2[seq] = i + 1
+            
+            remaining_2[seq] = i + 1
+            
+    common_seqs = set(data1.keys()).union(set(data2.keys()))
+    common_seqs = common_seqs.intersection(set(remaining_1.keys())).intersection(set(remaining_2.keys()))
+    
+    x = [remaining_1.get(seq, point) for seq in data2.keys()]
+    y = [remaining_2.get(seq, 1000) for seq in data2.keys()]
+    d2_keys = list(data2.keys())
+    
+    
+    sequences_Below = [x[i] - y[i] for i in range(len(x))]
+    index = np.where(np.array(sequences_Below) > 0)[0]
+    print(index)
+    
+    x1 = np.arange(1, point)
+    y1 = x1 * 1 + 0
+    
+    cutoffPoint = 0
+    for i in range(len(y)):
+        t = remaining_2[d2_keys[i]]
+        t1 = t < minCount
+        if remaining_2[d2_keys[i]] < minCount:
+            cutoffPoint = i
+            break
+    
+    plt.scatter(x, y)
+    plt.scatter(data1["TKRKHPHRRKYR"], data2["TKRKHPHRRKYR"], color='green', s=100, label='TKRKHPHRRKYR')
+    plt.axhline(y=remaining_2[d2_keys[10]], color='blue', linestyle='--', label='Cutoff Line')
+    plt.plot(x1, y1, color='red', linestyle='--')
+    plt.xlabel('P 1 Sequence Ranking (Lower is Better)')
+    plt.ylabel('P  Sequence Ranking (Lower is Better)')
+    plt.title('Sequence Index Comparison')
+    
+    #X axis log
+    plt.xscale('log')
+    
+    plt.show()
+    
+def comparisionScatter2(file1, file2):
+    data1 = {}
+    
+    with open(file1, 'r') as f:
+        next(f)  # Skip header
+        next(f)  # Skip NORMALIZED_ONE_COUNT line
+        for i, line in enumerate(f):
+            seq, mean, std = line.strip().split(',')
+            if(float(mean) > 0.0001 and i < 100):
+                data1[seq] = i + 1
+            
+    data2 = {}
+    with open(file2, 'r') as f:
+        next(f)  # Skip header
+        next(f)  # Skip NORMALIZED_ONE_COUNT line
+        for i, line in enumerate(f):
+            seq, mean, std = line.strip().split(',')
+            if(float(mean) > 0.0001 and i < 100):
+                data2[seq] = i + 1
+            
+    common_seqs = set(data1.keys()).intersection(set(data2.keys()))
+    
+    x = [data1[seq] for seq in common_seqs]
+    y = [data2[seq] for seq in common_seqs]
+    y2 =[(data2[seq] - data1[seq]) / data1[seq] for seq in common_seqs]
+    
+    sequences_Below = [x[i] - y[i] for i in range(len(x))]
+    index = np.where(np.array(sequences_Below) > 0)[0]
+    common_seqs_list = list(common_seqs)
+    print(index)
+    
+    x1 = np.arange(1, 100)
+    
+    plt.scatter(x, y)
+    plt.scatter(data1["TKRKHPHRRKYR"], (data2["TKRKHPHRRKYR"] - data1["TKRKHPHRRKYR"]) / data1["TKRKHPHRRKYR"], color='green', s=100, label='TKRKHPHRRKYR')
+    #plt.scatter([data1[common_seqs_list[i]] for i in index], [y2[i] for i in index], color='red', s=50, label='Improved in P4')
+   
+   
+    # plt.plot(x1, x1, color='red', linestyle='--')
+    plt.xlabel('P 1 Sequence Ranking (Lower is Better)')
+    plt.ylabel('Ratio decrease in ranking')
+    plt.title('(F4_index - F1_index) / F1_index Comparison')
+    plt.show()
+    
+def overlappingPatched():
+    rect1 = plt.Rectangle((1, 1), 20, 2, color='blue', alpha=0.5)
+    rect2 = plt.Rectangle((2, 2), 20, 2, color='red', alpha=0.5)
+    
+    fig, ax = plt.subplots()
+    ax.add_patch(rect1)
+    ax.add_patch(rect2)
+    # plt.xlim(0, 5)
+    plt.ylim(0, 5)
+    plt.xscale('log')
+    plt.show()
+            
 
                 
-intermediateProcessing("dev_Tools/P1.merge.fa", includeSurrounding=True, targetBaseLength=36,
-                       outputDirectory='dev_Tools/', outputAmino=True, normalizeCount=False, createLogoplot=True)
-# print(aminoConversion("GCGCAGCGTTAGCATCCTCATGTGCCTAAGTGTCAG"))
+# intermediateProcessing("dev_Tools/P1.merge.fa", includeSurrounding=True, targetBaseLength=36,
+#                        outputDirectory='dev_Tools/', outputAmino=True, normalizeCount=False, createLogoplot=True)
+# # print(aminoConversion("GCGCAGCGTTAGCATCCTCATGTGCCTAAGTGTCAG"))
 
+comparisionScatter("dev_Tools/P1.merge.csv", "dev_Tools/P3.merge.csv")
+# overlappingPatched()
 
 #Flip sequence
 
