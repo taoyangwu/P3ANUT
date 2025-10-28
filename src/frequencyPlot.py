@@ -41,6 +41,7 @@ class frequencyPlotFrame(tk.Frame):
         self.inlcudeFile1 = True
         self.inlcudeFile2 = False
         self.logAxis = False
+        self.percentOrCount = tk.StringVar(value="#")
         
         self.selectedColor = "#00AA00"
         self.unselectedColor = "#CCCCCC"
@@ -92,12 +93,14 @@ class frequencyPlotFrame(tk.Frame):
         self.numberOfPointsEntryFrame.grid_columnconfigure(0, weight=1)
         self.numberOfPointsEntryFrame.grid_columnconfigure(1, weight=5)
         
-        self.percentOrCountLabel = tk.OptionMenu(self.numberOfPointsEntryFrame, tk.StringVar(value="%"), "%", "#")
+        self.percentOrCountLabel = tk.OptionMenu(self.numberOfPointsEntryFrame, self.percentOrCount, "%", "#")
         self.percentOrCountLabel.grid(row=0, column=0, sticky="nsew")
         
         self.numberOfPointsEntry = tk.Entry(self.numberOfPointsEntryFrame, validate="key", validatecommand=(self.register(frequencyPlotFrame.validateCutoff), '%P'))
         self.numberOfPointsEntry.grid(row=0, column=1, sticky="nsew")
         self.numberOfPointsEntry.insert(0, str(self.currentCount))
+        self.numberOfPointsEntry.bind("<Return>", lambda event: self.updateCutoff)
+        self.numberOfPointsEntry.bind("<FocusOut>", lambda event: self.updateCutoff())
         
         
         #self.pValue
@@ -218,7 +221,16 @@ class frequencyPlotFrame(tk.Frame):
             self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
             self.graph.drawAX3()
         
+    def updateCutoff(self):
+        self.currentCount = float(self.numberOfPointsEntry.get())
         
+        if(self.graph is not None):
+            
+            
+            self.graph.points = self.currentCount
+            self.graph.percentOrCount = self.percentOrCount.get()
+            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+            self.graph.drawAX3()
         
     def updateB(self, new_val):
         print("new pValue val: ", new_val)
@@ -327,15 +339,18 @@ class frequencyPlotFrame(tk.Frame):
         if(filename == ""):
             return
         
-        quadrant = self.aboveBelowList.index(self.exportAboveBelow.get()) + 1
+        x = self.graph.x
+        y = self.graph.y
         
-        quadDf = supportingLogic.returnQuadrant(self.data, self.currentSlope, self.currentB, quadrant)
+        below = self.exportAboveBelow.get() == self.aboveBelowList[0]
         
-        exportDF = supportingLogic.exportDF(self.fileA.get(), self.fileB.get(), quadDf)
-       
-        quadDf.drop([x for x in quadDf.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        difference = [(x[i] - y[i]) > 0 for i in range(len(x))]
         
-        exportDF.to_csv(filename)
+        indices = [x[i] for i in range(len(x)) if (difference[i] != below)]
+        
+        supportingLogic.exportIndices(self.fileB.get(), indices, filename)
+        
+        
         
     def validateSlope(P):
         return P.isdigit() or P == "" or P.replace(".", "", 1).isdigit()
@@ -418,9 +433,12 @@ class graphFrame(tk.Frame):
         #Main Volcano Plot
         self.x,self.y = supportingLogic.gatherScatterData(self.data, includeFile1, includeFile2, percentOrCount, points)
         self.sc = self.ax2.scatter( self.x,self.y, c="black", linewidth=0.5, )
-        #self.ax2.plot([0, self.points], [self.b, self.points * self.slope + self.b], c="green", linewidth=1)
-        # self.ax2.plot([0, self.points], [self.b, (self.points * self.slope) + self.b], c="green", linewidth=1)
-        x_line = np.arange(0, np.round(self.points), 1)
+        
+        if( len(self.y) != 0):
+            x_line = np.arange(0, round(max(self.y)/self.slope), 1)
+        else:
+            x_line = np.arange(0, points, 1)
+            
         y_line = self.slope * x_line + self.b
         self.ax2.plot(x_line, y_line, c="green", linewidth=1)
         
@@ -428,6 +446,8 @@ class graphFrame(tk.Frame):
         self.ax2.set_ylabel("-log10(P-Value)")
         self.ax2.yaxis.tick_right()
         self.ax2.yaxis.set_label_position("right")
+        
+        
         
         if(x_axis_log):
             self.ax2.set_xscale('log')
@@ -577,17 +597,17 @@ class supportingLogic:
         
         points = [[], []]
         
-        if(percentOrCount == "%" and False):
+        if(percentOrCount == "%"):
             if(fileA and not fileB):
                 x = data["fileA_index"]
-                 
-                min_i = min(len(x), len(data["fileB_index"]))
+                    
+                min_i = 0
                 for i, (seq, freq) in enumerate(x):
-                    if(i >= min_i):
-                        break
-                    elif(freq < maskValues / 100):
+                    if(freq < maskValues / 100):
                         min_i = i
                         break
+                    else:
+                        min_i += 1
                 
                 for i, (seq, _) in enumerate(data["fileA_index"][:min_i]):
                     y = data["fileB_Dictionary"].get(seq, -1)
@@ -598,10 +618,16 @@ class supportingLogic:
                     points[1].append(y[0])
             elif(not fileA and fileB):
                 y = data["fileB_index"]
-                freqs = [data["fileB_index"][seq][0] for seq in y]
-                y_index = supportingLogic.smallest_greater_index(freqs, maskValues / 100)
+                    
+                min_i = 0
+                for i, (seq, freq) in enumerate(y):
+                    if(freq < maskValues / 100):
+                        min_i = i
+                        break
+                    else:
+                        min_i += 1
                 
-                for i, (seq, _) in enumerate(data["fileB_index"][:y_index]):
+                for i, (seq, _) in enumerate(data["fileB_index"][:min_i]):
                     x = data["fileA_Dictionary"].get(seq, -1)
                     if(x == -1):
                         continue
@@ -609,16 +635,28 @@ class supportingLogic:
                     points[0].append(x[0])
                     points[1].append(i + 1)
             elif(fileA and fileB):
-                x = data["fileA_index"]
-                freqs_x = [data["fileA_index"][seq][0] for seq in x]
-                x_index = supportingLogic.smallest_greater_index(freqs_x, maskValues / 100)
-                
                 y = data["fileB_index"]
-                freqs_y = [data["fileB_index"][seq][0] for seq in y]
-                y_index = supportingLogic.smallest_greater_index(freqs_y, maskValues / 100)
+                    
+                x_i = 0
+                for i, (seq, freq) in enumerate(y):
+                    if(freq < maskValues / 100):
+                        x_i = i
+                        break
+                    else:
+                        x_i += 1
+                        
+                x = data["fileA_index"]
+                    
+                y_i = 0
+                for i, (seq, freq) in enumerate(x):
+                    if(freq < maskValues / 100):
+                        y_i = i
+                        break
+                    else:
+                        y_i += 1
                 
-                top_x = data["fileA_index"][:x_index]
-                top_y = data["fileB_index"][:y_index]
+                top_x = data["fileA_index"][:x_i]
+                top_y = data["fileB_index"][:y_i]
                 
                 top_x_sequences = set([seq for seq, _ in top_x])
                 top_y_sequences = set([seq for seq, _ in top_y])
@@ -634,8 +672,8 @@ class supportingLogic:
             else:
                 raise ValueError('Invalid Option must include at least one file')
                 
-        # elif(percentOrCount == "#"):
-        else:
+        elif(percentOrCount == "#"):
+        # else:
             if(fileA and not fileB):
                 
                 #Get the top N sequences from file A
@@ -725,30 +763,33 @@ class supportingLogic:
             raise ValueError('Invalid Option must be above (True) or below (False)')
 
 
-    def exportDF(fileA, fileB,  quadrantDF):
+    def exportIndices(fileA, indies, exportName):
         
-        dataFrameA = pd.read_csv(fileA)
-        dataFrameB = pd.read_csv(fileB)
+        lines = []
+        writeCounter = 0
+        header = ""
         
-        # print(dataFrameA)
+        with open(fileA, 'r') as f:
+            header = f.readline()
+            for i, line in enumerate(f):
+                line_split = line.strip().split(',')
+                if(line_split[0] in ["sequence" or "NORMALIZED_ONE_COUNT"]  ):
+                    lines.append(line)
+                elif(i in indies):
+                    lines.append(line)
+                    writeCounter += 1
+                
+                if(writeCounter >= len(indies)):
+                    break
+                
+        with open(exportName, 'w') as f:
+            f.write(header)
+            for line in lines:
+                f.write(line)
+                
         
-        dataFrameA.set_index('sequence', inplace=True)
-        dataFrameB.set_index('sequence', inplace=True)
-        
-        joined = dataFrameA.join(dataFrameB, how='outer', lsuffix='_a', rsuffix='_b')
-        
-        joined.fillna(0, inplace=True)
-        
-        joined['mean'] = joined['mean_a'] + joined['mean_b']
-        joined.drop(['std_a', 'std_b', 'mean_a', 'mean_b'], axis=1, inplace=True)
-        joined.insert(1, 'std', 0)
-        
-        trimmed = joined.loc[quadrantDF.index]
-        trimmed.sort_values(by='mean', inplace=True, ascending=False)
-        print(trimmed)
         
         
-        return trimmed
     
     def smallest_greater_index(data, value, ascending=True):
         """
