@@ -101,7 +101,7 @@ class volcanoPlotFrame(tk.Frame):
         self.exportFrame = tk.LabelFrame(self.parametersFrame, text="Export", background="#7C8594")
         self.exportFrame.grid(row=4, column=0, sticky="nsew")
         self.exportFrame.grid_columnconfigure(0, weight=4)
-        self.exportFrame.grid_columnconfigure(0, weight=1)
+        self.exportFrame.grid_columnconfigure(1, weight=1)
         
         self.quadrantList = ["Q1 - Red", "Q2 - Blue", "Q3 - Green", "Q4 - Yellow"]
         self.exportQuarant = tk.StringVar()

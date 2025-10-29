@@ -42,6 +42,7 @@ class frequencyPlotFrame(tk.Frame):
         self.inlcudeFile2 = False
         self.logAxis = False
         self.percentOrCount = tk.StringVar(value="#")
+        self.exportBaseName = tk.StringVar(value="A")
         
         self.selectedColor = "#00AA00"
         self.unselectedColor = "#CCCCCC"
@@ -156,25 +157,25 @@ class frequencyPlotFrame(tk.Frame):
         
         
         parm_row += 1
-        self.exportFrame = tk.LabelFrame(self.parametersFrame, text="Export", background="#7C8594")
+        self.exportFrame = tk.LabelFrame(self.parametersFrame, text="Export CSV of Sequences", background="#7C8594")
         self.exportFrame.grid(row=parm_row, column=0, sticky="nsew")
-        self.exportFrame.grid_columnconfigure(0, weight=4)
         self.exportFrame.grid_columnconfigure(0, weight=1)
+        self.exportFrame.grid_columnconfigure(1, weight=1)
         
-        self.aboveBelowList = ["Bellow - Red", "Above - Blue"]
+        self.aboveBelowList = ["Bellow - Blue", "Above - Red"]
         self.exportAboveBelow = tk.StringVar()
         self.exportAboveBelow.set(self.aboveBelowList[0])
         self.exportAboveBelowMenu = tk.OptionMenu(self.exportFrame, self.exportAboveBelow, *self.aboveBelowList)
         self.exportAboveBelowMenu.grid(row=0, column=0, sticky="nsew")
         
         
-        self.exportBaseText = tk.Label(self.exportFrame, text="Export Base Name")
-        self.exportBaseText.grid(row=1, column=0, sticky="nsew")
-        self.exportBaseText.config(background="#7C8594")
+        # self.exportBaseText = tk.Label(self.exportFrame, text="Export Base Name")
+        # self.exportBaseText.grid(row=1, column=0, sticky="nsew")
+        # self.exportBaseText.config(background="#7C8594")
         
-        self.exportBaseName = tk.StringVar(value="A")
-        self.exportBaseNameText = tk.Entry(self.exportFrame, textvariable=self.exportBaseName)
-        self.exportBaseNameText.grid(row=1, column=1, sticky="nsew")
+        # self.exportBaseName = tk.StringVar(value="A")
+        # self.exportBaseNameText = tk.Entry(self.exportFrame, textvariable=self.exportBaseName)
+        # self.exportBaseNameText.grid(row=1, column=1, sticky="nsew")
         
         
         self.exportButton = tk.Button(self.exportFrame, text="Export", command=self.export)
@@ -191,6 +192,8 @@ class frequencyPlotFrame(tk.Frame):
         
         self.exportGraphButton = tk.Button(self.createGraphFrame, text="Export Graph", command=self.exportGraph)
         self.exportGraphButton.grid(row=1, column=0, sticky="nsew")
+        
+        self.refreshButton = tk.Button(self.createGraphFrame, text="Refresh Graph", command=self.updateSlope)
 
 
     def exportGraph(self):
@@ -330,7 +333,9 @@ class frequencyPlotFrame(tk.Frame):
         self.graph = graphFrame(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()], self.exportBaseName.get(),
                                   self.currentSlope, self.currentB, self.currentCount, self.percentOrCount, self.inlcudeFile1, self.inlcudeFile2)
         self.graph.pack()
-        # self.updateB(self.bValueEntry.get())
+        
+        self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+        self.graph.drawAX3()
         
     def export(self):
         
@@ -342,14 +347,20 @@ class frequencyPlotFrame(tk.Frame):
         x = self.graph.x
         y = self.graph.y
         
-        below = self.exportAboveBelow.get() == self.aboveBelowList[0]
+        bellow = self.exportAboveBelow.get() == self.aboveBelowList[0]
         
         difference = [(x[i] - y[i]) > 0 for i in range(len(x))]
         
-        indices = [x[i] for i in range(len(x)) if (difference[i] != below)]
+        indices = [x[i] for i in range(len(x)) if (difference[i] != bellow)]
         
         supportingLogic.exportIndices(self.fileB.get(), indices, filename)
-        
+    
+    def refreshGraph(self):
+        if(self.graph is not None):
+            self.graph.drawAX1()
+            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+            self.graph.drawAX3()
+            self.graph.drawAX4()
         
         
     def validateSlope(P):
@@ -380,7 +391,9 @@ class graphFrame(tk.Frame):
         self.figureCanvas = FigureCanvasTkAgg(self.fig, self)
         
         #Set the title for the figure
-        self.fig.suptitle("Volcano Plot")
+        self.fig.suptitle("Frequency Plot for Comparision of Sequence Abundance", fontsize=12)
+        
+
         
         subFigs = self.fig.subplots(2,2, gridspec_kw={'height_ratios': [5, 1], 'width_ratios': [1, 5]})
         self.ax1 = subFigs[0,0]
@@ -414,14 +427,16 @@ class graphFrame(tk.Frame):
         
         # for i in range(len(self.fileNames)):
         #     self.ax1.text(i + 1, 0.5, f"{chr(ord('A') + i )} - {trimmedFileNames[i]}", ha="center", va="center", fontsize=8, rotation=90)
-        self.ax1.text(1, 0.5, f"{self.exportBaseName}1 - {trimmedFileNames[0]}", ha="center", va="center", fontsize=8, rotation=90)
-        self.ax1.text(2, 0.5, f"{self.exportBaseName}2 - {trimmedFileNames[1]}", ha="center", va="center", fontsize=8, rotation=90)     
+        self.ax1.text(1, 0.5, f"File 1 - {trimmedFileNames[0]}", ha="center", va="center", fontsize=8, rotation=90)
+        self.ax1.text(2, 0.5, f"File 2 - {trimmedFileNames[1]}", ha="center", va="center", fontsize=8, rotation=90)     
         
         self.ax1.set_yticklabels([])
         self.ax1.set_yticks([])
         
         self.ax1.set_xticklabels([])
         self.ax1.set_xticks([])
+        
+        self.ax1.set_frame_on(False)
         
         self.ax1.set(ylabel='File Names')
         self.ax1.yaxis.label.set_size(10)
@@ -435,18 +450,17 @@ class graphFrame(tk.Frame):
         self.sc = self.ax2.scatter( self.x,self.y, c="black", linewidth=0.5, )
         
         if( len(self.y) != 0):
-            x_line = np.arange(0, round(max(self.y)/self.slope), 1)
+            x_line = np.arange(0, min(max(self.x), round(max(self.y)/self.slope)), 1)
         else:
             x_line = np.arange(0, points, 1)
             
         y_line = self.slope * x_line + self.b
         self.ax2.plot(x_line, y_line, c="green", linewidth=1)
         
-        self.ax2.set_xlabel(f"{self.exportBaseName}1v{self.exportBaseName}2_Ratio")
-        self.ax2.set_ylabel("-log10(P-Value)")
+        self.ax2.set_xlabel("File 1 Sequence Ranking by Abundance")
+        self.ax2.set_ylabel("File 2 Sequence Ranking by Abundance")
         self.ax2.yaxis.tick_right()
         self.ax2.yaxis.set_label_position("right")
-        
         
         
         if(x_axis_log):
@@ -537,8 +551,8 @@ class graphFrame(tk.Frame):
         self.ax4.set_xticklabels([])
         self.ax4.set_xticks([])
         
-        self.ax4.text(1, 0.1, f"P-Value {self.slope}", ha="right", va="top", fontsize=10)
-        self.ax4.text(1, 0.4, f"X-Intercept {self.b}", ha="right", va="top", fontsize=10)
+        # self.ax4.text(1, 0.1, f"P-Value {self.slope}", ha="right", va="top", fontsize=10)
+        # self.ax4.text(1, 0.4, f"X-Intercept {self.b}", ha="right", va="top", fontsize=10)
         
         
     
@@ -735,7 +749,7 @@ class supportingLogic:
         return points
 
     def aboveBelowCounts(x, y, slope, b):
-        above, below = 0, 0
+        above, bellow = 0, 0
         
         x_arr = np.array(x)
         y_arr = np.array(y)
@@ -745,9 +759,9 @@ class supportingLogic:
         y_sign = np.sign(y_arr-y_line)
         
         above = np.sum(y_sign > 0) + np.count_nonzero(y_sign == 0)
-        below = np.sum(y_sign < 0)
+        bellow = np.sum(y_sign < 0)
         
-        return above, below
+        return above, bellow
         
 
     def returnQuadrant(df, slope, b, above = True):
@@ -760,7 +774,7 @@ class supportingLogic:
         elif(not above):
             return 1
         else:
-            raise ValueError('Invalid Option must be above (True) or below (False)')
+            raise ValueError('Invalid Option must be above (True) or bellow (False)')
 
 
     def exportIndices(fileA, indies, exportName):
