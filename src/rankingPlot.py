@@ -21,12 +21,12 @@ class app(tk.Tk):
         
         self.geometry("800x600")
         
-        frame = frequencyPlotFrame(self)
+        frame = rankingPlotFrame(self)
         frame.pack(fill="both", expand=True)
         
         self.mainloop()
 
-class frequencyPlotFrame(tk.Frame):
+class rankingPlotFrame(tk.Frame):
     def __init__(self, controller):
         super().__init__(controller )
     
@@ -64,11 +64,11 @@ class frequencyPlotFrame(tk.Frame):
         # print(self.data)
         
         parm_row = 0
-        self.slopeFrame = tk.LabelFrame(self.parametersFrame, text="Slope(M) of Line", background="#7C8594")
+        self.slopeFrame = tk.LabelFrame(self.parametersFrame, text="Slope of Separation Line", background="#7C8594")
         self.slopeFrame.grid(row=parm_row, column=0, sticky="nsew")
         self.slopeFrame.grid_columnconfigure(0, weight=1)
         
-        self.slopeEntry = tk.Entry(self.slopeFrame, validate="key", validatecommand=(self.register(frequencyPlotFrame.validateSlope), '%P'))
+        self.slopeEntry = tk.Entry(self.slopeFrame, validate="key", validatecommand=(self.register(rankingPlotFrame.validateSlope), '%P'))
         self.slopeEntry.grid(row=0, column=0, sticky="nsew")
         self.slopeEntry.insert(0, str(self.currentSlope))
         self.slopeEntry.bind("<Return>", lambda event: self.updateSlope())
@@ -79,15 +79,6 @@ class frequencyPlotFrame(tk.Frame):
         #update the ratio slider range
         
         parm_row += 1
-        # self.bValueEntryFrame = tk.LabelFrame(self.parametersFrame, text="", background="#6C8193")
-        # self.bValueEntryFrame.grid(row=parm_row, column=0, sticky="nsew")
-        # self.bValueEntryFrame.grid_columnconfigure(0, weight=1)
-        
-        # self.bValueEntry = tk.Entry(self.bValueEntryFrame, validate="key", validatecommand=(self.register(frequencyPlotFrame.validateB), '%P'))
-        # self.bValueEntry.grid(row=0, column=0, sticky="nsew")
-        # self.bValueEntry.insert(0, str(self.currentB))
-        # self.bValueEntry.bind("<Return>", lambda event: self.updateB(float(self.bValueEntry.get())))
-        # self.bValueEntry.bind("<FocusOut>", lambda event: self.updateB(float(self.bValueEntry.get())))
         
         self.numberOfPointsEntryFrame = tk.LabelFrame(self.parametersFrame, text="Number of Points", background="#6C8193")
         self.numberOfPointsEntryFrame.grid(row=1, column=0, sticky="nsew")
@@ -97,7 +88,7 @@ class frequencyPlotFrame(tk.Frame):
         self.percentOrCountLabel = tk.OptionMenu(self.numberOfPointsEntryFrame, self.percentOrCount, "%", "#")
         self.percentOrCountLabel.grid(row=0, column=0, sticky="nsew")
         
-        self.numberOfPointsEntry = tk.Entry(self.numberOfPointsEntryFrame, validate="key", validatecommand=(self.register(frequencyPlotFrame.validateCutoff), '%P'))
+        self.numberOfPointsEntry = tk.Entry(self.numberOfPointsEntryFrame, validate="key", validatecommand=(self.register(rankingPlotFrame.validateCutoff), '%P'))
         self.numberOfPointsEntry.grid(row=0, column=1, sticky="nsew")
         self.numberOfPointsEntry.insert(0, str(self.currentCount))
         self.numberOfPointsEntry.bind("<Return>", lambda event: self.updateCutoff)
@@ -125,16 +116,16 @@ class frequencyPlotFrame(tk.Frame):
         self.fileBButton.grid(row=0, column=0, sticky="nsew")
         
         parm_row += 1
-        self.primaryFileFrame = tk.LabelFrame(self.parametersFrame, text="Which Frame to Count", background="#7C8594")
+        self.primaryFileFrame = tk.LabelFrame(self.parametersFrame, text="Which File to Count", background="#7C8594")
         self.primaryFileFrame.grid(row=parm_row, column=0, sticky="nsew")
         self.primaryFileFrame.grid_columnconfigure(0, weight=1)
         self.primaryFileFrame.grid_columnconfigure(1, weight=1)
         
-        self.file1Select = tk.Button(self.primaryFileFrame, text="Frame 1", command=lambda: self.setFileToCount(file1=True))
+        self.file1Select = tk.Button(self.primaryFileFrame, text="File 1", command=lambda: self.setFileToCount(file1=True))
         self.file1Select.grid(row=0, column=0, sticky="nsew")
         self.file1Select.config(foreground=self.selectedColor, activeforeground=self.selectedColor)
         
-        self.file2Select = tk.Button(self.primaryFileFrame, text="Frame 2", command=lambda: self.setFileToCount(file2=True))
+        self.file2Select = tk.Button(self.primaryFileFrame, text="File 2", command=lambda: self.setFileToCount(file2=True))
         self.file2Select.grid(row=0, column=1, sticky="nsew")
         self.file2Select.config(foreground=self.unselectedColor, activeforeground=self.unselectedColor)
         
@@ -221,7 +212,7 @@ class frequencyPlotFrame(tk.Frame):
         if(self.graph is not None):
             
             self.graph.slope = self.currentSlope
-            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount.get(), self.currentCount, self.logAxis)
             self.graph.drawAX3()
         
     def updateCutoff(self):
@@ -232,7 +223,7 @@ class frequencyPlotFrame(tk.Frame):
             
             self.graph.points = self.currentCount
             self.graph.percentOrCount = self.percentOrCount.get()
-            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount.get(), self.currentCount, self.logAxis)
             self.graph.drawAX3()
         
     def updateB(self, new_val):
@@ -284,7 +275,7 @@ class frequencyPlotFrame(tk.Frame):
             self.logScaleButton.config(foreground= self.unselectedColor, activeforeground=self.unselectedColor)
         
         if(self.graph is not None):
-            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount.get(), self.currentCount, self.logAxis)
             
     def setFileToCount(self, file1 = None, file2 = None):
         if(file1 is not None):
@@ -307,13 +298,12 @@ class frequencyPlotFrame(tk.Frame):
                 
         if(self.graph is not None):
             print("Updating Graph include file1:", self.inlcudeFile1, " include file2:", self.inlcudeFile2)
-            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+            self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount.get(), self.currentCount, self.logAxis)
             self.graph.drawAX3()
         
     def createGraph(self):
         
         self.currentCount = float(self.numberOfPointsEntry.get())
-        self.percentOrCount = self.percentOrCountLabel.cget("text")
         self.currentSlope = float(self.slopeEntry.get())
         
         if(self.fileA.get() == "" or self.fileB.get() == ""):
@@ -324,17 +314,17 @@ class frequencyPlotFrame(tk.Frame):
         
         self.data = supportingLogic.csvComparision(self.fileA.get(), self.fileB.get())
         
-        self.percentOrCount = self.percentOrCountLabel.cget("text")
+        
         
         #Remove the old graph
         if(self.graph is not None):
             self.graph.destroy()
         
         self.graph = graphFrame(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()], self.exportBaseName.get(),
-                                  self.currentSlope, self.currentB, self.currentCount, self.percentOrCount, self.inlcudeFile1, self.inlcudeFile2)
+                                  self.currentSlope, self.currentB, self.currentCount, self.percentOrCount.get(), self.inlcudeFile1, self.inlcudeFile2)
         self.graph.pack()
         
-        self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount, self.currentCount, self.logAxis)
+        self.graph.drawAX2(self.inlcudeFile1, self.inlcudeFile2, self.percentOrCount.get(), self.currentCount, self.logAxis)
         self.graph.drawAX3()
         
     def export(self):
@@ -391,7 +381,7 @@ class graphFrame(tk.Frame):
         self.figureCanvas = FigureCanvasTkAgg(self.fig, self)
         
         #Set the title for the figure
-        self.fig.suptitle("Frequency Plot for Comparision of Sequence Abundance", fontsize=12)
+        self.fig.suptitle("Abundance Ranking Plot", fontsize=12)
         
 
         
@@ -446,19 +436,37 @@ class graphFrame(tk.Frame):
         self.ax2.clear()
         
         #Main Volcano Plot
-        self.x,self.y = supportingLogic.gatherScatterData(self.data, includeFile1, includeFile2, percentOrCount, points)
+        (self.x, self.y), self.seqs = supportingLogic.gatherScatterData(self.data, includeFile1, includeFile2, percentOrCount, points)
         self.sc = self.ax2.scatter( self.x,self.y, c="black", linewidth=0.5, )
         
         if( len(self.y) != 0):
-            x_line = np.arange(0, min(max(self.x), round(max(self.y)/self.slope)), 1)
+            x_line = np.arange(0, min(max(self.x), round(max(self.y)/self.slope)) + 1, 1)
         else:
             x_line = np.arange(0, points, 1)
             
         y_line = self.slope * x_line + self.b
+        if( len(self.y) != 0):
+            y_end = min(max(self.x), round(max(self.y)/self.slope)) * self.slope + self.b
+            max_x = max(self.x) if len(self.x) != 0 else points
+            max_y = max(self.y) if len(self.y) != 0 else points
+        else:
+            y_end = points * self.slope + self.b
+            max_x = points
+            max_y = points
         self.ax2.plot(x_line, y_line, c="green", linewidth=1)
         
-        self.ax2.set_xlabel("File 1 Sequence Ranking by Abundance")
-        self.ax2.set_ylabel("File 2 Sequence Ranking by Abundance")
+        stackedPoints = np.stack((x_line, y_line)).T
+        
+        
+        
+        patch1 = Polygon([*stackedPoints, [x_line[-1], max_y], [0, max_y]], closed=True, fill=True, color="red", alpha=0.3)
+        patch2 = Polygon([*stackedPoints, [max_x,y_end], [max_x, 0], [0,0]], closed=True, fill=True, color="blue", alpha=0.3)
+        
+        self.ax2.add_patch(patch1)
+        self.ax2.add_patch(patch2)
+        
+        self.ax2.set_xlabel("Sequence Ranking File 1")
+        self.ax2.set_ylabel("Sequence Ranking File 2")
         self.ax2.yaxis.tick_right()
         self.ax2.yaxis.set_label_position("right")
         
@@ -511,9 +519,9 @@ class graphFrame(tk.Frame):
         pos = self.sc.get_offsets()[point_index]
         self.annot.xy = pos
         
-        text = f"{self.data['fileA_index'][point_index][0]}"
+        text = f"{self.seqs[point_index]}"
         self.annot.set_text(text)
-        # annot.get_bbox_patch().set_facecolor(cmap(norm(c[ind["ind"][0]])))
+        self.annot.get_bbox_patch().set_facecolor("#00AA00")
         self.annot.get_bbox_patch().set_alpha(0.4)
         
     def drawAX3(self):
@@ -610,6 +618,7 @@ class supportingLogic:
     def gatherScatterData(data, fileA = True, fileB = False, percentOrCount = "%", maskValues = 100):
         
         points = [[], []]
+        seqs = []
         
         if(percentOrCount == "%"):
             if(fileA and not fileB):
@@ -630,6 +639,7 @@ class supportingLogic:
                     
                     points[0].append(i + 1)
                     points[1].append(y[0])
+                    seqs.append(seq)
             elif(not fileA and fileB):
                 y = data["fileB_index"]
                     
@@ -648,6 +658,7 @@ class supportingLogic:
                     
                     points[0].append(x[0])
                     points[1].append(i + 1)
+                    seqs.append(seq)
             elif(fileA and fileB):
                 y = data["fileB_index"]
                     
@@ -683,6 +694,7 @@ class supportingLogic:
                         continue
                     points[0].append(x[0])
                     points[1].append(y[0])
+                    seqs.append(seq)
             else:
                 raise ValueError('Invalid Option must include at least one file')
                 
@@ -705,6 +717,7 @@ class supportingLogic:
                     #Append the values to the points list
                     points[0].append(i + 1)
                     points[1].append(y[0])
+                    seqs.append(seq)
                 
             elif(not fileA and fileB):
                 
@@ -722,6 +735,7 @@ class supportingLogic:
                     #Append the values to the points list
                     points[0].append(x[0])
                     points[1].append(i + 1)
+                    seqs.append(seq)
                     
             elif(fileA and fileB):
                 
@@ -741,12 +755,13 @@ class supportingLogic:
                         continue
                     points[0].append(x[0])
                     points[1].append(y[0])
+                    seqs.append(seq)
                 
             else:
                 raise ValueError('Invalid Option must include at least one file')
         
         print("Points gathered: ", len(points[0]))
-        return points
+        return points,seqs
 
     def aboveBelowCounts(x, y, slope, b):
         above, bellow = 0, 0
