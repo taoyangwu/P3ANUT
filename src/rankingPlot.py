@@ -130,17 +130,17 @@ class rankingPlotFrame(tk.Frame):
         self.file2Select.config(foreground=self.unselectedColor, activeforeground=self.unselectedColor)
         
         parm_row  += 1
-        self.xAxisFrame = tk.LabelFrame(self.parametersFrame, text="X Axis Scale", background="#6C8193")
-        self.xAxisFrame.grid(row=parm_row, column=0, sticky="nsew")
-        self.xAxisFrame.grid_columnconfigure(0, weight=1)
-        self.xAxisFrame.grid_columnconfigure(1, weight=1)
+        self.yAxisFrame = tk.LabelFrame(self.parametersFrame, text="Y Axis Scale", background="#6C8193")
+        self.yAxisFrame.grid(row=parm_row, column=0, sticky="nsew")
+        self.yAxisFrame.grid_columnconfigure(0, weight=1)
+        self.yAxisFrame.grid_columnconfigure(1, weight=1)
         
-        self.linearScaleButton = tk.Button(self.xAxisFrame, text="Linear", command=lambda: self.setAxis(False))
+        self.linearScaleButton = tk.Button(self.yAxisFrame, text="Linear", command=lambda: self.setAxis(False))
         self.linearScaleButton.grid(row=0, column=0, sticky="nsew")
         #Set the background color of the button to reflect it is selected
         self.linearScaleButton.config(foreground=self.selectedColor, activeforeground=self.selectedColor)
         
-        self.logScaleButton = tk.Button(self.xAxisFrame, text="Log", command=lambda: self.setAxis(True))
+        self.logScaleButton = tk.Button(self.yAxisFrame, text="Log", command=lambda: self.setAxis(True))
         self.logScaleButton.grid(row=0, column=1, sticky="nsew")
         self.logScaleButton.config(foreground= self.unselectedColor, activeforeground=self.unselectedColor)
         
@@ -153,7 +153,7 @@ class rankingPlotFrame(tk.Frame):
         self.exportFrame.grid_columnconfigure(0, weight=1)
         self.exportFrame.grid_columnconfigure(1, weight=1)
         
-        self.aboveBelowList = ["Bellow - Blue", "Above - Red"]
+        self.aboveBelowList = ["Above - Orange", "Below - Light Gray"]
         self.exportAboveBelow = tk.StringVar()
         self.exportAboveBelow.set(self.aboveBelowList[0])
         self.exportAboveBelowMenu = tk.OptionMenu(self.exportFrame, self.exportAboveBelow, *self.aboveBelowList)
@@ -343,7 +343,7 @@ class rankingPlotFrame(tk.Frame):
         
         indices = [x[i] for i in range(len(x)) if (difference[i] != bellow)]
         
-        supportingLogic.exportIndices(self.fileB.get(), indices, filename)
+        supportingLogic.exportIndices(self.fileA.get(), indices, filename)
     
     def refreshGraph(self):
         if(self.graph is not None):
@@ -431,7 +431,7 @@ class graphFrame(tk.Frame):
         self.ax1.set(ylabel='File Names')
         self.ax1.yaxis.label.set_size(10)
         
-    def drawAX2(self, includeFile1 = True, includeFile2 = False, percentOrCount = "%", points = 100, x_axis_log = False):
+    def drawAX2(self, includeFile1 = True, includeFile2 = False, percentOrCount = "%", points = 100, y_axis_log = False):
         
         self.ax2.clear()
         
@@ -459,8 +459,8 @@ class graphFrame(tk.Frame):
         
         
         
-        patch1 = Polygon([*stackedPoints, [x_line[-1], max_y], [0, max_y]], closed=True, fill=True, color="red", alpha=0.3)
-        patch2 = Polygon([*stackedPoints, [max_x,y_end], [max_x, 0], [0,0]], closed=True, fill=True, color="blue", alpha=0.3)
+        patch1 = Polygon([*stackedPoints, [x_line[-1], max_y], [0, max_y]], closed=True, fill=True, color="orange", alpha=0.3)
+        patch2 = Polygon([*stackedPoints, [max_x,y_end], [max_x, 0], [0,0]], closed=True, fill=True, color="lightgray", alpha=0.3)
         
         self.ax2.add_patch(patch1)
         self.ax2.add_patch(patch2)
@@ -471,8 +471,8 @@ class graphFrame(tk.Frame):
         self.ax2.yaxis.set_label_position("right")
         
         
-        if(x_axis_log):
-            self.ax2.set_xscale('log')
+        if(y_axis_log):
+            self.ax2.set_yscale('log')
             
             
         self.annot = self.ax2.annotate("", xy=(0,0), xytext=(20,20),textcoords="offset points",
@@ -484,20 +484,6 @@ class graphFrame(tk.Frame):
         
         self.figureCanvas.draw()
         
-        # if(self.b == 0):
-            
-        #     corner1 = Polygon([[0, 0], [self.points, 2 * self.points], [0, self.points]], closed=True, fill=True, color="red", alpha=0.5)
-        #     corner2 = Polygon([[0, 0], [self.points, self.points], [self.points, 0]], closed=True, fill=True, color="blue", alpha=0.5)
-            
-        #     self.ax2.add_patch(corner1)
-        #     self.ax2.add_patch(corner2)
-        # else:
-            
-        #     corner1 = Polygon([[0, 0], [self.points, self.points * self.slope + self.b], [0, self.points]], closed=True, fill=True, color="red", alpha=0.5)
-        #     corner2 = Polygon([[0, 0], [self.points, self.points * self.slope + self.b], [self.points, 0]], closed=True, fill=True, color="blue", alpha=0.5)
-            
-        #     self.ax2.add_patch(corner1)
-        #     self.ax2.add_patch(corner2)
         
     def hover(self, event):
         vis = self.annot.get_visible()
@@ -521,7 +507,7 @@ class graphFrame(tk.Frame):
         
         text = f"{self.seqs[point_index]}"
         self.annot.set_text(text)
-        self.annot.get_bbox_patch().set_facecolor("#00AA00")
+        self.annot.get_bbox_patch().set_facecolor("darkviolet")
         self.annot.get_bbox_patch().set_alpha(0.4)
         
     def drawAX3(self):
@@ -534,8 +520,8 @@ class graphFrame(tk.Frame):
         self.ax3_T1 = self.ax3.text(0.25, 0.75, countT1, ha="center", va="center", color="black", fontsize=6)
         self.ax3_T2 = self.ax3.text(0.75, 0.25, countT2, ha="center", va="center", color="black", fontsize=6)
         
-        corner1 = Polygon([[0, 0], [1, 1], [0, 1]], closed=True, fill=True, color="red", alpha=0.5)
-        corner2 = Polygon([[0, 0], [1, 1], [1, 0]], closed=True, fill=True, color="blue", alpha=0.5)
+        corner1 = Polygon([[0, 0], [1, 1], [0, 1]], closed=True, fill=True, color="orange", alpha=0.5)
+        corner2 = Polygon([[0, 0], [1, 1], [1, 0]], closed=True, fill=True, color="lightgray", alpha=0.5)
         
         self.ax3.add_patch(corner1)
         self.ax3.add_patch(corner2)

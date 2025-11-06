@@ -29,12 +29,6 @@ class app(tk.Tk):
         
         self.title("P3ANUT : A Python Pipeline for Phage Analysis through a Normative Unified Toolset")
         
-        # self.pairedAssemblerFrame = pairedAssemblerFrame(self)
-        # self.sequenceCountFrame = sequenceCountFrame(self)
-        # self.runUnifierFrame = runUnifierFrame(self)
-        # self.volcanoPlotFrame = volcanoPlotFrame(self)
-        # self.upsetPlotFrame = upsetPlotFrame(self)
-        
         
         self.pairedAssemblerButton = tk.Button(self.buttonFrame, text="Paired Assembler", command=lambda: self.changeMainFrame("pairedAssembler"))
         self.pairedAssemblerButton.grid(row=0, column=0, sticky="nsew")
