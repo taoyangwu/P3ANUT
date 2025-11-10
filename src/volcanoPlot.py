@@ -636,14 +636,20 @@ class supportingLogic:
         
         start, end, step = 0, 10, 0.1
         stepDecimal = len(str(step).split(".")[-1])
+        rolling_count = 0
         for i in np.linspace(start, end, int((end - start)/step) + 1):
-            ratioCount[float(i)] = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step)])
+            count_withinRange = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step)])
+            ratioCount[float(i)] = count_withinRange
+            rolling_count += count_withinRange
+            
             
         with open(fileName, 'w') as f:
-            f.write("Ratio Range,Count\n")
+            f.write("Ratio Range,Count, Count below\n")
+             
             for key in ratioCount:
                 roundedKey = round(key, stepDecimal)
-                f.write(f"{roundedKey}-{roundedKey+step},{ratioCount[key]}\n")
+                f.write(f"{roundedKey}-{round(key + step, stepDecimal)},{ratioCount[key]}, {rolling_count}\n")
+                rolling_count -= ratioCount[key]
             
         pass
     
