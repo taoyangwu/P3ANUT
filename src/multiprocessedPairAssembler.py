@@ -771,7 +771,9 @@ def mergeMisMatchedLengths(sequenceID, primarySequence, primaryScore,
     #Load the optional arguments from the kwargs
     radius = kwargs.get("radius",1)
     scoreOffset = kwargs.get("scoreOffset",1)
+    leven_threshold = kwargs.get("leven_threshold",1)
     diffOfLength = len(primarySequence) - len(secondarySequence)
+    
     
     targetLength = kwargs.get("targetLength", 66)
     
@@ -805,6 +807,18 @@ def mergeMisMatchedLengths(sequenceID, primarySequence, primaryScore,
     
     #The levenstein operations needed to convert the primary sequence into the secondary sequence
     edits = editops(localPrimarySequence, localSecondarySequence)
+    
+    count = 0
+    for operation, _, _ in edits:
+        count += 1 if operation in ['insert','delete'] else 0
+    # Commented out code to track the number of insert/delete operations for analysis
+    # leven_idel_Count.append(count)
+    # print(f"Number of insert/delete operations: {count}")
+    
+    #Drop sequences that have too many edits
+    if(count > leven_threshold):
+        print(f"Dropping sequence {sequenceID} due to too many edits: {count} > {leven_threshold}")
+        return localPrimarySequence, localPrimaryScore, np.zeros_like(localPrimarySequence, dtype=np.uint8), None
     
     #Cases (primary is the longest, there is difference in length)
     #Assumes 1 distance difference
@@ -862,7 +876,7 @@ def mergeMisMatchedLengths(sequenceID, primarySequence, primaryScore,
                     "caseNumber" : caseNumber
                 }
      
-    return maxSequence, maxScore, codonChanges, errorData if debug else None
+    return maxSequence, maxScore, codonChanges, errorData if debug else True
 
 def stripParmDictionary(dict):
     newDict = {}
@@ -874,8 +888,12 @@ def stripParmDictionary(dict):
     
 
 if(__name__ == "__main__"):
-    forFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R1_001.fastq"
-    revFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R2_001.fastq"
+    # forFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R1_001.fastq"
+    # # revFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R2_001.fastq"
+    # global leven_idel_Count
+    # leven_idel_Count = []
+    forFile = "/Users/ethankoland/Desktop/Undergrad/Year 3/3rd Year Project/code/data/PID-1309-GAL-BSA-1-PC_S107_R1_001.fastq"
+    revFile = "/Users/ethankoland/Desktop/Undergrad/Year 3/3rd Year Project/code/data/PID-1309-GAL-BSA-1-PC_S107_R2_001.fastq"
     
     # configFile = "configV2.yaml"
     # with open(configFile, 'r') as stream:
@@ -887,6 +905,7 @@ if(__name__ == "__main__"):
     
     # profileParseFastQ("data/PID-1309-GAL-BSA-2-PC_S108_R1_001.fastq")
     data = {}
-    meta = parse(forFile, revFile, data=data, multiprocess=False)
+    meta = parse(forFile, revFile, data=data, multiprocess=False, cull_maxlength = 100)
     print(meta)
+    # np.save("testMerge.npy", np.array(leven_idel_Count))
     # print(data)

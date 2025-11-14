@@ -105,6 +105,11 @@ pairedAssembler:
     Type: Int
     UsedFunctions: MergeMismatchOperation
     Value: 66
+  level_threshold:
+    Description: The maximum number of insert of deletions found through levenstein before sequences are dropped. Sequences less than or equal to threshold are kept
+    Type: Int
+    UsedFunctions: MergeMismatchOperation
+    Value: 3
 sequenceCount:
   createLogo:
     Description: A Boolean toggle to create a logo plot of the sequences

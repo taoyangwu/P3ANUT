@@ -34,7 +34,9 @@ class volcanoPlotFrame(tk.Frame):
         self.grid_columnconfigure(1, weight=1)
         
         self.currentRatio = 5
-        self.currentPvalue = 1.3
+        self.currentPvalue_log = 1.3
+        self.currentPvalue = 0.05
+        
         
         self.fileA = tk.StringVar(value="VolcanoPlot/mergedSorted copy.csv")
         self.fileB = tk.StringVar(value="VolcanoPlot/7 copy.csv")
@@ -115,6 +117,7 @@ class volcanoPlotFrame(tk.Frame):
         self.exportBaseText.config(background="#7C8594")
         
         self.exportBaseName = tk.StringVar(value="A")
+        self.exportBaseName.trace("w", lambda name, index, mode, sv=self.exportBaseName: self.updateExportBaseName(sv.get()))
         self.exportBaseNameText = tk.Entry(self.exportFrame, textvariable=self.exportBaseName)
         self.exportBaseNameText.grid(row=1, column=1, sticky="nsew")
         
@@ -133,7 +136,7 @@ class volcanoPlotFrame(tk.Frame):
         self.exportGraphButton = tk.Button(self.createGraphFrame, text="Export Graph", command=self.exportGraph)
         self.exportGraphButton.grid(row=1, column=0, sticky="nsew")
         
-        self.distrabutionFrame = tk.Button(self.createGraphFrame, text="Show Distrabution", command=self.createDistrabution)
+        self.distrabutionFrame = tk.Button(self.createGraphFrame, text=f"Export {self.exportBaseNameText.get()}1v{self.exportBaseNameText.get()}2 Distrabution", command=self.createDistrabution)
         self.distrabutionFrame.grid(row=2, column=0, sticky="nsew")
       
     #Print out the value within the ratio entry box  
@@ -175,11 +178,12 @@ class volcanoPlotFrame(tk.Frame):
         
     def updatePvalue(self, new_val):
         print("new pValue val: ", new_val)
-        self.currentPvalue = float(new_val)
+        self.currentPvalue = new_val
+        self.currentPvalue_log = float(-np.log10(float(self.currentPvalue)))
         
         if(self.graph is not None):
             
-            self.graph.setPvalue(new_val)
+            self.graph.setPvalue(self.currentPvalue_log, new_val)
         
     def setfileA(self):
         filename = tk.filedialog.askopenfilename(initialdir = "/",
@@ -242,7 +246,7 @@ class volcanoPlotFrame(tk.Frame):
         if(self.graph is not None):
             self.graph.destroy()
         
-        self.graph = moveableLine(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()], self.exportBaseName.get(),self.currentPvalue, self.currentRatio)
+        self.graph = moveableLine(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()], self.exportBaseName.get(),self.currentPvalue_log, self.currentRatio)
         self.graph.pack()
         
         runPopUp.finishedProgram()
@@ -259,7 +263,7 @@ class volcanoPlotFrame(tk.Frame):
         
         quadrant = self.quadrantList.index(self.exportQuarant.get()) + 1
         
-        quadDf = supportingLogic.returnQuadrant(self.data, self.currentRatio, self.currentPvalue, quadrant)
+        quadDf = supportingLogic.returnQuadrant(self.data, self.currentRatio, self.currentPvalue_log, quadrant)
         
         exportDF = supportingLogic.exportDF(self.fileA.get(), self.fileB.get(), quadDf)
        
@@ -272,6 +276,11 @@ class volcanoPlotFrame(tk.Frame):
     
     def validatePvalue(P):
         return P.isdigit() or P == "" or P.replace(".", "", 1).isdigit()
+    
+    def updateExportBaseName(self, new_val):
+        print("new Export Base Name val: ", new_val)
+        self.exportBaseName = str(new_val)
+        self.distrabutionFrame.config(text=f"Show {self.exportBaseName}1v{self.exportBaseName}2 Distrabution")
         
         
         
@@ -282,6 +291,7 @@ class moveableLine(tk.Frame):
         
         self.data = data
         self.pValue = pValue
+        self.pValue_linear = 0.05
         self.ratio = ratio
         self.displayResolution = displayResolution
         self.distabutionBins = distabutionBins
@@ -408,7 +418,7 @@ class moveableLine(tk.Frame):
         self.ax4.set_xticklabels([])
         self.ax4.set_xticks([])
         
-        self.ax4.text(1, 0.1, f"P-Value {round(self.pValue,2)}", ha="right", va="top", fontsize=10)
+        self.ax4.text(1, 0.1, f"P-Value {self.pValue_linear} ({round(self.pValue,2)})", ha="right", va="top", fontsize=10)
         self.ax4.text(1, 0.4, f"{self.exportBaseName}1v{self.exportBaseName}2_Ratio {round(self.ratio,2)}", ha="right", va="top", fontsize=10)
         
     def exportGraph(self, fileName):
@@ -423,8 +433,9 @@ class moveableLine(tk.Frame):
         self.ax2.hist(data, bins = bins)
         self.figureCanvas.draw()
         
-    def setPvalue(self, new_val):
+    def setPvalue(self, new_val, textValue = 0.05):
         self.pValue = float(new_val)
+        self.pValue_linear = textValue
         print("new pValue val: ", new_val)
 
 
