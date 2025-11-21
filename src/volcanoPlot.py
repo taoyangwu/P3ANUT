@@ -535,7 +535,7 @@ class supportingLogic:
         #Drop columns
         joined.drop(['std_a', 'std_b', 'mean_a', 'mean_b'], axis=1, inplace=True)
         
-        
+        joined.to_csv("debug_volcano.csv")
         
         return joined
 
@@ -609,58 +609,46 @@ class supportingLogic:
         return trimmed
     
     def createDistrabution(fileA, fileB, fileName):
-        dataFrameA = pd.read_csv(fileA, index_col=0)
-        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
-        
-        #Check in the NORMALIZED_ONE_COUNT row is within the file
-        if("NORMALIZED_ONE_COUNT" in dataFrameA.index):
-            dfA_oneCount = dataFrameA.loc["NORMALIZED_ONE_COUNT"][0]
-            dataFrameA.drop("NORMALIZED_ONE_COUNT", inplace=True)
-        else:
-            dfA_oneCount = dataFrameA["mean"].min()
-        
-        dataFrameB = pd.read_csv(fileB, index_col=0)
-        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
-        
-        if("NORMALIZED_ONE_COUNT" in dataFrameB.index):
-            dfB_oneCount = dataFrameB.loc["NORMALIZED_ONE_COUNT"][0]
-            dataFrameB.drop("NORMALIZED_ONE_COUNT", inplace=True)
-        else:
-            dfB_oneCount = dataFrameB["mean"].min()
-        
-        dfa_ColumnCount = 3
-        dfb_ColumnCount = 3
-        
-        
-        joined = dataFrameA.join(dataFrameB, how='outer', lsuffix='_a', rsuffix='_b')
-        
-        joined.fillna(0, inplace=True)
-        
-        sumA, sumB = joined.iloc[:, 0].sum(), joined.iloc[:, 2].sum()
-        
-        [statistic, pValue] = sp.ttest_ind_from_stats(joined['mean_a'], joined['std_a'], dfa_ColumnCount, joined['mean_b'], joined['std_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
-        
-        joined['AvB_Ratio'] = (joined['mean_a'] / sumA) / (joined['mean_b'] / sumB)
-        joined['-log10(P-Value)'] = -(np.log10(pValue + 1e-10))
+        joined = supportingLogic.csvComparision(fileA, fileB)
+        joined.to_csv("debug_volcano_distro.csv")
         
         ratioCount = {}
         
         start, end, step = 0, 10, 0.1
         stepDecimal = len(str(step).split(".")[-1])
-        rolling_count = 0
+        rolling_count, rolling_above, rolling_below = 0, 0, 0
         for i in np.linspace(start, end, int((end - start)/step) + 1):
-            count_withinRange = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step)])
-            ratioCount[float(i)] = count_withinRange
+            
+            count_withinRange_belowPvalue = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step) & (joined['-log10(P-Value)'] >= -np.log10(0.05))])
+            count_withinRange_abovePvalue = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step) & (joined['-log10(P-Value)'] < -np.log10(0.05))])
+            
+            count_withinRange = count_withinRange_belowPvalue + count_withinRange_abovePvalue
+            ratioCount[float(i)] = {"belowPvalue": count_withinRange_belowPvalue, "abovePvalue": count_withinRange_abovePvalue, "total": count_withinRange}
             rolling_count += count_withinRange
+            rolling_below += count_withinRange_belowPvalue
+            rolling_above += count_withinRange_abovePvalue
+        
+        count_withinRange_belowPvalue = len(joined[(joined['AvB_Ratio'] > i + step) & (joined['-log10(P-Value)'] >= -np.log10(0.05))])
+        count_withinRange_abovePvalue = len(joined[(joined['AvB_Ratio'] > i + step) & (joined['-log10(P-Value)'] < -np.log10(0.05))])
+        
+        count_withinRange = count_withinRange_belowPvalue + count_withinRange_abovePvalue
+        
+        ratioCount[float(end)] = {"belowPvalue": count_withinRange_belowPvalue, "abovePvalue": count_withinRange_abovePvalue, "total": count_withinRange}
+        rolling_count += count_withinRange
+        rolling_below += count_withinRange_belowPvalue
+        rolling_above += count_withinRange_abovePvalue
             
             
         with open(fileName, 'w') as f:
-            f.write("Ratio Range,Count, Count below\n")
+            f.write("Ratio_Range, Total_Count, Rolling_Count, Count_Below_Pvalue, Count_Above_Pvalue\n")
              
-            for key in ratioCount:
+            for key, value in ratioCount.items():
                 roundedKey = round(key, stepDecimal)
-                f.write(f"{roundedKey}-{round(key + step, stepDecimal)},{ratioCount[key]}, {rolling_count}\n")
-                rolling_count -= ratioCount[key]
+                if(key == end):
+                    f.write(f"{roundedKey}-{roundedKey}+, {value["total"]}, {rolling_count}, {value["belowPvalue"]}, {value["abovePvalue"]}\n")
+                else:
+                    f.write(f"{roundedKey}-{round(key + step, stepDecimal)}, {value["total"]}, {rolling_count}, {value["belowPvalue"]}, {value["abovePvalue"]}\n")
+                rolling_count -= ratioCount[key]["total"]
             
         pass
     
