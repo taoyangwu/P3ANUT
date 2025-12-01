@@ -293,7 +293,7 @@ class tableEntry(ttk.Frame):
         self.maxLength = maxLength
         
         self.i = 1
-        self.aviableColumns = ["Sequence", "Mean", "STD"]
+        self.aviableColumns = ["Sequence", "m_index", "s_index"]
         self.usedColumns = [0,1,2]
         #We want datetime, forward, reverse, and finalcount and time
         self.grid_columnconfigure(0, weight=1)
@@ -304,7 +304,7 @@ class tableEntry(ttk.Frame):
         
         #Check to see if the csv path exists
         if(csvPath == ""):
-            self.data.append(["Sequence", "Mean", "STD"])
+            self.data.append(["Sequence", "m_index", "s_index"])
         else:
         
             with open(csvPath, "r") as file:

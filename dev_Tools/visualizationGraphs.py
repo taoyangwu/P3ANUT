@@ -66,17 +66,20 @@ def plot_distribution_2(ratio_ranges, counts, counts_below, output_path, counts_
     s1 = np.array(counts_above_pvalue) + np.array(counts_below_pvalue)
     
     rolling_s1 = np.array([sum(s1[i:]) for i in range(len(s1))])
-    s1 =(rolling_sum / rolling_s1) * rolling_sum[0]
+    s1 =(rolling_sum / rolling_s1)
     
     ax1.plot(ratio_ranges, rolling_sum, color='red', marker='o', label='Cumulative Count', alpha=0.5)
     ax1.legend()
     
+    max_s1 = max(s1)
+    max_s1 = round(max_s1, 1)
+    
     ax2 = ax1.twinx()
 
-    ax2.plot(ratio_ranges, s1, color='lightskyblue', marker='o', label='Ratio of Counts above and below P-Value')
-    ax2.set_ylabel('Percentage of Counts above and below P-Value (%)', color='lightskyblue')
+    ax2.plot(ratio_ranges, s1, color='dodgerblue', marker='o', label='Ratio of squence count below P-Value to sequence count greater than A1vA2 Ratio')
+    ax2.set_ylabel('Percentage of Cumulative Count below P-value', color='dodgerblue')
     ax2.tick_params(axis='y')
-    ax2.set_ylim(bottom=0, top=100)
+    ax2.set_ylim(bottom=0, top=max_s1)
     #ax2.legend()
     
     
@@ -116,6 +119,8 @@ if __name__ == "__main__":
     input_file = "dev_Tools/demo.txt"
     output_image = "dev_Tools/volcano_plot_distribution.png"
     
+    #Count_Below_Pvalue - Blue and Red seperated by a1va2 ration
+    #Count_Above_Pvalue - Yellow and Green seperated by a1va2 ration
     ratio_ranges, counts, counts_below, counts_below_pvalue, counts_above_pvalue = load_distribution_data(input_file)
     plot_distribution_2(ratio_ranges, counts, counts_below, output_image, counts_below_pvalue, counts_above_pvalue)
     

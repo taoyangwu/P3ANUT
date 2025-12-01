@@ -50,7 +50,7 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
         
         
     fileBaseName = splitext(basename(filePath))[0]
-    if (createLogoplot):
+    if (createLogoplot and False):
         logoplot(aminoDictionary, fileBase=fileBaseName, outputDirectory=outputDirectory)
         
     if(includeSurrounding):

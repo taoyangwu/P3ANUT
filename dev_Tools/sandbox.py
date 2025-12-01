@@ -44,6 +44,8 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
         aminoDictionary = {}
         for seq, counts in sequence_Counts[targetBaseLength].items():
             amio_seq = aminoConversion(seq)
+            if amio_seq == "":
+                continue
             aminoDictionary[amio_seq] = aminoDictionary.get(amio_seq, 0) + counts
     else:
         aminoDictionary = sequence_Counts[targetBaseLength].copy()
@@ -106,6 +108,9 @@ def aminoConversion(seqParameter):
         "CTT":"L", "CTG":"L", "CTC":"L", "CTA":"L", "CGT":"R", "CGG":"R", "CGC":"R", "CGA":"R", "CCT":"P", "CCG":"P", "CCC":"P", "CCA":"P", "CAT":"H", "CAG":"Q", "CAC":"H", "CAA":"Q",
         "ATT":"I", "ATG":"M", "ATC":"I", "ATA":"I", "AGT":"S", "AGG":"R", "AGC":"S", "AGA":"R", "ACT":"T", "ACG":"T", "ACC":"T", "ACA":"T", "AAT":"N", "AAG":"K", "AAC":"N", "AAA":"K"
     }
+    
+    if "N" in seqParameter:
+        return ""
     
     return "".join(conversionDicitionary[t] for t in ["".join([seqParameter[j] for j in range(i, i+3)]) for i in range(0, len(seqParameter) - 2, 3) ])
     
@@ -271,11 +276,11 @@ def overlappingPatched():
             
 
                 
-# intermediateProcessing("dev_Tools/P1.merge.fa", includeSurrounding=True, targetBaseLength=36,
-#                        outputDirectory='dev_Tools/', outputAmino=True, normalizeCount=False, createLogoplot=True)
+intermediateProcessing("HK_Nov/Database 1.fasta/R3.fasta", includeSurrounding=True, targetBaseLength=36,
+                        outputDirectory='HK_Nov/Database 1.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True)
 # # print(aminoConversion("GCGCAGCGTTAGCATCCTCATGTGCCTAAGTGTCAG"))
 
-comparisionScatter("dev_Tools/P1.merge.csv", "dev_Tools/P3.merge.csv")
+# comparisionScatter("dev_Tools/P1.merge.csv", "dev_Tools/P3.merge.csv")
 # overlappingPatched()
 
 #Flip sequence

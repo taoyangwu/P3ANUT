@@ -267,7 +267,7 @@ class volcanoPlotFrame(tk.Frame):
         
         exportDF = supportingLogic.exportDF(self.fileA.get(), self.fileB.get(), quadDf)
        
-        quadDf.drop([x for x in quadDf.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        quadDf.drop([x for x in quadDf.columns.values if x not in ["sequence", "m_index", "s_index"]], axis=1, inplace=True)
         
         exportDF.to_csv(filename)
         
@@ -495,23 +495,23 @@ class supportingLogic:
         
         
         dataFrameA = pd.read_csv(fileA, index_col=0)
-        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "m_index", "s_index"]], axis=1, inplace=True)
         
         #Check in the NORMALIZED_ONE_COUNT row is within the file
         if("NORMALIZED_ONE_COUNT" in dataFrameA.index):
             dfA_oneCount = dataFrameA.loc["NORMALIZED_ONE_COUNT"][0]
             dataFrameA.drop("NORMALIZED_ONE_COUNT", inplace=True)
         else:
-            dfA_oneCount = dataFrameA["mean"].min()
+            dfA_oneCount = dataFrameA["m_index"].min()
         
         dataFrameB = pd.read_csv(fileB, index_col=0)
-        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "m_index", "s_index"]], axis=1, inplace=True)
         
         if("NORMALIZED_ONE_COUNT" in dataFrameB.index):
             dfB_oneCount = dataFrameB.loc["NORMALIZED_ONE_COUNT"][0]
             dataFrameB.drop("NORMALIZED_ONE_COUNT", inplace=True)
         else:
-            dfB_oneCount = dataFrameB["mean"].min()
+            dfB_oneCount = dataFrameB["m_index"].min()
         
         dfa_ColumnCount = 3
         dfb_ColumnCount = 3
@@ -523,17 +523,17 @@ class supportingLogic:
         
         sumA, sumB = joined.iloc[:, 0].sum(), joined.iloc[:, 2].sum()
         
-        [statistic, pValue] = sp.ttest_ind_from_stats(joined['mean_a'], joined['std_a'], dfa_ColumnCount, joined['mean_b'], joined['std_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
+        [statistic, pValue] = sp.ttest_ind_from_stats(joined['m_index_a'], joined['s_index_a'], dfa_ColumnCount, joined['m_index_b'], joined['s_index_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
         
         
-        joined['mean_a'] = joined['mean_a'].replace(0, dfA_oneCount)
-        joined['mean_b'] = joined['mean_b'].replace(0, dfB_oneCount)
+        joined['m_index_a'] = joined['m_index_a'].replace(0, dfA_oneCount)
+        joined['m_index_b'] = joined['m_index_b'].replace(0, dfB_oneCount)
         
-        joined['AvB_Ratio'] = (joined['mean_a'] / sumA) / (joined['mean_b'] / sumB)
+        joined['AvB_Ratio'] = (joined['m_index_a'] / sumA) / (joined['m_index_b'] / sumB)
         joined['-log10(P-Value)'] = -(np.log10(pValue + 1e-10))
         
         #Drop columns
-        joined.drop(['std_a', 'std_b', 'mean_a', 'mean_b'], axis=1, inplace=True)
+        joined.drop(['s_index_a', 's_index_b', 'm_index_a', 'm_index_b'], axis=1, inplace=True)
         
         joined.to_csv("debug_volcano.csv")
         
@@ -593,16 +593,22 @@ class supportingLogic:
         dataFrameA.set_index('sequence', inplace=True)
         dataFrameB.set_index('sequence', inplace=True)
         
+        #Drop all columns except for m_index and s_index
+        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["m_index", "s_index"]], axis=1, inplace=True)
+        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["m_index", "s_index"]], axis=1, inplace=True)
+        
         joined = dataFrameA.join(dataFrameB, how='outer', lsuffix='_a', rsuffix='_b')
         
         joined.fillna(0, inplace=True)
         
-        joined['mean'] = joined['mean_a'] + joined['mean_b']
-        joined.drop(['std_a', 'std_b', 'mean_a', 'mean_b'], axis=1, inplace=True)
-        joined.insert(1, 'std', 0)
+        joined['m_index'] = joined['m_index_a'] + joined['m_index_b']
+        
+        
+        joined.drop(['s_index_a', 's_index_b', 'm_index_a', 'm_index_b'], axis=1, inplace=True)
+        joined.insert(1, 's_index', 0)
         
         trimmed = joined.loc[quadrantDF.index]
-        trimmed.sort_values(by='mean', inplace=True, ascending=False)
+        trimmed.sort_values(by='m_index', inplace=True, ascending=False)
         print(trimmed)
         
         

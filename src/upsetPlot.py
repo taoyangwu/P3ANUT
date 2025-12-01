@@ -148,6 +148,8 @@ class upsetPlotFrame(tk.Frame):
         
         if(filename == ""):
             return
+        
+        print("t")
                 
         upsetPlot.fileOutput([self.fileNamesDict[i] for i in self.fileNamesDict], filename, self.key)
 
@@ -471,20 +473,24 @@ class upsetPlot(tk.Frame):
             
             
         t = upsetPlot.fileInsersection(key, files)
+        print(f"Number of sequences in output: {len(t)}")
         
         #get the data from the files
-        counts = None
+        df_counts = []
         for df in dfs:
-            if(counts is None):
-                counts = df.loc[t]["mean"].values
-            else:
-                counts = np.add(counts, df.loc[t]["mean"].values)
+            df_counts.append(np.array(df.loc[t]["m_index"].values))
             
+        df_counts_np = np.array(df_counts)
         
-        nedDF = pd.DataFrame({"sequence" : t, "mean" : counts})
+        m_index_counts = np.mean(df_counts_np, axis=0)
+        s_index_counts = np.std(df_counts_np, axis=0)
+        
+        nedDF = pd.DataFrame({"sequence" : t, "m_index" : m_index_counts, "s_index" : s_index_counts})
+        for i, df_count in enumerate(df_counts):
+            shortName = os.path.basename(fileNames[i]).split(".")[0]
+            nedDF.insert(i + 3, f"{shortName}_m_index", df_count)
         nedDF.set_index("sequence", inplace=True)
-        nedDF.sort_values(by=["mean"], inplace=True, ascending=False)
-        nedDF.insert(1, "std", 0)
+        nedDF.sort_values(by=["m_index"], inplace=True, ascending=False)
         nedDF.to_csv(output)
         
         
