@@ -76,8 +76,8 @@ def plot_distribution_2(ratio_ranges, counts, counts_below, output_path, counts_
     
     ax2 = ax1.twinx()
 
-    ax2.plot(ratio_ranges, s1, color='dodgerblue', marker='o', label='Ratio of squence count below P-Value to sequence count greater than A1vA2 Ratio')
-    ax2.set_ylabel('Percentage of Cumulative Count below P-value', color='dodgerblue')
+    ax2.plot(ratio_ranges, s1, color='darkblue', marker='o', label='Ratio of squence count below P-Value to sequence count greater than A1vA2 Ratio')
+    ax2.set_ylabel('Percentage of Cumulative Count below P-value', color='darkblue')
     ax2.tick_params(axis='y')
     ax2.set_ylim(bottom=0, top=max_s1)
     #ax2.legend()

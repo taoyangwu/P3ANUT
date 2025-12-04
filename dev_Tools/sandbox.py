@@ -10,8 +10,11 @@ from os.path import join, splitext, basename
 Each file has the entry on every other line
 '''
 
-def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=36, normalizeCount=True, outputDirectory='', outputAmino= True, createLogoplot=True):
+def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=36, normalizeCount=True, outputDirectory='', 
+                           outputAmino= True, createLogoplot=True, motrif_presequence_length : int = 0, motrif_postsequence_length : int = 0):
     raw_data = []
+    
+    motrif_postsequence_length = -motrif_postsequence_length if motrif_postsequence_length != 0 else None
     
     with open(filePath, 'r') as file:
         lines = file.readlines()
@@ -20,13 +23,20 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
     sequence_Counts = {}
     for entry in raw_data:
         entry_length = len(entry)
-        if entry_length not in sequence_Counts:
-            sequence_Counts[entry_length] = {}
         
-        if entry not in sequence_Counts[entry_length]:
-            sequence_Counts[entry_length][entry] = 1
+        if(entry_length < (motrif_presequence_length or 0) + (motrif_postsequence_length or 0)):
+            continue
+        
+        motif_seq = entry[(motrif_presequence_length or 0): motrif_postsequence_length]
+        len_motif_seq = len(motif_seq)
+        
+        if len_motif_seq not in sequence_Counts:
+            sequence_Counts[len_motif_seq] = {}
+        
+        if entry not in sequence_Counts[len_motif_seq]:
+            sequence_Counts[len_motif_seq][motif_seq] = 1
         else:
-            sequence_Counts[entry_length][entry] += 1
+            sequence_Counts[len_motif_seq][motif_seq] += 1
         
     for key, value in sequence_Counts.items():
         sequence_Counts[key] = dict(sorted(value.items(), key=lambda item: item[1], reverse=True))    
@@ -275,9 +285,26 @@ def overlappingPatched():
     plt.show()
             
 
-                
-intermediateProcessing("HK_Nov/Database 1.fasta/R3.fasta", includeSurrounding=True, targetBaseLength=36,
-                        outputDirectory='HK_Nov/Database 1.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True)
+# intermediateProcessing("HK_Nov/Database 2.fasta/R3.fasta", includeSurrounding=True, targetBaseLength= 36,
+#                         outputDirectory='HK_Nov/Database 2.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+#                         motrif_presequence_length= 18 * 3, motrif_postsequence_length= 0)             
+# intermediateProcessing("HK_Nov/Database 2.fasta/R6.fasta", includeSurrounding=True, targetBaseLength=36,
+#                         outputDirectory='HK_Nov/Database 2.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+#                         motrif_presequence_length= 18 * 3, motrif_postsequence_length= 0)
+# intermediateProcessing("HK_Nov/Database 2.fasta/R7.fasta", includeSurrounding=True, targetBaseLength=36,
+#                         outputDirectory='HK_Nov/Database 2.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+#                         motrif_presequence_length= 18 * 3, motrif_postsequence_length= 0)
+
+# intermediateProcessing("HK_Nov/Database 3.fasta/R3.fasta", includeSurrounding=True, targetBaseLength=36,
+#                         outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+#                         motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)           
+# intermediateProcessing("HK_Nov/Database 3.fasta/R6.fasta", includeSurrounding=True, targetBaseLength=36,
+#                         outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+#                         motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)  
+intermediateProcessing("HK_Nov/Database 3.fasta/R7.fasta", includeSurrounding=True, targetBaseLength=36,
+                        outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+                        motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)  
+
 # # print(aminoConversion("GCGCAGCGTTAGCATCCTCATGTGCCTAAGTGTCAG"))
 
 # comparisionScatter("dev_Tools/P1.merge.csv", "dev_Tools/P3.merge.csv")
