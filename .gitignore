@@ -11,3 +11,6 @@ build/
 dev_Tools/*.csv
 dev_Tools/*.fa
 HK_Nov*
+data/*
+dev_Tools/*.json
+*.npy

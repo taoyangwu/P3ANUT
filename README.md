@@ -1,4 +1,4 @@
-# P3ANUT: Python Pipeline for Phage Analysis through a Normative Unified Toolset
+# P3ANUT: Python Pipeline for Peptide Analysis through a Normative Unified Toolset
 
 ## Prerequisites
 ### 0. Prerequisites libaries or softwares

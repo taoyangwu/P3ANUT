@@ -4,7 +4,6 @@ import pandas as pd
 from scipy import stats as sp
 import re
 from os.path import join, splitext, basename
-import argparse
 
 
 '''
@@ -284,16 +283,6 @@ def overlappingPatched():
     plt.ylim(0, 5)
     plt.xscale('log')
     plt.show()
-    
-args = argparse.ArgumentParser()
-args.add_argument('--filePath', type=str, required=True, help='Path to the input file')
-args.add_argument('--includeSurrounding', type=bool, default=False, help='Attempt to include and correct sequences that are one base pair shorter or longer')
-args.add_argument('--targetBaseLength', type=int, default=36, help='Target base length to process in DNA base pairs. So 12 amino acids = 36 base pairs')
-args.add_argument('--normalizeCount', type=bool, default=True, help='Normalize the counts in the output file with the same method in P3ANUT')
-args.add_argument('--outputDirectory', type=str, default='output/', help='Output directory for the processed files and graphs')
-args.add_argument('--createLogoplot', type=bool, default=True, help='Create logoplot for the amino acid frequencies')
-args.add_argument('--motrif_presequence_length', type=int, default=0, help='Length of pre-sequence before motif to trim off')
-args.add_argument('--motrif_postsequence_length', type=int, default=0, help='Length of post-sequence after motif to trim off')
             
 
 # intermediateProcessing("HK_Nov/Database 2.fasta/R3.fasta", includeSurrounding=True, targetBaseLength= 36,

@@ -492,6 +492,7 @@ class upsetPlot(tk.Frame):
         nedDF.set_index("sequence", inplace=True)
         nedDF.sort_values(by=["m_index"], inplace=True, ascending=False)
         nedDF.to_csv(output)
+        print(f"Output saved to {output}")
         
         
     
