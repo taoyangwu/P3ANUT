@@ -6,6 +6,7 @@ from GUI_pairedAssembler import pairedAssemblerFrame
 from runUnifier import runUnifierFrame
 from volcanoPlot import volcanoPlotFrame
 from upsetPlot import upsetPlotFrame
+from rankingPlot import rankingPlotFrame
 
 class app(tk.Tk):
     def __init__(self, controller):
@@ -26,13 +27,7 @@ class app(tk.Tk):
         
         self.mainFrame = tk.Frame(self)
         
-        self.title("P3ANUT : A Python Pipeline for Phage Analysis through a Normative Unified Toolset")
-        
-        # self.pairedAssemblerFrame = pairedAssemblerFrame(self)
-        # self.sequenceCountFrame = sequenceCountFrame(self)
-        # self.runUnifierFrame = runUnifierFrame(self)
-        # self.volcanoPlotFrame = volcanoPlotFrame(self)
-        # self.upsetPlotFrame = upsetPlotFrame(self)
+        self.title("P3ANUT : A Python Pipeline for Peptide Analysis through a Normative Unified Toolset")
         
         
         self.pairedAssemblerButton = tk.Button(self.buttonFrame, text="Paired Assembler", command=lambda: self.changeMainFrame("pairedAssembler"))
@@ -54,6 +49,9 @@ class app(tk.Tk):
         self.upsetPlotButton = tk.Button(self.buttonFrame, text="Upset Plot", command=lambda: self.changeMainFrame("upsetPlot"))
         self.upsetPlotButton.grid(row=0, column=4, sticky="nsew")
         
+        self.upsetPlotButton = tk.Button(self.buttonFrame, text="Ranking Plot", command=lambda: self.changeMainFrame("rankingPlot"))
+        self.upsetPlotButton.grid(row=0, column=5, sticky="nsew")
+        
         
         
         self.mainloop()
@@ -71,6 +69,8 @@ class app(tk.Tk):
             self.mainFrame = volcanoPlotFrame(self)
         elif(frame == "upsetPlot"):
             self.mainFrame = upsetPlotFrame(self)
+        elif(frame == "rankingPlot"):
+            self.mainFrame = rankingPlotFrame(self)
             
         self.mainFrame.grid(row=1, column=0, sticky="nsew")
         

@@ -7,3 +7,13 @@ log.csv
 .DS_Store
 dist/
 build/
+*.fad
+dev_Tools/*.csv
+dev_Tools/*.fa
+HK_Nov*
+data/*
+dev_Tools/*.json
+*.npy
+torch*
+!data/example
+dev_Tools/HK

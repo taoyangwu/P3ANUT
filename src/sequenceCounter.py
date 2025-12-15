@@ -105,7 +105,7 @@ def countCSVFile(csvFile,basedirectory, aminoConversion = True, **kwargs):
         for row in reader:
             sequenceArray.append(row[0])
             
-    parse(sequenceArray, basedirectory, aminoConversion **kwargs)
+    parse(sequenceArray, aminoConversion,basedirectory, **kwargs)
 
 #---------------------------------------------------------#
 #Function: parse
@@ -280,10 +280,10 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
 
     
     #Purge element that are below the threshold count
-    purgedDF = countDF[countDF["mean"] >= minimumCount]
+    purgedDF = countDF[countDF["m_index"] >= minimumCount]
     
     if(purgedCSV):
-        dataFrameToCSV(purgedDF[countDF["mean"] < minimumCount], addBaseDirectory((filePrefix + "purged.csv")))
+        dataFrameToCSV(purgedDF[countDF["m_index"] < minimumCount], addBaseDirectory((filePrefix + "purged.csv")))
         
         
     aboveThreshold = {}
@@ -299,17 +299,17 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
         
         if(amountMatched > differentLengthThreshold):
             seq = [re.findall(statement, x)[0] for x in purgedDF[statementMatch].index]
-            mean,std = purgedDF[statementMatch].values.T
+            m_index, s_index = purgedDF[statementMatch].values.T
             
             updatedValues = {}
-            for s, m, st in zip(seq, mean, std):
+            for s, m, st in zip(seq, m_index, s_index):
                 updatedValues[s] = updatedValues.get(s, 0) + m
                 
-            newDF = pd.DataFrame.from_dict(updatedValues, orient='index', columns=["mean"])
+            newDF = pd.DataFrame.from_dict(updatedValues, orient='index', columns=["m_index"])
             newDF.index.name = "sequence"
             
-            newDF.sort_values(by=['mean'], inplace=True, ascending=False)
-            newDF.insert(1, "std",0)
+            newDF.sort_values(by=['m_index'], inplace=True, ascending=False)
+            newDF.insert(1, "s_index",0)
                 
             
             aboveThreshold[key] = newDF
@@ -354,16 +354,16 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
 def directComparisionCount(sequences, includeUnMatched = False, **kwargs):
     
     sequenceDictionary = {}
-    unmatchedDictionary = pd.DataFrame(columns=["sequence", "mean", "std"])
+    unmatchedDictionary = pd.DataFrame(columns=["sequence", "m_index", "s_index"])
     
     for seq in sequences:
         sequenceDictionary[seq] = sequenceDictionary.get(seq, 0) + 1
     
-    sequncesDataFrame = pd.DataFrame.from_dict(sequenceDictionary, orient='index', columns=["mean"])
+    sequncesDataFrame = pd.DataFrame.from_dict(sequenceDictionary, orient='index', columns=["m_index"])
     sequncesDataFrame.index.name = "sequence"
     # sequncesDataFrame.reset_index(inplace=True)
-    sequncesDataFrame.sort_values(by=['mean'], inplace=True, ascending=False)
-    sequncesDataFrame.insert(1, "std",0)
+    sequncesDataFrame.sort_values(by=['m_index'], inplace=True, ascending=False)
+    sequncesDataFrame.insert(1, "s_index",0)
     
     print(unmatchedDictionary)
     
@@ -388,13 +388,15 @@ def dataFrameToCSV(inputDictionary, fileName, sort = False):
     if(isinstance(inputDictionary, pd.DataFrame)):
         unMatchedDataFrame = inputDictionary
     else:
-        unMatchedDataFrame = pd.DataFrame.from_dict(inputDictionary, orient='index', columns=["mean"])
+        unMatchedDataFrame = pd.DataFrame.from_dict(inputDictionary, orient='index', columns=["m_index"])
         unMatchedDataFrame.index.name = "sequence"
-        unMatchedDataFrame.insert(1, "std",0)
+        unMatchedDataFrame.insert(1, "s_index",0)
         
     
     if(sort):
         unMatchedDataFrame.sort_values(by=['count'], inplace=True, ascending=False)
+        
+    
         
     unMatchedDataFrame.to_csv(fileName)
     
@@ -438,15 +440,15 @@ def dbScanCount(sequences, encoding, **kwargs):
             matched[oringinalSequence] = matched.get(oringinalSequence, 0) + 1
     
         
-    sequenceDf = pd.DataFrame.from_dict(matched, orient='index', columns=["mean"])
+    sequenceDf = pd.DataFrame.from_dict(matched, orient='index', columns=["m_index"])
     sequenceDf.index.name = "sequence"
-    sequenceDf.sort_values(by=['mean'], inplace=True, ascending=False)
-    sequenceDf.insert(1, "std",0)
+    sequenceDf.sort_values(by=['m_index'], inplace=True, ascending=False)
+    sequenceDf.insert(1, "s_index",0)
     
-    unmatchedDf = pd.DataFrame.from_dict(unmatched, orient='index', columns=["mean"])
+    unmatchedDf = pd.DataFrame.from_dict(unmatched, orient='index', columns=["m_index"])
     unmatchedDf.index.name = "sequence"
-    unmatchedDf.sort_values(by=['mean'], inplace=True, ascending=False)
-    unmatchedDf.insert(1, "std",0)
+    unmatchedDf.sort_values(by=['m_index'], inplace=True, ascending=False)
+    unmatchedDf.insert(1, "s_index",0)
     
     return sequenceDf, unmatchedDf
 
@@ -484,15 +486,15 @@ def opticsCount(sequences, encoding, **kwargs):
             matched[oringinalSequence] = matched.get(oringinalSequence, 0) + 1
     
         
-    sequenceDf = pd.DataFrame.from_dict(matched, orient='index', columns=["mean"])
+    sequenceDf = pd.DataFrame.from_dict(matched, orient='index', columns=["m_index"])
     sequenceDf.index.name = "sequence"
-    sequenceDf.sort_values(by=['mean'], inplace=True, ascending=False)
-    sequenceDf.insert(1, "std",0)
+    sequenceDf.sort_values(by=['m_index'], inplace=True, ascending=False)
+    sequenceDf.insert(1, "s_index",0)
     
-    unmatchedDf = pd.DataFrame.from_dict(unmatched, orient='index', columns=["mean"])
+    unmatchedDf = pd.DataFrame.from_dict(unmatched, orient='index', columns=["m_index"])
     unmatchedDf.index.name = "sequence"
-    unmatchedDf.sort_values(by=['mean'], inplace=True, ascending=False)
-    unmatchedDf.insert(1, "std",0)
+    unmatchedDf.sort_values(by=['m_index'], inplace=True, ascending=False)
+    unmatchedDf.insert(1, "s_index",0)
     
     return sequenceDf, unmatchedDf
     
@@ -514,7 +516,30 @@ def createFrequencyDataFrame(sequenceDF, logoName, validBases = "*ACDEFGHIKLMNPQ
     
     csvName = kwargs.get("dataFequencyCSV", True)
     
-    logoColor = "colorblind_safe" if len(validBases) < 10 else "dmslogo_funcgroup"
+    #dmslogo_colorground is expanded to account for the * base
+    logoColor = "colorblind_safe" if len(validBases) < 10 else {
+        'A': '#f76ab4',
+        'C': '#ff7f00',
+        'D': '#e41a1c',
+        'E': '#e41a1c',
+        'F': '#84380b',
+        'G': '#f76ab4',
+        'H': '#3c58e5',
+        'I': '#12ab0d',
+        'K': '#3c58e5',
+        'L': '#12ab0d',
+        'M': '#12ab0d',
+        'N': '#972aa8',
+        'P': '#12ab0d',
+        'Q': '#972aa8',
+        'R': '#3c58e5',
+        'S': '#ff7f00',
+        'T': '#ff7f00',
+        'V': '#12ab0d',
+        'W': '#84380b',
+        'Y': '#84380b',
+        '*' : '#000000'
+    }
     
     longestSequence = 0
     sequenceLength = len(sequenceDF.index[0])
@@ -553,7 +578,7 @@ def createFrequencyDataFrame(sequenceDF, logoName, validBases = "*ACDEFGHIKLMNPQ
         tempMatrix = np.take(referenceArray, paddedSequence, axis=0)
         # print(tempMatrix)
         # count = np.left_shift(row["count"],8)
-        count = row["mean"]
+        count = row["m_index"]
         
         # tempMatrix = np.add(tempMatrix, count, dtype=np.uint32)
         tempMatrix = np.multiply(tempMatrix, count).astype(np.uint32)
@@ -819,10 +844,10 @@ def createTree(sequenceDF, **kwargs):
 
 
 if(__name__ == "__main__"):
-    file = "testRunData/GAL-LB-2.json"
+    file = "dev_Tools/P1.merge.csv"
     
     runAmino = True
     runDNA = True
     
-    output = "testRunData/t"
-    countJsonFile(file, runAmino, runDNA, output)
+    output = "dev_Tools"
+    countCSVFile(file, output, sequenceStart = "*", sequenceEnd = "*")

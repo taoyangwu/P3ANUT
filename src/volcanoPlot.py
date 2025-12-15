@@ -34,7 +34,9 @@ class volcanoPlotFrame(tk.Frame):
         self.grid_columnconfigure(1, weight=1)
         
         self.currentRatio = 5
-        self.currentPvalue = 1.3
+        self.currentPvalue_log = 1.3
+        self.currentPvalue = 0.05
+        
         
         self.fileA = tk.StringVar(value="VolcanoPlot/mergedSorted copy.csv")
         self.fileB = tk.StringVar(value="VolcanoPlot/7 copy.csv")
@@ -101,7 +103,7 @@ class volcanoPlotFrame(tk.Frame):
         self.exportFrame = tk.LabelFrame(self.parametersFrame, text="Export", background="#7C8594")
         self.exportFrame.grid(row=4, column=0, sticky="nsew")
         self.exportFrame.grid_columnconfigure(0, weight=4)
-        self.exportFrame.grid_columnconfigure(0, weight=1)
+        self.exportFrame.grid_columnconfigure(1, weight=1)
         
         self.quadrantList = ["Q1 - Red", "Q2 - Blue", "Q3 - Green", "Q4 - Yellow"]
         self.exportQuarant = tk.StringVar()
@@ -115,6 +117,7 @@ class volcanoPlotFrame(tk.Frame):
         self.exportBaseText.config(background="#7C8594")
         
         self.exportBaseName = tk.StringVar(value="A")
+        self.exportBaseName.trace("w", lambda name, index, mode, sv=self.exportBaseName: self.updateExportBaseName(sv.get()))
         self.exportBaseNameText = tk.Entry(self.exportFrame, textvariable=self.exportBaseName)
         self.exportBaseNameText.grid(row=1, column=1, sticky="nsew")
         
@@ -132,6 +135,9 @@ class volcanoPlotFrame(tk.Frame):
         
         self.exportGraphButton = tk.Button(self.createGraphFrame, text="Export Graph", command=self.exportGraph)
         self.exportGraphButton.grid(row=1, column=0, sticky="nsew")
+        
+        self.distrabutionFrame = tk.Button(self.createGraphFrame, text=f"Export {self.exportBaseNameText.get()}1v{self.exportBaseNameText.get()}2 Distrabution", command=self.createDistrabution)
+        self.distrabutionFrame.grid(row=2, column=0, sticky="nsew")
       
     #Print out the value within the ratio entry box  
     def temp(self):
@@ -154,16 +160,30 @@ class volcanoPlotFrame(tk.Frame):
         
         if(self.graph is not None):
             self.graph.exportGraph(fileName)
+            
+    def createDistrabution(self):
+        
+        
+        if(self.fileA.get() == "" or self.fileB.get() == ""):
+            return
+        
+        fileName = tk.filedialog.asksaveasfilename(filetypes=[("Txt Files", "*.txt")])
+        
+        supportingLogic.createDistrabution(self.fileA.get(), self.fileB.get(), fileName)
+        
+        
+        
         
         
         
     def updatePvalue(self, new_val):
         print("new pValue val: ", new_val)
-        self.currentPvalue = float(new_val)
+        self.currentPvalue = new_val
+        self.currentPvalue_log = float(-np.log10(float(self.currentPvalue)))
         
         if(self.graph is not None):
             
-            self.graph.setPvalue(new_val)
+            self.graph.setPvalue(self.currentPvalue_log, new_val)
         
     def setfileA(self):
         filename = tk.filedialog.askopenfilename(initialdir = "/",
@@ -226,7 +246,7 @@ class volcanoPlotFrame(tk.Frame):
         if(self.graph is not None):
             self.graph.destroy()
         
-        self.graph = moveableLine(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()], self.exportBaseName.get(),self.currentPvalue, self.currentRatio)
+        self.graph = moveableLine(self.graphFrame, self.data, [self.fileA.get(), self.fileB.get()], self.exportBaseName.get(),self.currentPvalue_log, self.currentRatio)
         self.graph.pack()
         
         runPopUp.finishedProgram()
@@ -243,11 +263,11 @@ class volcanoPlotFrame(tk.Frame):
         
         quadrant = self.quadrantList.index(self.exportQuarant.get()) + 1
         
-        quadDf = supportingLogic.returnQuadrant(self.data, self.currentRatio, self.currentPvalue, quadrant)
+        quadDf = supportingLogic.returnQuadrant(self.data, self.currentRatio, self.currentPvalue_log, quadrant)
         
         exportDF = supportingLogic.exportDF(self.fileA.get(), self.fileB.get(), quadDf)
        
-        quadDf.drop([x for x in quadDf.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        quadDf.drop([x for x in quadDf.columns.values if x not in ["sequence", "m_index", "s_index"]], axis=1, inplace=True)
         
         exportDF.to_csv(filename)
         
@@ -256,6 +276,11 @@ class volcanoPlotFrame(tk.Frame):
     
     def validatePvalue(P):
         return P.isdigit() or P == "" or P.replace(".", "", 1).isdigit()
+    
+    def updateExportBaseName(self, new_val):
+        print("new Export Base Name val: ", new_val)
+        self.exportBaseName = str(new_val)
+        self.distrabutionFrame.config(text=f"Show {self.exportBaseName}1v{self.exportBaseName}2 Distrabution")
         
         
         
@@ -266,6 +291,7 @@ class moveableLine(tk.Frame):
         
         self.data = data
         self.pValue = pValue
+        self.pValue_linear = 0.05
         self.ratio = ratio
         self.displayResolution = displayResolution
         self.distabutionBins = distabutionBins
@@ -392,7 +418,7 @@ class moveableLine(tk.Frame):
         self.ax4.set_xticklabels([])
         self.ax4.set_xticks([])
         
-        self.ax4.text(1, 0.1, f"P-Value {round(self.pValue,2)}", ha="right", va="top", fontsize=10)
+        self.ax4.text(1, 0.1, f"P-Value {self.pValue_linear} ({round(self.pValue,2)})", ha="right", va="top", fontsize=10)
         self.ax4.text(1, 0.4, f"{self.exportBaseName}1v{self.exportBaseName}2_Ratio {round(self.ratio,2)}", ha="right", va="top", fontsize=10)
         
     def exportGraph(self, fileName):
@@ -407,8 +433,9 @@ class moveableLine(tk.Frame):
         self.ax2.hist(data, bins = bins)
         self.figureCanvas.draw()
         
-    def setPvalue(self, new_val):
+    def setPvalue(self, new_val, textValue = 0.05):
         self.pValue = float(new_val)
+        self.pValue_linear = textValue
         print("new pValue val: ", new_val)
 
 
@@ -468,23 +495,23 @@ class supportingLogic:
         
         
         dataFrameA = pd.read_csv(fileA, index_col=0)
-        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["sequence", "m_index", "s_index"]], axis=1, inplace=True)
         
         #Check in the NORMALIZED_ONE_COUNT row is within the file
         if("NORMALIZED_ONE_COUNT" in dataFrameA.index):
             dfA_oneCount = dataFrameA.loc["NORMALIZED_ONE_COUNT"][0]
             dataFrameA.drop("NORMALIZED_ONE_COUNT", inplace=True)
         else:
-            dfA_oneCount = dataFrameA["mean"].min()
+            dfA_oneCount = dataFrameA["m_index"].min()
         
         dataFrameB = pd.read_csv(fileB, index_col=0)
-        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "mean", "std"]], axis=1, inplace=True)
+        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["sequence", "m_index", "s_index"]], axis=1, inplace=True)
         
         if("NORMALIZED_ONE_COUNT" in dataFrameB.index):
             dfB_oneCount = dataFrameB.loc["NORMALIZED_ONE_COUNT"][0]
             dataFrameB.drop("NORMALIZED_ONE_COUNT", inplace=True)
         else:
-            dfB_oneCount = dataFrameB["mean"].min()
+            dfB_oneCount = dataFrameB["m_index"].min()
         
         dfa_ColumnCount = 3
         dfb_ColumnCount = 3
@@ -496,19 +523,19 @@ class supportingLogic:
         
         sumA, sumB = joined.iloc[:, 0].sum(), joined.iloc[:, 2].sum()
         
-        [statistic, pValue] = sp.ttest_ind_from_stats(joined['mean_a'], joined['std_a'], dfa_ColumnCount, joined['mean_b'], joined['std_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
+        [statistic, pValue] = sp.ttest_ind_from_stats(joined['m_index_a'], joined['s_index_a'], dfa_ColumnCount, joined['m_index_b'], joined['s_index_b'], dfb_ColumnCount, equal_var=False, alternative='greater')
         
         
-        joined['mean_a'] = joined['mean_a'].replace(0, dfA_oneCount)
-        joined['mean_b'] = joined['mean_b'].replace(0, dfB_oneCount)
+        joined['m_index_a'] = joined['m_index_a'].replace(0, dfA_oneCount)
+        joined['m_index_b'] = joined['m_index_b'].replace(0, dfB_oneCount)
         
-        joined['AvB_Ratio'] = (joined['mean_a'] / sumA) / (joined['mean_b'] / sumB)
+        joined['AvB_Ratio'] = (joined['m_index_a'] / sumA) / (joined['m_index_b'] / sumB)
         joined['-log10(P-Value)'] = -(np.log10(pValue + 1e-10))
         
         #Drop columns
-        joined.drop(['std_a', 'std_b', 'mean_a', 'mean_b'], axis=1, inplace=True)
+        joined.drop(['s_index_a', 's_index_b', 'm_index_a', 'm_index_b'], axis=1, inplace=True)
         
-        
+        joined.to_csv("debug_volcano.csv")
         
         return joined
 
@@ -566,20 +593,70 @@ class supportingLogic:
         dataFrameA.set_index('sequence', inplace=True)
         dataFrameB.set_index('sequence', inplace=True)
         
+        #Drop all columns except for m_index and s_index
+        dataFrameA.drop([x for x in dataFrameA.columns.values if x not in ["m_index", "s_index"]], axis=1, inplace=True)
+        dataFrameB.drop([x for x in dataFrameB.columns.values if x not in ["m_index", "s_index"]], axis=1, inplace=True)
+        
         joined = dataFrameA.join(dataFrameB, how='outer', lsuffix='_a', rsuffix='_b')
         
         joined.fillna(0, inplace=True)
         
-        joined['mean'] = joined['mean_a'] + joined['mean_b']
-        joined.drop(['std_a', 'std_b', 'mean_a', 'mean_b'], axis=1, inplace=True)
-        joined.insert(1, 'std', 0)
+        joined['m_index'] = joined['m_index_a'] + joined['m_index_b']
+        
+        
+        joined.drop(['s_index_a', 's_index_b', 'm_index_a', 'm_index_b'], axis=1, inplace=True)
+        joined.insert(1, 's_index', 0)
         
         trimmed = joined.loc[quadrantDF.index]
-        trimmed.sort_values(by='mean', inplace=True, ascending=False)
+        trimmed.sort_values(by='m_index', inplace=True, ascending=False)
         print(trimmed)
         
         
         return trimmed
+    
+    def createDistrabution(fileA, fileB, fileName):
+        joined = supportingLogic.csvComparision(fileA, fileB)
+        joined.to_csv("debug_volcano_distro.csv")
+        
+        ratioCount = {}
+        
+        start, end, step = 0, 10, 0.1
+        stepDecimal = len(str(step).split(".")[-1])
+        rolling_count, rolling_above, rolling_below = 0, 0, 0
+        for i in np.linspace(start, end, int((end - start)/step) + 1):
+            
+            count_withinRange_belowPvalue = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step) & (joined['-log10(P-Value)'] >= -np.log10(0.05))])
+            count_withinRange_abovePvalue = len(joined[(joined['AvB_Ratio'] >= i) & (joined['AvB_Ratio'] < i + step) & (joined['-log10(P-Value)'] < -np.log10(0.05))])
+            
+            count_withinRange = count_withinRange_belowPvalue + count_withinRange_abovePvalue
+            ratioCount[float(i)] = {"belowPvalue": count_withinRange_belowPvalue, "abovePvalue": count_withinRange_abovePvalue, "total": count_withinRange}
+            rolling_count += count_withinRange
+            rolling_below += count_withinRange_belowPvalue
+            rolling_above += count_withinRange_abovePvalue
+        
+        count_withinRange_belowPvalue = len(joined[(joined['AvB_Ratio'] > i + step) & (joined['-log10(P-Value)'] >= -np.log10(0.05))])
+        count_withinRange_abovePvalue = len(joined[(joined['AvB_Ratio'] > i + step) & (joined['-log10(P-Value)'] < -np.log10(0.05))])
+        
+        count_withinRange = count_withinRange_belowPvalue + count_withinRange_abovePvalue
+        
+        ratioCount[float(end)] = {"belowPvalue": count_withinRange_belowPvalue, "abovePvalue": count_withinRange_abovePvalue, "total": count_withinRange}
+        rolling_count += count_withinRange
+        rolling_below += count_withinRange_belowPvalue
+        rolling_above += count_withinRange_abovePvalue
+            
+            
+        with open(fileName, 'w') as f:
+            f.write("Ratio_Range, Total_Count, Rolling_Count, Count_Below_Pvalue, Count_Above_Pvalue\n")
+             
+            for key, value in ratioCount.items():
+                roundedKey = round(key, stepDecimal)
+                if(key == end):
+                    f.write(f"{roundedKey}-{roundedKey}+, {value["total"]}, {rolling_count}, {value["belowPvalue"]}, {value["abovePvalue"]}\n")
+                else:
+                    f.write(f"{roundedKey}-{round(key + step, stepDecimal)}, {value["total"]}, {rolling_count}, {value["belowPvalue"]}, {value["abovePvalue"]}\n")
+                rolling_count -= ratioCount[key]["total"]
+            
+        pass
     
     
     

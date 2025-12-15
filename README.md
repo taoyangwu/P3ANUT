@@ -1,4 +1,4 @@
-# P3ANUT: Python Pipeline for Phage Analysis through a Normative Unified Toolset
+# P3ANUT: Python Pipeline for Peptide Analysis through a Normative Unified Toolset
 
 ## Prerequisites
 ### 0. Prerequisites libaries or softwares
@@ -97,6 +97,13 @@ This graphical interface provides access to all features of P3ANUT.
 2. Click run to generate the plot.
 3. To export the plot click the export graph button.
 4. To export the data click the output file button. In order to select which set associations to export click the associated file names. When they turn green then they are included within the export. The file size should update to reflect the number of files within the file set.
+
+### How to operate the Ranking Plot
+1. Import File 1 and File 2 using the select file Buttons
+2. Click Create Plot to generate the plot.
+3. Adjust the number of point to compare. **You must click create graph button to see updated graph**
+4. Graph axis and which file to count using the associate buttons
+5. Export the graph or quadrant data to a csv file. This is done through clicking the associated button.
 
 ### Loading advanced settings
 1. Click the advanced settings button to load the advanced settings. This will bring up a new window.

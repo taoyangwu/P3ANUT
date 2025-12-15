@@ -196,7 +196,7 @@ class tableEntry(ttk.Frame):
         self.maxLength = maxLength
         
         self.i = 1
-        self.aviableColumns = ["Sequence", "Mean", "STD"]
+        self.aviableColumns = ["Sequence", "m_index", "s_index"]
         self.usedColumns = [0,1,2]
         #We want datetime, forward, reverse, and finalcount and time
         self.grid_columnconfigure(0, weight=1)
@@ -207,7 +207,7 @@ class tableEntry(ttk.Frame):
         
         #Check to see if the csv path exists
         if(csvPath == ""):
-            self.data.append(["Sequence", "Mean", "STD"])
+            self.data.append(["Sequence", "m_index", "s_index"])
         else:
         
             with open(csvPath, "r") as file:
@@ -273,7 +273,7 @@ def merge(filePaths, outputPath="merged.csv"):
         return None
     
     DFs = []
-    columnNames = ["mean", "std"]
+    columnNames = ["m_index", "std"]
     for path in filePaths:
         DFs.append(pd.read_csv(path))
         columnNames.append(path.split("/")[-1])
@@ -282,15 +282,15 @@ def merge(filePaths, outputPath="merged.csv"):
         
     currentDF = DFs[0]
     currentDF.set_index('sequence', inplace=True)
-    currentDF.rename(columns={'mean': columnNames[2]}, inplace=True)
+    currentDF.rename(columns={'m_index': columnNames[2]}, inplace=True)
     currentDF.drop(['std'], axis=1, inplace=True)   
     
     for i in range(1, len(DFs)):
         DF = DFs[i]
         DF.set_index('sequence', inplace=True)
-        DF.drop(['std'], axis=1, inplace=True)
+        DF.drop(['s_index'], axis=1, inplace=True)
         #Rename the mean col to count
-        DF.rename(columns={'mean': columnNames[i + 2]}, inplace=True)
+        DF.rename(columns={'m_index': columnNames[i + 2]}, inplace=True)
         currentDF = currentDF.join(DF, how='outer')
         
       
@@ -306,8 +306,8 @@ def merge(filePaths, outputPath="merged.csv"):
     
     #Add the means and stds to the currentDF
     
-    currentDF['mean'] = means
-    currentDF['std'] = stds
+    currentDF['m_index'] = means
+    currentDF['s_index'] = stds
     
     total_row = [ 1/ (len(filePaths) * x) for x in colSums.values]
     t =  np.mean(total_row)
@@ -320,7 +320,7 @@ def merge(filePaths, outputPath="merged.csv"):
     header_DF.set_index('sequence', inplace=True)
     
     
-    currentDF.sort_values(by=['mean'], inplace=True, ascending=False)
+    currentDF.sort_values(by=['m_index'], inplace=True, ascending=False)
     
     totalDF = pd.concat([header_DF, currentDF])
     totalDF.to_csv(outputPath, index=True, columns = columnNames[1:])

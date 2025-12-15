@@ -22,7 +22,7 @@ import cProfile, pstats, datetime, os
 #        **kwargs - dictionary - additional arguments that can be passed into the function
 #Outputs: dictionary - the metadata of the run
 #---------------------------------------------------------#
-def parse(forwardFile, ReverseFile,data = None, globalPatameters = {}, addToLogFile = True, **kwargs):
+def parse(forwardFile, ReverseFile : None,data = None, globalPatameters = {}, addToLogFile = True, **kwargs):
     
     print(kwargs)
     
@@ -105,7 +105,7 @@ def parse(forwardFile, ReverseFile,data = None, globalPatameters = {}, addToLogF
 def parseFastqFile(filePath, data, flip = False, **kwargs ):
 
     #Load the optional arguments from the kwargs
-    cull_maxlength = kwargs.get("cull_maxlength",90)
+    cull_maxlength = kwargs.get("cull_maxlength",512)
     cull_minlength = kwargs.get("cull_minlength",20)
     includeN = kwargs.get("includeN",False)
     fileSeperator = kwargs.get("fileSeperator",r"\+")
@@ -130,12 +130,11 @@ def parseFastqFile(filePath, data, flip = False, **kwargs ):
     #Load and Read the file
     with open(filePath, "r") as file:
         #Example Entry after regex as a tuple
-        #('NB501061:163:HVYLLAFX3:1:11101:1980:1063' - Run ID, 
-        # '1' - Run Number, 
-        # ':N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
+        #('NB501061:163:HVYLLAFX3:1:11101:1980:1063' - Run ID,  
+        # '1:N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
         # 'TGTAGACTATTCTCACTCTTCTTGTCTGGTTCCTCCGCGTCCGACGTGTGGTGGAGGTTCGGTCGACG', - DNA Sequence 
         # 'AAAAAEE<EE<EEEEEEEEEEAEEEE/EEAEEEEA//AA/EAAEEEEEEEEAEEEEEE/EA<EEEEE6' - DNA Quality Score)
-        regexExpression = r"@([A-Z0-9:]+)(?:\s)(\d)([A-Z0-9:+]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
+        regexExpression = r"@([A-Z0-9.:\-\s]+)(?:\s)([A-Z0-9:+\/-]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
         regexExpression = regexExpression.replace("CODONS", "ATGCN" if includeN else "ATGC")
         
         cleanedFileSeparator = fileSeperator.replace("\\\\", "\\")
@@ -203,16 +202,16 @@ def conversion(entry, flip = False):
     flipBaseConversionArray[ord('C')] = 2
     flipBaseConversionArray[ord('A')] = 1
     #Prevent edge conditions where the sequence and the score are not the same length
-    if(len(entry[3]) != len(entry[4])):
+    if(len(entry[2]) != len(entry[3])):
         #mismatchCount += 1
         return None, None, None
     
     #Convert the sequence into a numpy array of ints
-    sequnceByteArray = bytearray(entry[3], 'utf-8')
+    sequnceByteArray = bytearray(entry[2], 'utf-8')
     sequence = np.frombuffer(sequnceByteArray, dtype=np.uint8)
     
     #Convert the scores into a numpy array of ints
-    qualityByteArray = bytearray(entry[4], 'utf-8')
+    qualityByteArray = bytearray(entry[3], 'utf-8')
     qualityScore = np.frombuffer(qualityByteArray, dtype=np.uint8)
     
     if(flip):
@@ -309,7 +308,7 @@ def mergeInsertOperation(edits, primarySequence, primaryScore, secondarySequence
 #---------------------------------------------------------#
 def mergeDeleteOperation(edits, primarySequence, primaryScore, secondarySequence, secondaryScore, **kwargs):
     radius = kwargs.get("radius",1)
-    scoreOffset = kwargs.get("scoreOffset",1)
+    scoreOffset = kwargs.get("scoreOffset",3)
     
     maxScore = 0
     maxSequence = np.zeros_like(primarySequence, dtype=np.uint8)
@@ -505,7 +504,9 @@ def multiprocess(data, debug = False, errorData = [], FileName = "mergeMismatchD
             droppedCount += 1
 
             continue
+        
         key, sequenceString, stringScores, proteinSequence, drop, codonChanges, errordata = d
+        
         if(drop or (sequenceString is None) or (stringScores is None)):
             
             idsToDrop.add(key)
@@ -524,6 +525,8 @@ def multiprocess(data, debug = False, errorData = [], FileName = "mergeMismatchD
         
         if(proteinSequence is not None):
             data[key]["proteinSequence"] = proteinSequence
+            
+        #global_sequence_length[len(sequenceString)] = global_sequence_length.get(len(sequenceString), 0) + 1
     pass        
     for id in idsToDrop:
         data.pop(id)
@@ -568,7 +571,7 @@ def mergeController(keyValue, debug = False, **kwargs):
     
     if("primaryScore" not in value and "secondaryScore" not in value):
         print("Error: No primary or secondary score")
-        return (None, None, None,None, None, None, None)
+        return (key, None, None,None, None, None, None)
     
     #Compare the lengths of the sequence to determine if there is a base deletion or insertion
     if(len(value["primarySequence"]) != len(value["secondarySequence"])):
@@ -577,6 +580,10 @@ def mergeController(keyValue, debug = False, **kwargs):
         #If the sequences don't match additional steps are needed to determine the most likely location of the error
         maxSequence, maxScore, codonChanges, errorData = mergeMisMatchedLengths(key, value["primarySequence"], value["primaryScore"],
                                                                     value["secondarySequence"], value["secondaryScore"], debug, **kwargs)
+
+
+        if(maxSequence is None):
+            return (key, None, None, None, None, None, errorData)
 
         sequenceString, stringScores, proteinSequence, drop = finalize(key, maxSequence, **kwargs)
         return (key, sequenceString, stringScores, proteinSequence, drop, codonChanges, errorData)  
@@ -698,6 +705,8 @@ def aminoConversion(seqParameter, **kwargs):
         73,   77,  73,  73,  83,  82,  83,  82,  84,  84,  84,  84,  78,  75, 78,  75
     ])
     
+    # contain_start = 'CCC GGG TAC CTT TCT ATT CTC ACT CTT CTT G' in stringRep
+    #GTGGGACTATTCTCACTCTTCTTGTAGGGTTGGGCTGGGGGCGGTGTGTGGTGGAGGTTCGGTCCAAG
     
     aminoBaseOffset = aminoBaseRange // 3
     # a list to store the priority of the sequences
@@ -772,7 +781,9 @@ def mergeMisMatchedLengths(sequenceID, primarySequence, primaryScore,
     #Load the optional arguments from the kwargs
     radius = kwargs.get("radius",1)
     scoreOffset = kwargs.get("scoreOffset",1)
+    leven_threshold = kwargs.get("leven_threshold",1)
     diffOfLength = len(primarySequence) - len(secondarySequence)
+    
     
     targetLength = kwargs.get("targetLength", 66)
     
@@ -797,7 +808,7 @@ def mergeMisMatchedLengths(sequenceID, primarySequence, primaryScore,
     #Currenty methodology doesn't handle cases where the error is largers than 2
     if(diffOfLength > 1):
         
-        return localPrimarySequence, localPrimaryScore, np.zeros_like(localPrimarySequence, dtype=np.uint8), None
+        return None, None, None, None
     
     #Variables to store the best sequence and score
     maxScore = 0
@@ -806,6 +817,18 @@ def mergeMisMatchedLengths(sequenceID, primarySequence, primaryScore,
     
     #The levenstein operations needed to convert the primary sequence into the secondary sequence
     edits = editops(localPrimarySequence, localSecondarySequence)
+    
+    count = 0
+    for operation, _, _ in edits:
+        count += 1 if operation in ['insert','delete'] else 0
+    # Commented out code to track the number of insert/delete operations for analysis
+    # leven_idel_Count.append(count)
+    # print(f"Number of insert/delete operations: {count}")
+    
+    #Drop sequences that have too many edits
+    if(count > leven_threshold):
+        print(f"Dropping sequence {sequenceID} due to too many edits: {count} > {leven_threshold}")
+        return None, None, None, None
     
     #Cases (primary is the longest, there is difference in length)
     #Assumes 1 distance difference
@@ -863,7 +886,7 @@ def mergeMisMatchedLengths(sequenceID, primarySequence, primaryScore,
                     "caseNumber" : caseNumber
                 }
      
-    return maxSequence, maxScore, codonChanges, errorData if debug else None
+    return maxSequence, maxScore, codonChanges, errorData if debug else True
 
 def stripParmDictionary(dict):
     newDict = {}
@@ -875,8 +898,16 @@ def stripParmDictionary(dict):
     
 
 if(__name__ == "__main__"):
-    forFile = "/Users/ethankoland/Desktop/3rd Year Project/code/data/forclean_PID-1309-GAL-LB1-PC_S93_R1_001.fastq"
-    revFile = "/Users/ethankoland/Desktop/3rd Year Project/code/data/r2ffastq_PID-1309-GAL-LB1-PC_S93_R2_001.fastq"
+    # forFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R1_001.fastq"
+    # # revFile = "/Users/ethankoland/Desktop/FOR ETHAN/PID-2486-HC-BAR2_S636_R2_001.fastq"
+    # global leven_idel_Count
+    # leven_idel_Count = []
+    
+    # global global_sequence_length
+    # global_sequence_length = {}
+    
+    forFile = "data/MON_BSA/PID-1309-M7-MON-BSA-1_S87_R1_001.fastq"
+    revFile = "data/MON_BSA/PID-1309-M7-MON-BSA-1_S87_R2_001.fastq"
     
     # configFile = "configV2.yaml"
     # with open(configFile, 'r') as stream:
@@ -888,6 +919,17 @@ if(__name__ == "__main__"):
     
     # profileParseFastQ("data/PID-1309-GAL-BSA-2-PC_S108_R1_001.fastq")
     data = {}
-    meta = parse(forFile, revFile, data=data, multiprocess=True)
+    meta = parse(forFile, ReverseFile=revFile, data=data, multiprocess=True, cull_maxlength = 100)
     print(meta)
-    # print(data)
+    
+    with open("dev_tools/MON_BSA_1.json", 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+    
+    # max_key = max(global_sequence_length.keys())
+    
+    # sequence_lengths = np.zeros(max_key + 1, dtype=int)
+    # for length, count in global_sequence_length.items():
+    #     sequence_lengths[length] = count
+    # np.save("sequence_length_distribution.npy", sequence_lengths)
+    
+    # np.save("leven_idel_Count.npy", np.array(leven_idel_Count))
