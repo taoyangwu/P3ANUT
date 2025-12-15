@@ -14,3 +14,6 @@ HK_Nov*
 data/*
 dev_Tools/*.json
 *.npy
+torch*
+!data/example
+dev_Tools/HK

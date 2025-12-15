@@ -27,7 +27,7 @@ class app(tk.Tk):
         
         self.mainFrame = tk.Frame(self)
         
-        self.title("P3ANUT : A Python Pipeline for Phage Analysis through a Normative Unified Toolset")
+        self.title("P3ANUT : A Python Pipeline for Peptide Analysis through a Normative Unified Toolset")
         
         
         self.pairedAssemblerButton = tk.Button(self.buttonFrame, text="Paired Assembler", command=lambda: self.changeMainFrame("pairedAssembler"))

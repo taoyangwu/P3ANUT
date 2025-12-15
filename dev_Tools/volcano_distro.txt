@@ -1,2 +1,0 @@
-Ratio_Range, Total_Count, Rolling_Count, Count_Below_Pvalue, Count_Above_Pvalue
-0.0-0.1,{'belowPvalue': 0, 'abovePvalue': 9079, 'total': 9079}, 290839
