@@ -263,7 +263,7 @@ def mergeInsertOperation(edits, primarySequence, primaryScore, secondarySequence
     maxSequence = np.zeros_like(primarySequence, dtype=np.uint8)
     codonChanges = None
     radius = kwargs.get("radius",1)
-    scoreOffset = kwargs.get("scoreOffset",1)
+    scoreOffset = kwargs.get("scoreOffset",11)
     
     for operation, sourcePosition, destenationPosition in edits:
             if(operation == 'insert'):
