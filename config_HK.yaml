@@ -1,0 +1,212 @@
+global:
+  configChangeHistory:
+    Description: Name of the txt file used to track changes to the config file
+    Type: String
+    UsedFunctions: configParameterMenu
+    Value: configChangeOutput.txt
+  errorFileName:
+    Description: Name or location of the file to append the error results to
+    Type: String
+    UsedFunctions: pairedAssembler
+    Value: errorData.json
+pairedAssembler:
+  aminoBaseRange:
+    Description: How many different offsets the code will check, 3 is all
+    Type: Int
+    UsedFunctions: AminoConversion
+    Value: 3
+  cull_maxlength:
+    Description: The maximum length of the sequence to be detected by the regex
+    Type: Int
+    UsedFunctions: parseFastqFile
+    Value: 200
+  cull_minlength:
+    Description: The minuim length of the sequence to be detected by the regex
+    Type: Int
+    UsedFunctions: parseFastqFile
+    Value: 10
+  desiredEndingProteinBase:
+    Description: The starting barcode of the target protein sequence
+    Type: String
+    UsedFunctions: AminoConversion
+    Value: CGG
+  desiredStartingProteinBase:
+    Description: The starting barcode of the target protein sequence
+    Type: String
+    UsedFunctions: AminoConversion
+    Value: IFM
+  errorFileName:
+    Description: Name or location of the file to append the error results to
+    Type: String
+    UsedFunctions: pairedAssembler
+    Value: errorData.json
+  fileSeperator:
+    Description: Sequence Sperators for FASTQ files
+    Type: String
+    UsedFunctions: parseFastqFile
+    Value: \+
+  includeN:
+    Description: Include or exclude the base case N
+    Type: Boolean
+    UsedFunctions: parseFastqFile
+    Value: true
+  logFileName:
+    Description: Name or location of the file to append the log results to
+    Type: String
+    UsedFunctions: pairedAssembler
+    Value: logfile.txt
+  maintainRunIformation:
+    Description: Maintain the the additionaly informatino about the run included in
+      @NB501061:163:HVYLLAFX3:1:11101:1980:1063 1:N:0:GTATTATCT+CATATCGTT Setting
+      this to true takes more memory and will make the final output file larger
+    Type: Boolean
+    UsedFunctions: parse
+    Value: false
+  minQualityScore:
+    Description: Minuim Score to be considered a low quality to be used in exclusion
+    Type: Int
+    UsedFunctions: finalize
+    Value: 20
+  minQualityScoreCount:
+    Description: Amount of low score qualities need to consider a low quality result
+    Type: Int
+    UsedFunctions: finalize
+    Value: 10
+  multiprocess:
+    Description: Boolean toggle to allow the code to multiprocess the pipeline, significatly
+      speeds up the pipeline but takes more memory
+    Type: Boolean
+    UsedFunctions: parseFastqFile
+    Value: True
+  processLimit:
+    Description: Allows for defining the limit of currencurent processes, 0 means
+      use all avaible resources
+    Type: Int
+    UsedFunctions: parseFastqFile
+    Value: 0
+  proteinConversion:
+    Description: Determine if the code should attempt to convert the sequence to an
+      AMINO sequence
+    Type: Boolean
+    Value: true
+  radius:
+    Description: the radius of K-mers pairs to be considered when merging the sequences
+    Type: Int
+    UsedFunctions: mergeInsertOperation, mergeDeleteOperation, multiprocess
+    Value: 2
+  scoreOffset:
+    Description: The difference is score that is needed to merge based on k-mers
+    Type: int
+    UsedFunctions: mergeInsertOperation, mergeDeleteOperation, multiprocess
+    Value: 11
+  targetLength:
+    Description: Define an optimal length for the sequences that the pipeline will
+      try to hit
+    Type: Int
+    UsedFunctions: MergeMismatchOperation
+    Value: 90
+  level_threshold:
+    Description: The maximum number of insert of deletions found through levenstein before sequences are dropped. Sequences less than or equal to threshold are kept
+    Type: Int
+    UsedFunctions: MergeMismatchOperation
+    Value: 3
+sequenceCount:
+  createLogo:
+    Description: A Boolean toggle to create a logo plot of the sequences
+    Type: Boolean
+    UsedFunction: Parse
+    Value: true
+  dataFequencyCSV:
+    Description: Create a CSV representation of the the logo plot
+    Type: Boolean
+    UsedFunction: createFrequencyDataFrame
+    Value: true
+  differentLengthBase:
+    Description: Outputs a csv for each file of a length
+    Type: boolean
+    UsedFunction: parse
+    Value: false
+  differentLengthThreshold:
+    Description: The minium precentage of sequences with differing lengths to be included
+    Type: Float
+    UsedFunction: parse
+    Value: 0.01
+  dnaDatatag:
+    Description: The JSON tag that is used to store the DNA sequence wityh in the
+      JSON file
+    Type: String
+    UsedFunction: countJsonFile
+    Value: sequences
+  encoding:
+    Description: The sequence encdoing method that is used to encode the char based
+      sequence into a numerical obe so that the code can cluster the sequence. Valid
+      options are ONEHOT and BLOSUM
+    Type: String
+    UsedFunction: parse
+    Value: ONEHOT
+  eps:
+    Description: A variable used in the DBSCAN algorithm to determine the maxium distaancve
+      between neighbors https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
+    Type: Float
+    UsedFunction: dbScanCount
+    Value: 0.5
+  includeUnMatched:
+    Description: Create a csv of unmatched sequences from a clustering counting metric
+    Type: Boolean
+    UsedFunctions: parse
+    Value: false
+  method:
+    Description: The type of counting metric that is perfromed; options are direct,
+      OPTICS, or DBSCAN. If an unknown encoding metric is detected it will default
+      to using a direct counting method
+    Type: String
+    UsedFunction: parse
+    Value: direct
+  middleMaxLength:
+    Description: The max length, in amino acids, of the sequence between the two barcodes
+    Type: Int
+    UsedFunction: parse
+    Value: 10
+  middleMinLength:
+    Description: The minimum length, in amino acids, of the sequence between the two
+      barcodes
+    Type: Int
+    UsedFunction: parse
+    Value: 3
+  min_samples:
+    Decription: A Variabel used in DBSCAN and OPTICS to determien the min number of
+      elements to be considered a neighborhood https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
+    Type: Int
+    UsedFunction: dbScanCount, opticsCount
+    Value: 5
+  minimumCount:
+    Description: The minimum count of occurances of a sequence to continue processing
+    Type: Int
+    UsedFunction: parse
+    Value: 1
+  proteinDatatag:
+    Description: the JSON tag that is used to store the protein sequence
+    Type: String
+    UsedFunction: countJsonFile
+    Value: proteinSequence
+  purgedCSV:
+    Description: Create a CSV of all of that are below the minimum count
+    Type: boolean
+    UsedFunction: parse
+    Value: false
+  sequenceEnd:
+    Description: The ending peptide barcode
+    Type: String
+    UsedFunctions: parse
+    Value: GGGS
+  sequenceStart:
+    Description: The starting peptide barcode
+    Type: String
+    UsedFunctions: parse
+    Value: SHSS
+  unMatchedRegex:
+    Description: Output a csv sequences that do not contain the start and end barcodes
+      that are defined
+    Type: boolean
+    UsedFunction: parse
+    Value: false

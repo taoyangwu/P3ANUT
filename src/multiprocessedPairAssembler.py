@@ -906,23 +906,32 @@ if(__name__ == "__main__"):
     # global global_sequence_length
     # global_sequence_length = {}
     
-    forFile = "data/MON_BSA/PID-1309-M7-MON-BSA-1_S87_R1_001.fastq"
-    revFile = "data/MON_BSA/PID-1309-M7-MON-BSA-1_S87_R2_001.fastq"
+    forFile = "data/Rhau/Forward/R7_Rhau18_12aa_F/Rhau18_12aa_F.fastq"
+    revFile = "data/Rhau/Reverse/R7_Rhau18_12aa_R/Rhau18_12aa_R.fastq"
     
-    # configFile = "configV2.yaml"
-    # with open(configFile, 'r') as stream:
-    #     try:
-    #         yamlSettings = yaml.safe_load(stream)
-    #     except yaml.YAMLError as exc:
-    #         print(exc)
-    #         exit()
+    
+    
+    configFile = "config_HK.yaml"
+    with open(configFile, 'r') as stream:
+        try:
+            yamlSettings = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+            exit()
+    
+    trimmedParametersPaired = {}
+    trimmedParametersGlobal = {}
+    
+    for key,value in yamlSettings.get("pairedAssembler", {}).items():
+        trimmedParametersPaired[key] = value["Value"]
     
     # profileParseFastQ("data/PID-1309-GAL-BSA-2-PC_S108_R1_001.fastq")
     data = {}
-    meta = parse(forFile, ReverseFile=revFile, data=data, multiprocess=True, cull_maxlength = 100)
+    meta = parse(forFile, ReverseFile=revFile, data=data, **trimmedParametersPaired)
+    # meta = parse(forFile, ReverseFile=revFile, data=data, multiprocess=True, cull_maxlength = 100)
     print(meta)
     
-    with open("dev_tools/MON_BSA_1.json", 'w') as outfile:
+    with open("/Users/ethankoland/Desktop/Side Projects/P3ANUT/data/Rhau/Merged/R7/R7_merged.json", 'w') as outfile:
         json.dump(data, outfile, indent=4)
     
     # max_key = max(global_sequence_length.keys())

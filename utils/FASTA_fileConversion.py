@@ -12,14 +12,17 @@ Each file has the entry on every other line
 '''
 
 def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=36, normalizeCount=True, outputDirectory='', 
-                           outputAmino= True, createLogoplot=True, motrif_presequence_length : int = 0, motrif_postsequence_length : int = 0):
+                           outputAmino= True, createLogoplot=True, motrif_presequence_length : int = 0, motrif_postsequence_length : int = 0,
+                           dataEnteryLength : int = 2, flip_sequence : bool = False):
     raw_data = []
+    
+    FLIP_DICT = str.maketrans('ATCG', 'TAGC')
     
     motrif_postsequence_length = -motrif_postsequence_length if motrif_postsequence_length != 0 else None
     
     with open(filePath, 'r') as file:
         lines = file.readlines()
-        raw_data = [lines[i].strip() for i in range(len(lines)) if i % 2 == 1]
+        raw_data = [lines[i].strip() for i in range(len(lines)) if i % dataEnteryLength == 1]
         
     sequence_Counts = {}
     for entry in raw_data:
@@ -28,13 +31,14 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
         if(entry_length < (motrif_presequence_length or 0) + (motrif_postsequence_length or 0)):
             continue
         
-        motif_seq = entry[(motrif_presequence_length or 0): motrif_postsequence_length]
+        local_entry = entry[::-1].translate(FLIP_DICT) if flip_sequence else entry
+        motif_seq = local_entry[(motrif_presequence_length or 0): motrif_postsequence_length]
         len_motif_seq = len(motif_seq)
         
         if len_motif_seq not in sequence_Counts:
             sequence_Counts[len_motif_seq] = {}
         
-        if entry not in sequence_Counts[len_motif_seq]:
+        if local_entry not in sequence_Counts[len_motif_seq]:
             sequence_Counts[len_motif_seq][motif_seq] = 1
         else:
             sequence_Counts[len_motif_seq][motif_seq] += 1
@@ -295,8 +299,12 @@ args.add_argument('--createLogoplot', type=bool, default=True, help='Create logo
 args.add_argument('--motrif_presequence_length', type=int, default=0, help='Length of pre-sequence before motif to trim off')
 args.add_argument('--motrif_postsequence_length', type=int, default=0, help='Length of post-sequence after motif to trim off')
             
+intermediateProcessing("data/Rhau/Forward_2/R3_Rhau18_12aa_F/Rhau18_12aa_F.fastq", includeSurrounding=True, targetBaseLength= 90,
+                        outputDirectory='data/Rhau/Forward_2/R3_Rhau18_12aa_F/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+                        motrif_presequence_length= 9, motrif_postsequence_length= 9, dataEnteryLength=4)
 
-# intermediateProcessing("HK_Nov/Database 2.fasta/R3.fasta", includeSurrounding=True, targetBaseLength= 36,
+
+# intermediateProcessing("data/Rhau/Forward/R3_Rhau18_12aa_F/Rhau18_12aa_F.fastq", includeSurrounding=True, targetBaseLength= 36,
 #                         outputDirectory='HK_Nov/Database 2.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
 #                         motrif_presequence_length= 18 * 3, motrif_postsequence_length= 0)             
 # intermediateProcessing("HK_Nov/Database 2.fasta/R6.fasta", includeSurrounding=True, targetBaseLength=36,
@@ -312,9 +320,9 @@ args.add_argument('--motrif_postsequence_length', type=int, default=0, help='Len
 # intermediateProcessing("HK_Nov/Database 3.fasta/R6.fasta", includeSurrounding=True, targetBaseLength=36,
 #                         outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
 #                         motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)  
-intermediateProcessing("HK_Nov/Database 3.fasta/R7.fasta", includeSurrounding=True, targetBaseLength=36,
-                        outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-                        motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)  
+# intermediateProcessing("HK_Nov/Database 3.fasta/R7.fasta", includeSurrounding=True, targetBaseLength=36,
+#                         outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+#                         motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)  
 
 # # print(aminoConversion("GCGCAGCGTTAGCATCCTCATGTGCCTAAGTGTCAG"))
 

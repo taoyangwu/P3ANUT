@@ -111,7 +111,7 @@ def graph_levenstein_distribution(data_file, output_path):
     plt.bar(data[0], counts, width=1.0, alpha=0.7)
     plt.xlabel('Number of Insert/Delete Operations')
     plt.ylabel('Frequency')
-    plt.title('Distribution of Levenstein Insert/Delete Operations \n in GAL-CA Merged Reads')
+    plt.title('Distribution of Levenstein Insert/Delete Operations \n in MON-BSA Merged Reads')
     plt.xticks(range(1, max(data[0]) + 1, 2))
     plt.savefig(output_path)
     plt.show()
@@ -209,9 +209,9 @@ if __name__ == "__main__":
     # ratio_ranges, counts, counts_below, counts_below_pvalue, counts_above_pvalue = load_distribution_data(input_file)
     # plot_distribution_2(ratio_ranges, counts, counts_below, output_image, counts_below_pvalue, counts_above_pvalue)
     
-    # input_file = "leven_idel_Count.npy"
-    # output_image = "dev_Tools/levenstein_distribution.png"
-    # graph_levenstein_distribution(input_file, output_image)
+    input_file = "leven_idel_Count.npy"
+    output_image = "dev_Tools/levenstein_distribution.png"
+    graph_levenstein_distribution(input_file, output_image)
     
     # input_file = "sequence_length_distribution.npy"
     # output_image = "dev_Tools/sequence_len_distribution.png"
@@ -220,5 +220,5 @@ if __name__ == "__main__":
     # input_file = "dev_Tools/p3anut_delta_evaluation.json"
     # graph_delta_score(input_file)
     
-    input_file = "dev_Tools/p3anut_evaluation_1.json"
-    graph_improvements(input_file)
+    # input_file = "dev_Tools/p3anut_evaluation_1.json"
+    # graph_improvements(input_file)
