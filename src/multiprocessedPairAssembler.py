@@ -906,8 +906,9 @@ if(__name__ == "__main__"):
     # global global_sequence_length
     # global_sequence_length = {}
     
-    forFile = "data/Rhau/Forward/R7_Rhau18_12aa_F/Rhau18_12aa_F.fastq"
-    revFile = "data/Rhau/Reverse/R7_Rhau18_12aa_R/Rhau18_12aa_R.fastq"
+    num = 7
+    forFile = f"data/Rhau/Forward/R{num}_Rhau18_12aa_F/Rhau18_12aa_F.fastq"
+    revFile = f"data/Rhau/Reverse/R{num}_Rhau18_12aa_R/Rhau18_12aa_R.fastq"
     
     
     
@@ -931,7 +932,10 @@ if(__name__ == "__main__"):
     # meta = parse(forFile, ReverseFile=revFile, data=data, multiprocess=True, cull_maxlength = 100)
     print(meta)
     
-    with open("/Users/ethankoland/Desktop/Side Projects/P3ANUT/data/Rhau/Merged/R7/R7_merged.json", 'w') as outfile:
+    with open(f"data/Rhau/Merged/R{num}/R{num}_metadata.json", 'w') as outfile:
+        json.dump(meta, outfile, indent=4)
+
+    with open(f"data/Rhau/Merged/R{num}/R{num}_merged.json", 'w') as outfile:
         json.dump(data, outfile, indent=4)
     
     # max_key = max(global_sequence_length.keys())

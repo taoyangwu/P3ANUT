@@ -844,10 +844,10 @@ def createTree(sequenceDF, **kwargs):
 
 
 if(__name__ == "__main__"):
-    file = "dev_Tools/P1.merge.csv"
+    file = "/home/proxima/Desktop/Side_Projects/P3ANUT/data/Rhau/Merged/R3/R3_merged.json"
     
     runAmino = True
     runDNA = True
     
-    output = "dev_Tools"
-    countCSVFile(file, output, sequenceStart = "*", sequenceEnd = "*")
+    output = "/home/proxima/Desktop/Side_Projects/P3ANUT/data/Rhau/Merged/R3"
+    countJsonFile(file, output, sequenceStart = "*", sequenceEnd = "*", runAmino=runAmino, runDNA=runDNA)
