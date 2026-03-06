@@ -105,12 +105,118 @@ def _hamming_corrections(barcode_seq, barcodes, max_distance=1):
         return values[min_distance][0]
     else:
         return "non_matched"
-
-def two_file_split_dataset(filePath1, filePath2, f1_barcodes, f2_barcodes, 
-                           save_Path, fileBase, start_code="ATATTTATG",
-                   end_code="TGCGGTGGA", key_barcode_length=9, ):
     
+def _get_entries(filePath, fileSeperator = "\\+"):
+    etries = []
+    with open(filePath, "r") as file:
+        #Example Entry after regex as a tuple
+        #('NB501061:163:HVYLLAFX3:1:11101:1980:1063' - Run ID,  
+        # '1:N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
+        # 'TGTAGACTATTCTCACTCTTCTTGTCTGGTTCCTCCGCGTCCGACGTGTGGTGGAGGTTCGGTCGACG', - DNA Sequence 
+        # 'AAAAAEE<EE<EEEEEEEEEEAEEEE/EEAEEEEA//AA/EAAEEEEEEEEAEEEEEE/EA<EEEEE6' - DNA Quality Score)
+        regexExpression = r"@([A-Z0-9.:\-\s]+)(?:\s)([A-Z0-9:+\/-]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", "5").replace("cull_maxlength", "151")
+        regexExpression = regexExpression.replace("CODONS", "ATGCN" if True else "ATGC")
+        
+        cleanedFileSeparator = fileSeperator.replace("\\\\", "\\")
+        regexExpression = regexExpression.replace("SPLIT", f"[{cleanedFileSeparator}]?")
+        entries = re.findall(regexExpression, file.read())
+    
+    return entries
+
+def two_file_split_dataset(file1Path, file2Path, f1_barcodes, f2_barcodes, 
+                           save_Path, fileBase, start_code="ATATTTATG",
+                   end_code="TGCGGTGGA", key_barcode_length=9):
+    
+    f1_inverted = {value: key for key, value in f1_barcodes.items()} | {"non_matched": "non_matched"}
+    f2_inverted = {value: key for key, value in f2_barcodes.items()} | {"non_matched": "non_matched"}
+    
+    file1_sets = {}
+    file1_strings = {}
+
+    phred_lambda = lambda q: ord(q) - 33
+
+    f1_entries = _get_entries(file1Path)
+
+    for entry in f1_entries:
+        header, run_info, sequence, quality = entry
+        run_id = header.split(' ')[0]
+        barcode_seq = sequence[0:4].upper()
+
+        barcode_seq_corrected = _hamming_corrections(barcode_seq, f1_barcodes, max_distance=1)
+
+        start_cut, end_cut = _cut_sequence_front_biasis(sequence.upper(), start_code, end_code)
+
+        if barcode_seq_corrected in f1_inverted:
+            barcode_key = f1_inverted[barcode_seq_corrected]
+        else:
+            barcode_key = "non_matched"
+        
+        file1_sets[run_id] = barcode_key
+        file1_strings[run_id] = f"@{header} {run_info}\n{sequence[start_cut : end_cut]}\n+\n{quality[start_cut : end_cut]}\n"
+        pass
+
+
+    file2_sets = {}
+    file2_strings = {}
+
+    f2_entries = _get_entries(file2Path)
+
+    invert_seq = lambda seq: ''.join({'A':'T', 'T':'A', 'C':'G', 'G':'C'}.get(base, base) for base in reversed(seq))
+    inverse_start_code = invert_seq(start_code)
+    inverse_end_code = invert_seq(end_code)
+
+    for entry in f2_entries:
+        header, run_info, sequence, quality = entry
+        run_id = header.split(' ')[0]
+        barcode_seq = sequence[0:4].upper()
+
+        barcode_seq_corrected = _hamming_corrections(barcode_seq, f2_barcodes, max_distance=1)
+
+        start_cut, end_cut = _cut_sequence_front_biasis(sequence.upper(), inverse_end_code, inverse_start_code)
+
+        if barcode_seq_corrected in f2_inverted:
+            barcode_key = f2_inverted[barcode_seq_corrected]
+        else:
+            barcode_key = "non_matched"
+        
+        file2_sets[run_id] = barcode_key
+        file2_strings[run_id] = f"@{header} {run_info}\n{sequence[start_cut : end_cut]}\n+\n{quality[start_cut : end_cut]}\n"
+        pass
+
+    run_ids =set(file1_sets.keys()).union(set(file2_sets.keys()))
+
+    create_save_path = lambda path, filebase, prefix: os.path.join(path, f"{prefix}_{filebase}")
+
+    file_keys = set(f1_barcodes.keys()).union(set(f2_barcodes.keys()))
+    file_sets = {key: set() for key in file_keys}
+
+    
+
+    for run_id in run_ids:
+        f1_key = file1_sets.get(run_id, "not_found")
+        f2_key = file2_sets.get(run_id, "not_found")
+
+        if f1_key == f2_key and f1_key != "non_matched" and f1_key != "not_found":
+            file_sets[f1_key].add(run_id)
+    
+    for key, file_set in file_sets.items():
+        save_dir = create_save_path(save_Path, fileBase, key)
+        os.makedirs(save_dir, exist_ok=True)
+        with open(os.path.join(save_dir, f"{fileBase}_F.fastq"), 'w') as out_file:
+            out_file.writelines([file1_strings[run_id] for run_id in file_set])
+
+        with open(os.path.join(save_dir, f"{fileBase}_R.fastq"), 'w') as out_file:
+            out_file.writelines([file2_strings[run_id] for run_id in file_set])
+
+
+        
+    
+
+
+
     pass
+
+
 
 def analyze_file_bardcode_overlap(file1Path, file2Path, f1_barcodes, f2_barcodes):
     # barcodes are "R3" : "CCAT", ...
@@ -193,11 +299,6 @@ def analyze_file_bardcode_overlap(file1Path, file2Path, f1_barcodes, f2_barcodes
         f2_idx = f2_index[f2_barcode]
 
         overlap_matrix[f1_idx][f2_idx] += 1
-
-    
-
-
-
 
     diagonal_sum = np.trace(overlap_matrix)
     total_counts = np.sum(overlap_matrix)
@@ -428,17 +529,8 @@ if __name__ == "__main__":
     end_code = "TGCGGTGGAGGAGGAGGTAGCTAGGGACGGGGGGCGGGAGGCGGG" 
 
     # file_path = "data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R1.fq"
-    # save_path = "data/Rhau/Forward_3"
+    # save_path = "data/Rhau/Forward"
     # rmtree(save_path, ignore_errors=True)
-    
-
-    # t1 = invert_seq(start_code)
-    # t1_len = len(t1)
-    # t2 = invert_seq(end_code)
-    # t2_len = len(t2)
-
-    
-
 
     # forward_counts, positions = split_dataset(file_path, barcode_forward, save_path, "Rhau18_12aa_F",
     #                                                                     start_code=start_code, end_code=end_code)
@@ -451,17 +543,18 @@ if __name__ == "__main__":
     # for i in positions[0]:
     #     forward_start[i] = forward_start.get(i, 0) + 1
 
-    # json.dump(forward_start, open("data/Rhau/Forward_2/start_positions_forward.json", 'w'), indent=4)
+    # with open("data/Rhau/Forward/start_positions_forward.json", 'w') as f:
+    #     json.dump(forward_start, f, indent=4)
 
     # end_start = {}
     # for i in positions[1]:
     #     end_start[i] = end_start.get(i, 0) + 1 
 
-    # json.dump(end_start, open("data/Rhau/Forward_2/end_positions_forward.json", 'w'), indent=4)
+    # json.dump(end_start, open("data/Rhau/Forward/end_positions_forward.json", 'w'), indent=4)
 
-    # graph_total_length_distribution(positions, "data/Rhau/Forward_2/total_length_distribution_forward.png")
-    # graph_barcode_counts(forward_counts, "Forward Read Barcode Distribution", "data/Rhau/Forward_2/barcode_distribution_forward.png")
-    # graph_cut_positions(positions[0], positions[1], "data/Rhau/Forward_2/cut_positions_distribution_forward.png")
+    # graph_total_length_distribution(positions, "data/Rhau/Forward/total_length_distribution_forward.png")
+    # graph_barcode_counts(forward_counts, "Forward Read Barcode Distribution", "data/Rhau/Forward/barcode_distribution_forward.png")
+    # graph_cut_positions(positions[0], positions[1], "data/Rhau/Forward/cut_positions_distribution_forward.png")
     
     '''
     R3 : ATCC (tagg)
@@ -488,36 +581,53 @@ if __name__ == "__main__":
         "R7" : "ATTC",
     }
 
-    analyze_file_bardcode_overlap(
-        "data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R1.fq",
-        "data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R2.fq",
-        barcode_forward,
-        barcode_reverse)
+    # analyze_file_bardcode_overlap(
+    #     "data/Rhau/Raw_Data/sample_cut_F_corrected.fq",
+    #     "data/Rhau/Raw_Data/sample_cut_R.fq",
+    #     barcode_forward,
+    #     barcode_reverse)
     
-    exit
+    # analyze_file_bardcode_overlap(
+    #     "data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R1.fq",
+    #     "data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R2.fq",
+    #     barcode_forward,
+    #     barcode_reverse)
+    
+    
     file_path = "data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R2.fq"
     save_path = "data/Rhau/Reverse"
-    rmtree(save_path, ignore_errors=True)
+    # rmtree(save_path, ignore_errors=True)
     
-    reverse_counts, positions = split_dataset(file_path, barcode_reverse, save_path, "Rhau18_12aa_R",
-                                   invert_seq(end_code), invert_seq(start_code))
+    # reverse_counts, positions = split_dataset(file_path, barcode_reverse, save_path, "Rhau18_12aa_R",
+    #                                invert_seq(end_code), invert_seq(start_code))
     
-    forward_start = {}
-    for i in positions[0]:
-        forward_start[i] = forward_start.get(i, 0) + 1
+    # forward_start = {}
+    # for i in positions[0]:
+    #     forward_start[i] = forward_start.get(i, 0) + 1
 
-    json.dump(forward_start, open("data/Rhau/Reverse/start_positions_reverse.json", 'w'), indent=4)
+    # json.dump(forward_start, open("data/Rhau/Reverse/start_positions_reverse.json", 'w'), indent=4)
 
-    end_start = {}
-    for i in positions[1]:
-        end_start[i] = end_start.get(i, 0) + 1 
-    json.dump(end_start, open("data/Rhau/Reverse/end_positions_reverse.json", 'w'), indent=4)
+    # end_start = {}
+    # for i in positions[1]:
+    #     end_start[i] = end_start.get(i, 0) + 1 
+    # json.dump(end_start, open("data/Rhau/Reverse/end_positions_reverse.json", 'w'), indent=4)
 
 
-    reverse_counts = {"R3" : 1407261, "R4" : 1020586, "R5" : 1220302, "R6" : 948704, "R7" : 957320, "R8" : 110, "non_matched" : 230623}
-    graph_total_length_distribution(positions, "data/Rhau/Reverse/total_length_distribution_reverse.png")
-    graph_barcode_counts(reverse_counts, "Reverse Read Barcode Distribution", "data/Rhau/Reverse/barcode_distribution_reverse.png")
-    graph_cut_positions(positions[0], positions[1], "data/Rhau/Reverse/cut_positions_distribution_reverse.png")
+    # reverse_counts = {"R3" : 1407261, "R4" : 1020586, "R5" : 1220302, "R6" : 948704, "R7" : 957320, "R8" : 110, "non_matched" : 230623}
+    # graph_total_length_distribution(positions, "data/Rhau/Reverse/total_length_distribution_reverse.png")
+    # graph_barcode_counts(reverse_counts, "Reverse Read Barcode Distribution", "data/Rhau/Reverse/barcode_distribution_reverse.png")
+    # graph_cut_positions(positions[0], positions[1], "data/Rhau/Reverse/cut_positions_distribution_reverse.png")
+    
+    two_file_split_dataset("data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R1.fq", "data/Rhau/Raw_Data/Rhau18_12aa-R3-R7_R2.fq", 
+                           barcode_forward, barcode_reverse, "data/Rhau/matched", "Rhau18_12aa", 
+                           start_code=start_code, end_code=end_code)
+
+    # two_file_split_dataset("/home/proxima/Desktop/Side_Projects/P3ANUT/data/Rhau/Raw_Data/sample_cut_F_corrected.fq",
+    #                        "/home/proxima/Desktop/Side_Projects/P3ANUT/data/Rhau/Raw_Data/sample_cut_R.fq", 
+    #                        barcode_forward, barcode_reverse, "data/Rhau/matched", "Rhau18_12aa", 
+    #                        start_code=start_code, end_code=end_code)
+
+    
 
 
 

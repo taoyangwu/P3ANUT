@@ -273,7 +273,7 @@ def merge(filePaths, outputPath="merged.csv"):
         return None
     
     DFs = []
-    columnNames = ["m_index", "std"]
+    columnNames = ["m_index", "s_index"]
     for path in filePaths:
         DFs.append(pd.read_csv(path))
         columnNames.append(path.split("/")[-1])
@@ -283,7 +283,7 @@ def merge(filePaths, outputPath="merged.csv"):
     currentDF = DFs[0]
     currentDF.set_index('sequence', inplace=True)
     currentDF.rename(columns={'m_index': columnNames[2]}, inplace=True)
-    currentDF.drop(['std'], axis=1, inplace=True)   
+    currentDF.drop(['s_index'], axis=1, inplace=True)   
     
     for i in range(1, len(DFs)):
         DF = DFs[i]

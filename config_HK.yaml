@@ -198,12 +198,12 @@ sequenceCount:
     Description: The ending peptide barcode
     Type: String
     UsedFunctions: parse
-    Value: GGGS
+    Value: CGG
   sequenceStart:
     Description: The starting peptide barcode
     Type: String
     UsedFunctions: parse
-    Value: SHSS
+    Value: IFM
   unMatchedRegex:
     Description: Output a csv sequences that do not contain the start and end barcodes
       that are defined

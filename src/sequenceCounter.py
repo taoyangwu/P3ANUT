@@ -42,7 +42,7 @@ def validMethods():
 #        **kwargs - dict - a dictionary of optional arguments
 #Outputs: None
 #---------------------------------------------------------#
-def countJsonFile(jsonFile, parseAmino, parseDNA,
+def countJsonFile(jsonFile, parseAmino : bool = True, parseDNA : bool = True,
                    basedirectory = "", **kwargs):
     
     proteinTag = kwargs.get("proteinDatatag", "proteinSequence")
@@ -171,7 +171,7 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
         
         for i  in range( middleMaxLength, middleMinLength - 1, -1):
             
-            regexStatements[i] = regexStatement.replace("sequenceMiddle", f"(?:[A-Z]{{{i}}})")
+            regexStatements[i] = regexStatement.replace("sequenceMiddle", f"(?:[A-Z\*]{{{i}}})")
     
     else:
         referenceDictionary = {        
@@ -217,6 +217,8 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
             'W' : "(?:(?:TGG))",
             # 'ATG':'M',
             'M' : "(?:(?:ATG))",
+            # "TGA" : "*", 
+
         }
         sequenceStart = re.sub(r"((?<!\\)\*)", "\*",sequenceStart.upper())
         sequenceEnd = re.sub(r"((?<!\\)\*)", "\*",sequenceEnd.upper())
@@ -235,7 +237,7 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
         regexStatement = regexStatement.replace("sequenceEnd", convertedSequenceEnd)
 
         for i  in range( middleMaxLength, middleMinLength -1, -1 ):
-            modifedStatement = regexStatement.replace("sequenceMiddle", f"(?:[A-Z]{{{i * 3}}})")
+            modifedStatement = regexStatement.replace("sequenceMiddle", f"(?:[A-Z\\*]{{{i * 3}}})")
             regexStatements[i*3] = modifedStatement
             
     #Regex to split the list into seperate items
@@ -844,10 +846,13 @@ def createTree(sequenceDF, **kwargs):
 
 
 if(__name__ == "__main__"):
-    file = "/home/proxima/Desktop/Side_Projects/P3ANUT/data/Rhau/Merged/R3/R3_merged.json"
+    file = "data/Rhau/matched/R3_Rhau18_12aa/R3_merged.json"
     
     runAmino = True
     runDNA = True
     
-    output = "/home/proxima/Desktop/Side_Projects/P3ANUT/data/Rhau/Merged/R3"
-    countJsonFile(file, output, sequenceStart = "*", sequenceEnd = "*", runAmino=runAmino, runDNA=runDNA)
+    output = "data/Rhau/matched/R3_Rhau18_12aa/"
+    countJsonFile(file, True, False, output, sequenceStart = "IFM", sequenceEnd = "CGG", 
+                  middleMaxLength = 31, middleMinLength = 27,
+                  purgedCSV = False,  unMatchedRegex = True, createLogo = False, createTree = False)
+    

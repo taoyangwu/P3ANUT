@@ -1,0 +1,23 @@
+R Cut 
+R3 : ATCC (tagg) 2 
+R4 : TTCC (aagg) 2 
+R5 : ATGC (tacg) 2
+R6 : AAGC (ttcg) 2
+R7 : CTTA (gaat) 2
+Non matched      2 - [CCCA, CTAC]
+
+F cut Uncorrected
+'R3' : 'CCAT' 4 
+'R4' : 'CCAA' 1
+'R5' : 'CGAT' 3
+'R6' : 'CGTT' 1
+'R7' : 'ATAC' 3
+Non Matched   0
+
+F cut Corrected
+'R3' : 'CCAT' 2
+'R4' : 'CCAA' 2
+'R5' : 'CGAT' 2
+'R6' : 'CGTT' 2
+'R7' : 'ATAC' 2
+Non Matched   2

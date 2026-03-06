@@ -713,7 +713,7 @@ def aminoConversion(seqParameter, **kwargs):
     #The first slot is considered the highes priority
     priority = [{},{},{}]
     #Loop through the range 
-    for i in range(aminoBaseOffset, aminoBaseOffset + aminoBaseRange):
+    for i in range(aminoBaseRange):
         #Caluclate the sub sequence length, start at the ith index and keep as many as possible
         #How to manage the when the range is 0
         trimmedSeq = seq[i: len(seq) - ((len(seq) - i) % 3)]
@@ -907,8 +907,8 @@ if(__name__ == "__main__"):
     # global_sequence_length = {}
     
     num = 7
-    forFile = f"data/Rhau/Forward/R{num}_Rhau18_12aa_F/Rhau18_12aa_F.fastq"
-    revFile = f"data/Rhau/Reverse/R{num}_Rhau18_12aa_R/Rhau18_12aa_R.fastq"
+    forFile = f"data/Rhau/matched/R{num}_Rhau18_12aa/Rhau18_12aa_F.fastq"
+    revFile = f"data/Rhau/matched/R{num}_Rhau18_12aa/Rhau18_12aa_R.fastq"
     
     
     
@@ -919,23 +919,26 @@ if(__name__ == "__main__"):
         except yaml.YAMLError as exc:
             print(exc)
             exit()
+
+
     
     trimmedParametersPaired = {}
     trimmedParametersGlobal = {}
     
     for key,value in yamlSettings.get("pairedAssembler", {}).items():
         trimmedParametersPaired[key] = value["Value"]
-    
+
+
     # profileParseFastQ("data/PID-1309-GAL-BSA-2-PC_S108_R1_001.fastq")
     data = {}
     meta = parse(forFile, ReverseFile=revFile, data=data, **trimmedParametersPaired)
     # meta = parse(forFile, ReverseFile=revFile, data=data, multiprocess=True, cull_maxlength = 100)
     print(meta)
     
-    with open(f"data/Rhau/Merged/R{num}/R{num}_metadata.json", 'w') as outfile:
+    with open(f"data/Rhau/matched/R{num}_Rhau18_12aa/R{num}_metadata.json", 'w') as outfile:
         json.dump(meta, outfile, indent=4)
 
-    with open(f"data/Rhau/Merged/R{num}/R{num}_merged.json", 'w') as outfile:
+    with open(f"data/Rhau/matched/R{num}_Rhau18_12aa/R{num}_merged.json", 'w') as outfile:
         json.dump(data, outfile, indent=4)
     
     # max_key = max(global_sequence_length.keys())

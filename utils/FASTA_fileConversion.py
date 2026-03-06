@@ -25,10 +25,12 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
         raw_data = [lines[i].strip() for i in range(len(lines)) if i % dataEnteryLength == 1]
         
     sequence_Counts = {}
+    t_skipped = 0
     for entry in raw_data:
         entry_length = len(entry)
         
         if(entry_length < (motrif_presequence_length or 0) + (motrif_postsequence_length or 0)):
+             
             continue
         
         local_entry = entry[::-1].translate(FLIP_DICT) if flip_sequence else entry
@@ -38,9 +40,11 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
         if len_motif_seq not in sequence_Counts:
             sequence_Counts[len_motif_seq] = {}
         
-        if local_entry not in sequence_Counts[len_motif_seq]:
+        if motif_seq not in sequence_Counts[len_motif_seq]:
+            t_skipped += 1 
             sequence_Counts[len_motif_seq][motif_seq] = 1
         else:
+            t_skipped += 1 
             sequence_Counts[len_motif_seq][motif_seq] += 1
         
     for key, value in sequence_Counts.items():
@@ -84,7 +88,6 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
                         largest_matched = amio_seq
             if(largest_matched != ""):
                 aminoDictionary[largest_matched] = aminoDictionary.get(largest_matched, 0) + counts
-                totalCount += counts
             pass
                 
         for seq, counts in sequence_Counts.get(targetBaseLength + 1, {}).items():
@@ -96,15 +99,16 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
                     largest_matched = amio_seq
             if(largest_matched != ""):
                 aminoDictionary[largest_matched] = aminoDictionary.get(largest_matched, 0) + counts
-                totalCount += counts
         
     sorted_amino = dict(sorted(aminoDictionary.items(), key=lambda item: item[1], reverse=True))
     
+    file_set_size = len(raw_data)
+
     with open(join(outputDirectory, f"{fileBaseName}.csv"), 'w') as f:
         f.write("sequence,mean,std\n")
-        f.write(f"NORMALIZED_ONE_COUNT,{1/totalCount if normalizeCount else 1},0\n")
+        f.write(f"NORMALIZED_ONE_COUNT,{1/file_set_size if normalizeCount else 1},0\n")
         for seq, count in sorted_amino.items():
-            f.write(f"{seq},{count/totalCount if normalizeCount else count},0\n")
+            f.write(f"{seq},{count/file_set_size if normalizeCount else count},0\n")
                 
                 
 #------------------------------------------------------------------------------#
@@ -298,10 +302,14 @@ args.add_argument('--outputDirectory', type=str, default='output/', help='Output
 args.add_argument('--createLogoplot', type=bool, default=True, help='Create logoplot for the amino acid frequencies')
 args.add_argument('--motrif_presequence_length', type=int, default=0, help='Length of pre-sequence before motif to trim off')
 args.add_argument('--motrif_postsequence_length', type=int, default=0, help='Length of post-sequence after motif to trim off')
-            
-intermediateProcessing("data/Rhau/Forward_2/R3_Rhau18_12aa_F/Rhau18_12aa_F.fastq", includeSurrounding=True, targetBaseLength= 90,
-                        outputDirectory='data/Rhau/Forward_2/R3_Rhau18_12aa_F/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-                        motrif_presequence_length= 9, motrif_postsequence_length= 9, dataEnteryLength=4)
+
+
+for i in [3,4,5,6,7]:
+    intermediateProcessing(f"data/Rhau/Reverse/R{i}_Rhau18_12aa_R/Rhau18_12aa_R.fastq", includeSurrounding=True, targetBaseLength= 90,
+                            outputDirectory=f'data/Rhau/Reverse/R{i}_Rhau18_12aa_R/', outputAmino=True, normalizeCount=True, createLogoplot=True,
+                            motrif_presequence_length= 9, motrif_postsequence_length= 9 , dataEnteryLength=4)
+
+
 
 
 # intermediateProcessing("data/Rhau/Forward/R3_Rhau18_12aa_F/Rhau18_12aa_F.fastq", includeSurrounding=True, targetBaseLength= 36,
