@@ -168,6 +168,9 @@ class volcanoPlotFrame(tk.Frame):
             return
         
         fileName = tk.filedialog.asksaveasfilename(filetypes=[("Txt Files", "*.txt")])
+
+        if(fileName == ""):
+            return
         
         supportingLogic.createDistrabution(self.fileA.get(), self.fileB.get(), fileName)
         
@@ -186,7 +189,7 @@ class volcanoPlotFrame(tk.Frame):
             self.graph.setPvalue(self.currentPvalue_log, new_val)
         
     def setfileA(self):
-        filename = tk.filedialog.askopenfilename(initialdir = "/",
+        filename = tk.filedialog.askopenfilename(initialdir = os.getcwd(),
                                             title = "Select a File",
                                             filetypes = [("CSV Files", "*.csv")])
         
@@ -201,7 +204,7 @@ class volcanoPlotFrame(tk.Frame):
         
         
     def setfileB(self):
-        filename = tk.filedialog.askopenfilename(initialdir = "/",
+        filename = tk.filedialog.askopenfilename(initialdir = os.getcwd(),
                                             title = "Select a File",
                                             filetypes = [("CSV Files", "*.csv")])
         
@@ -279,8 +282,10 @@ class volcanoPlotFrame(tk.Frame):
     
     def updateExportBaseName(self, new_val):
         print("new Export Base Name val: ", new_val)
-        self.exportBaseName = str(new_val)
-        self.distrabutionFrame.config(text=f"Show {self.exportBaseName}1v{self.exportBaseName}2 Distrabution")
+        self.exportBaseName.set(new_val)
+        self.distrabutionFrame.config(text=f"Show {self.exportBaseName.get()}1v{self.exportBaseName.get()}2 Distrabution")
+        if self.graph is not None:
+            self.graph.updateExportBaseName(new_val)
         
         
         
@@ -421,8 +426,46 @@ class moveableLine(tk.Frame):
         self.ax4.text(1, 0.1, f"P-Value {self.pValue_linear} ({round(self.pValue,2)})", ha="right", va="top", fontsize=10)
         self.ax4.text(1, 0.4, f"{self.exportBaseName}1v{self.exportBaseName}2_Ratio {round(self.ratio,2)}", ha="right", va="top", fontsize=10)
         
+    def updateExportBaseName(self, new_val):
+        self.exportBaseName = new_val
+
+        # Update ax1 file name labels
+        self.ax1.clear()
+        self.ax1.set_xlim(0, len(self.fileNames) + 1)
+        self.ax1.set_yticklabels([])
+        self.ax1.set_yticks([])
+        self.ax1.set_xticklabels([])
+        self.ax1.set_xticks([])
+        self.ax1.set(ylabel='File Names')
+        self.ax1.yaxis.label.set_size(10)
+        trimmedFileNames = [os.path.basename(i) for i in self.fileNames]
+        self.ax1.text(1, 0.5, f"{self.exportBaseName}1 - {trimmedFileNames[0]}", ha="center", va="center", fontsize=8, rotation=90)
+        self.ax1.text(2, 0.5, f"{self.exportBaseName}2 - {trimmedFileNames[1]}", ha="center", va="center", fontsize=8, rotation=90)
+
+        # Update ax2 x-axis label
+        self.ax2.set_xlabel(f"{self.exportBaseName}1v{self.exportBaseName}2_Ratio")
+
+        # Redraw ax4 summary text
+        self.drawCurrentValues()
+
+        self.figureCanvas.draw()
+
     def exportGraph(self, fileName):
-        self.fig.savefig(fileName)
+        # Save at a fixed 1000x1000 pixels (10 in × 100 dpi), then restore the
+        # original figure size so the GUI display is unaffected.
+        original_size = self.fig.get_size_inches()
+        original_dpi  = self.fig.get_dpi()
+
+        self.fig.set_size_inches(6, 4)
+
+        #Redraw the figure to ensure the new size is used when saving
+        self.figureCanvas.draw()
+
+        self.fig.savefig(fileName, dpi=100)
+
+        self.fig.set_size_inches(original_size)
+        self.fig.set_dpi(original_dpi)
+        self.figureCanvas.draw()
         
     def setData(self, newData, displayResolution = 0.01):
         self.ax2.clear()
@@ -499,6 +542,7 @@ class supportingLogic:
         
         #Check in the NORMALIZED_ONE_COUNT row is within the file
         if("NORMALIZED_ONE_COUNT" in dataFrameA.index):
+            t = dataFrameA.loc["NORMALIZED_ONE_COUNT"]
             dfA_oneCount = dataFrameA.loc["NORMALIZED_ONE_COUNT"][0]
             dataFrameA.drop("NORMALIZED_ONE_COUNT", inplace=True)
         else:

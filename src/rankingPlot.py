@@ -235,7 +235,7 @@ class rankingPlotFrame(tk.Frame):
             self.graph.moveCutoffLine(self.currentSlope, new_val)
         
     def setfileA(self):
-        filename = tk.filedialog.askopenfilename(initialdir = "/",
+        filename = tk.filedialog.askopenfilename(initialdir = os.getcwd(),
                                             title = "Select a File",
                                             filetypes = [("CSV Files", "*.csv")])
         
@@ -250,7 +250,7 @@ class rankingPlotFrame(tk.Frame):
         
         
     def setfileB(self):
-        filename = tk.filedialog.askopenfilename(initialdir = "/",
+        filename = tk.filedialog.askopenfilename(initialdir = os.getcwd(),
                                             title = "Select a File",
                                             filetypes = [("CSV Files", "*.csv")])
         
@@ -341,9 +341,14 @@ class rankingPlotFrame(tk.Frame):
         
         difference = [(x[i] - y[i]) > 0 for i in range(len(x))]
         
-        indices = [x[i] for i in range(len(x)) if (difference[i] != bellow)]
+        filtered_indices = [i for i in range(len(x)) if (difference[i] != bellow)]
+        indices      = [x[i] for i in filtered_indices]
+        file1_idx    = [x[i] for i in filtered_indices]
+        file2_idx    = [y[i] for i in filtered_indices]
         
-        supportingLogic.exportIndices(self.fileA.get(), indices, filename)
+        supportingLogic.exportIndices(self.fileA.get(), indices, filename,
+                                      file1_indices=file1_idx,
+                                      file2_indices=file2_idx)
     
     def refreshGraph(self):
         if(self.graph is not None):
@@ -479,9 +484,18 @@ class graphFrame(tk.Frame):
                     bbox=dict(boxstyle="round", fc="w"),
                     arrowprops=dict(arrowstyle="->"))
         self.annot.set_visible(False)
-        
-        self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
-        
+
+        # Clear any existing pinned tags when the axes are redrawn
+        self.pinned_tags = {}
+
+        # Disconnect previous event handlers before reconnecting to avoid stacking
+        if hasattr(self, '_hover_cid'):
+            self.fig.canvas.mpl_disconnect(self._hover_cid)
+        if hasattr(self, '_click_cid'):
+            self.fig.canvas.mpl_disconnect(self._click_cid)
+        self._hover_cid = self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
+        self._click_cid = self.fig.canvas.mpl_connect("button_press_event", self.on_click)
+
         self.figureCanvas.draw()
         
         
@@ -497,14 +511,60 @@ class graphFrame(tk.Frame):
                 if vis:
                     self.annot.set_visible(False)
                     self.fig.canvas.draw_idle()
+
+    def on_click(self, event):
+        """Left-click a point to toggle a persistent sequence tag."""
+        if event.inaxes != self.ax2 or event.button != 1:
+            return
+        cont, ind = self.sc.contains(event)
+        if not cont:
+            return
+        point_index = ind["ind"][0]
+        if point_index in self.pinned_tags:
+            # Tag already visible — remove it
+            self.pinned_tags[point_index].remove()
+            del self.pinned_tags[point_index]
+        else:
+            # Pin a new persistent tag for this point
+            pos = self.sc.get_offsets()[point_index]
+
+            # Choose offset direction so the tag stays within the axes.
+            # If the point is in the right 30% of the x-axis range, flip left.
+            # If the point is in the top 30% of the y-axis range, flip down.
+            x_min, x_max = self.ax2.get_xlim()
+            y_min, y_max = self.ax2.get_ylim()
+            x_frac = (pos[0] - x_min) / (x_max - x_min) if (x_max - x_min) != 0 else 0
+            y_frac = (pos[1] - y_min) / (y_max - y_min) if (y_max - y_min) != 0 else 0
+            x_offset = -80 if x_frac > 0.7 else 20
+            y_offset = -30 if y_frac > 0.7 else 20
+
+            tag = self.ax2.annotate(
+                f"{self.seqs[point_index]}",
+                xy=pos,
+                xytext=(x_offset, y_offset),
+                textcoords="offset points",
+                bbox=dict(boxstyle="round", fc="lightyellow", alpha=0.85),
+                arrowprops=dict(arrowstyle="->"),
+            )
+            self.pinned_tags[point_index] = tag
+        self.fig.canvas.draw_idle()
         
     def update_annot(self, ind):
-        
+
         point_index = ind["ind"][0]
-    
+
         pos = self.sc.get_offsets()[point_index]
         self.annot.xy = pos
-        
+
+        # Flip offset direction when the point is near the right/top edge
+        x_min, x_max = self.ax2.get_xlim()
+        y_min, y_max = self.ax2.get_ylim()
+        x_frac = (pos[0] - x_min) / (x_max - x_min) if (x_max - x_min) != 0 else 0
+        y_frac = (pos[1] - y_min) / (y_max - y_min) if (y_max - y_min) != 0 else 0
+        x_offset = -80 if x_frac > 0.7 else 20
+        y_offset = -30 if y_frac > 0.7 else 20
+        self.annot.set_position((x_offset, y_offset))
+
         text = f"{self.seqs[point_index]}"
         self.annot.set_text(text)
         self.annot.get_bbox_patch().set_facecolor("darkviolet")
@@ -551,6 +611,23 @@ class graphFrame(tk.Frame):
         
     
     def exportGraph(self, fileName):
+
+        # Save at a fixed 1000x1000 pixels (10 in × 100 dpi), then restore the
+        # original figure size so the GUI display is unaffected.
+        original_size = self.fig.get_size_inches()
+        original_dpi  = self.fig.get_dpi()
+
+        self.fig.set_size_inches(6, 4)
+
+        #Redraw the figure to ensure the new size is used when saving
+        self.figureCanvas.draw()
+
+        self.fig.savefig(fileName, dpi=100)
+
+        self.fig.set_size_inches(original_size)
+        self.fig.set_dpi(original_dpi)
+        self.figureCanvas.draw()
+
         self.fig.savefig(fileName)
         
         
@@ -778,29 +855,35 @@ class supportingLogic:
             raise ValueError('Invalid Option must be above (True) or bellow (False)')
 
 
-    def exportIndices(fileA, indies, exportName):
+    def exportIndices(fileA, indies, exportName, file1_indices=None, file2_indices=None):
         
         lines = []
         writeCounter = 0
         header = ""
         
         with open(fileA, 'r') as f:
-            header = f.readline()
+            header = f.readline().rstrip('\n')
             for i, line in enumerate(f):
                 line_split = line.strip().split(',')
                 if(line_split[0] in ["sequence" or "NORMALIZED_ONE_COUNT"]  ):
-                    lines.append(line)
+                    lines.append((line.rstrip('\n'), None, None))
                 elif(i in indies):
-                    lines.append(line)
+                    pos = indies.index(i)
+                    f1 = file1_indices[pos] if file1_indices is not None else ""
+                    f2 = file2_indices[pos] if file2_indices is not None else ""
+                    lines.append((line.rstrip('\n'), f1, f2))
                     writeCounter += 1
                 
                 if(writeCounter >= len(indies)):
                     break
                 
         with open(exportName, 'w') as f:
-            f.write(header)
-            for line in lines:
-                f.write(line)
+            f.write(f"{header},file1_index,file2_index\n")
+            for line, f1, f2 in lines:
+                if f1 is None:
+                    f.write(f"{line},,\n")
+                else:
+                    f.write(f"{line},{f1},{f2}\n")
                 
         
         

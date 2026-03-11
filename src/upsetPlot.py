@@ -155,7 +155,7 @@ class upsetPlotFrame(tk.Frame):
 
             
     def addFile(self):
-        fileName = tk.filedialog.askopenfilename(initialdir = "/",
+        fileName = tk.filedialog.askopenfilename(initialdir = os.getcwd(),
                                             title = "Select a File",
                                             filetypes = [("CSV Files", "*.csv")])
         
@@ -253,7 +253,22 @@ class upsetPlot(tk.Frame):
         return self.insertsectionDict.get(key, "N/A")
     
     def exportGraph(self, fileName):
-        self.fig.savefig(fileName)
+
+        # Save at a fixed 1000x1000 pixels (10 in × 100 dpi), then restore the
+        # original figure size so the GUI display is unaffected.
+        original_size = self.fig.get_size_inches()
+        original_dpi  = self.fig.get_dpi()
+
+        self.fig.set_size_inches(6, 4)
+
+        #Redraw the figure to ensure the new size is used when saving
+        self.figureCanvas.draw()
+
+        self.fig.savefig(fileName, dpi=100)
+
+        self.fig.set_size_inches(original_size)
+        self.fig.set_dpi(original_dpi)
+        self.figureCanvas.draw()
         
     
     def createUpSetGraph(self):

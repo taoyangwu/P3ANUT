@@ -105,7 +105,7 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
     file_set_size = len(raw_data)
 
     with open(join(outputDirectory, f"{fileBaseName}.csv"), 'w') as f:
-        f.write("sequence,mean,std\n")
+        f.write("sequence,m_index,s_index\n")
         f.write(f"NORMALIZED_ONE_COUNT,{1/file_set_size if normalizeCount else 1},0\n")
         for seq, count in sorted_amino.items():
             f.write(f"{seq},{count/file_set_size if normalizeCount else count},0\n")
@@ -307,9 +307,12 @@ args.add_argument('--motrif_postsequence_length', type=int, default=0, help='Len
 for i in [3,4,5,6,7]:
     intermediateProcessing(f"data/Rhau/Reverse/R{i}_Rhau18_12aa_R/Rhau18_12aa_R.fastq", includeSurrounding=True, targetBaseLength= 90,
                             outputDirectory=f'data/Rhau/Reverse/R{i}_Rhau18_12aa_R/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-                            motrif_presequence_length= 9, motrif_postsequence_length= 9 , dataEnteryLength=4)
+                            motrif_presequence_length= 9, motrif_postsequence_length= 9 , dataEnteryLength=4, flip_sequence = True)
 
-
+# for i in [1,2,3,4]:
+#     intermediateProcessing(f"data/rG4/P{i}.merge.fa", includeSurrounding=True, targetBaseLength= 36,
+#                             outputDirectory=f'data/rG4/R{i+2}', outputAmino=True, normalizeCount=True, createLogoplot=True,
+#                             motrif_presequence_length= 0, motrif_postsequence_length= 0 , dataEnteryLength=4)
 
 
 # intermediateProcessing("data/Rhau/Forward/R3_Rhau18_12aa_F/Rhau18_12aa_F.fastq", includeSurrounding=True, targetBaseLength= 36,
