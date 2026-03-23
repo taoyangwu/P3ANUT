@@ -3,6 +3,7 @@ import csv
 import numpy as np
 import json
 import os
+import re
 
 import sys, pathlib
 # add project root (two levels up) to sys.path so `from src...` works
@@ -26,7 +27,7 @@ def aminoConversion_simplified(seqParameter):
     return "".join(conversionDicitionary[t] for t in ["".join([seqParameter[j] for j in range(i, i+3)]) for i in range(0, len(seqParameter) - 2, 3) ])
 
 
-def evalutate_fastq_file(file, flip = False, start_barcode = "AAA", end_barcode = "TTT", **kwargs):
+def evalutate_fastq_file(file, flip = False, start_barcode = "AAA", end_barcode = "TTT", target_length = 68, **kwargs):
     
     
     #Load the optional arguments from the kwargs
@@ -57,18 +58,23 @@ def evalutate_fastq_file(file, flip = False, start_barcode = "AAA", end_barcode 
     end_counts_amino = 0
     both_counts_amino = 0
 
+    sequence_length_counts = {}
+
     for key, value in file_data.items():
 
         scores, seq = np.divmod(value["primarySequence"], 5)
             
         lowQualityCount = np.count_nonzero(np.less(scores, minQualityScore))
-        
+
         if min(scores) == 0 :
             continue
 
         protein = aminoConversion(seq, **kwargs)
             
-        stringRep = str(np.take(baseConversionArray, seq).tobytes())
+        stringRep = str(np.take(baseConversionArray, seq).tobytes())[2:-1]
+
+        sequence_length_counts[len(stringRep)] = sequence_length_counts.get(len(stringRep), 0) + 1
+        most_frequent_length = max(sequence_length_counts, key=sequence_length_counts.get)
         
         contain_start = start_barcode in stringRep
         contain_end = end_barcode in stringRep
@@ -92,8 +98,43 @@ def evalutate_fastq_file(file, flip = False, start_barcode = "AAA", end_barcode 
         "both_counts": both_counts,
         "start_counts_amino": start_counts_amino,
         "end_counts_amino": end_counts_amino,
-        "both_counts_amino": both_counts_amino
+        "both_counts_amino": both_counts_amino,
+        "sequence_length_score" : sequence_length_counts.get(most_frequent_length, 0) / sum(sequence_length_counts.values())
     }
+
+def calculate_overlap(file1, file2):
+    def _load(file_path):
+        sequences = set()
+
+        cull_minlength = 8
+        cull_maxlength = 256
+        fileSeperator = r"\+"
+
+        with open(file_path, "r") as file:
+            #Example Entry after regex as a tuple
+            #('NB501061:163:HVYLLAFX3:1:11101:1980:1063' - Run ID,  
+            # '1:N:0:GTATTATCT+CATATCGTT' - Additional Run Information, 
+            # 'TGTAGACTATTCTCACTCTTCTTGTCTGGTTCCTCCGCGTCCGACGTGTGGTGGAGGTTCGGTCGACG', - DNA Sequence 
+            # 'AAAAAEE<EE<EEEEEEEEEEAEEEE/EEAEEEEA//AA/EAAEEEEEEEEAEEEEEE/EA<EEEEE6' - DNA Quality Score)
+            regexExpression = r"@([A-Z0-9.:\-\s]+)(?:\s)([A-Z0-9:+\/-]+)(?:\s*)([CODONS]{cull_minlength,cull_maxlength})(?:\s+SPLIT\s*)([!-I]{cull_minlength,cull_maxlength})".replace("cull_minlength", str(cull_minlength)).replace("cull_maxlength", str(cull_maxlength))
+            regexExpression = regexExpression.replace("CODONS", "ATGCN")
+            
+            cleanedFileSeparator = fileSeperator.replace("\\\\", "\\")
+            regexExpression = regexExpression.replace("SPLIT", f"[{cleanedFileSeparator}]?")
+            entries = re.findall(regexExpression, file.read())
+
+        for entry in entries:
+            sequence = entry[0]
+            sequences.add(sequence)
+        return sequences
+    
+    sequences1 = _load(file1)
+    sequences2 = _load(file2)
+
+    overlap = sequences1.intersection(sequences2)
+
+    return len(overlap), len(overlap) - len(sequences1), len(overlap) - len(sequences2)
+
     
 def evalutate_json_file(file, flip = False, start_barcode = "AAA", end_barcode = "TTT", **kwargs):
     with open(file, 'r') as infile:
@@ -155,9 +196,18 @@ def _return_data_files():
             ["data/MON_CONA/PID-1309-M7-MON-CONA-1_S85_R1_001.fastq","data/MON_CONA/PID-1309-M7-MON-CONA-1_S85_R2_001.fastq"],
             ["data/MON_CONA/PID-1309-M7-MON-CONA-2_S86_R1_001.fastq", "data/MON_CONA/PID-1309-M7-MON-CONA-2_S86_R2_001.fastq"]
             ]
+
+def _large_evaluation(file_list):
+    pairs = []
+    with open(file_list, 'r') as f:
+        lines = f.readlines()
+        pairs = [line.strip().split() for line in lines]
+
+    return pairs
     
-def evalutate_p3anut(start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={}):
-    files = _return_data_files()
+    
+def evalutate_p3anut(files, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={}):
+    # files = _return_data_files()
     
     results = {}
     
@@ -165,10 +215,15 @@ def evalutate_p3anut(start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG"
         print(f"Evaluating files: {forward}, {reverse}")
         t1 = evalutate_fastq_file(forward, start_barcode=start_barcode, end_barcode=end_barcode, flip=False)
         t2 = evalutate_fastq_file(reverse, start_barcode=start_barcode, end_barcode=end_barcode, flip=True)
+
+        sequence_length_count, f1_count, f2_count = calculate_overlap(forward, reverse)
         
         merged_data = {}
-        _ = parse(forward, reverse, data=merged_data, **parse_args)
+        t0 = parse(forward, reverse, data=merged_data, **parse_args)
         
+        t1["retention_rate"] = f1_count / sequence_length_count
+        t2["retention_rate"] = f2_count / sequence_length_count
+
         t3 = evalutate_dict_file(merged_data, flip=False, start_barcode=start_barcode, end_barcode=end_barcode)
         
         results[forward] = {
@@ -197,17 +252,43 @@ def evalutate_delta(forfile, reversefile, d_start = 1, d_end = 19, start_barcode
         
             
     return results
+
+def evaluate_folder(path, start_barcode="GACTATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", **kwargs):
+    results = {}
+    
+    for file in os.listdir(path):
+        if file.endswith(".fastq"):
+            file_path = os.path.join(path, file)
+            print(f"Evaluating file: {file_path}")
+            results[file] = evalutate_fastq_file(file_path, start_barcode="GACTATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", flip=False)
+    
+    return results
+
+# def t():
+#     file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/cleaned_file_pairs.txt")
+    
+#     for forFile, revFile in file_list:
+#         print(os.path.exists(forFile), os.path.exists(revFile))
+    
+#     t = evalutate_p3anut(file_list, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={"multiprocess": True, "cull_maxlength": 100, "scoreOffset":11})
+    
+#     with open("p3anut_evaluation.json", 'w') as outfile:
+#         json.dump(t, outfile, indent=4)
+
+
     
 if __name__ == "__main__":
     
-    file_list = _return_data_files()    
+    # file_list = _return_data_files()    
+
+    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/file_pairs.txt")
     
     for forFile, revFile in file_list:
         print(os.path.exists(forFile), os.path.exists(revFile))
     
-    t = evalutate_p3anut(start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={"multiprocess": True, "cull_maxlength": 100, "scoreOffset":11})
+    t = evalutate_p3anut(file_list, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={"multiprocess": True, "cull_maxlength": 100, "scoreOffset":11})
     
-    with open("dev_tools/p3anut_evaluation.json", 'w') as outfile:
+    with open("p3anut_evaluation.json", 'w') as outfile:
         json.dump(t, outfile, indent=4)
         
         
