@@ -213,8 +213,14 @@ def evalutate_p3anut(files, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGA
     
     for forward, reverse in files:
         print(f"Evaluating files: {forward}, {reverse}")
-        t1 = evalutate_fastq_file(forward, start_barcode=start_barcode, end_barcode=end_barcode, flip=False)
-        t2 = evalutate_fastq_file(reverse, start_barcode=start_barcode, end_barcode=end_barcode, flip=True)
+
+        try:
+            t1 = evalutate_fastq_file(forward, start_barcode=start_barcode, end_barcode=end_barcode, flip=False)
+            t2 = evalutate_fastq_file(reverse, start_barcode=start_barcode, end_barcode=end_barcode, flip=True)
+        except Exception as e:
+            with open("error_log.txt", 'a') as error_file:
+                error_file.write(f"Error evaluating files {forward} and {reverse}: {e}\n")
+            continue
 
         sequence_length_count, f1_count, f2_count = calculate_overlap(forward, reverse)
         
