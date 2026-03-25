@@ -142,7 +142,7 @@ def evalutate_json_file(file, flip = False, start_barcode = "AAA", end_barcode =
     
     return evalutate_dict_file(file_data, flip=flip, start_barcode=start_barcode, end_barcode=end_barcode, **kwargs)
     
-def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barcode = "TTT", sequence_length = 68, **kwargs):
+def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barcode = "TTT", target_sequence_length = 68, **kwargs):
     
     
     start_amino_barcode = aminoConversion_simplified( start_barcode)
@@ -160,7 +160,7 @@ def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barc
 
     for key, value in file_data.items():
         
-        
+        sequence_length = len(value["sequences"])
         
         contain_start = start_barcode in value["sequences"]
         contain_end = end_barcode in value["sequences"]
@@ -169,7 +169,7 @@ def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barc
         end_counts_amino += 1 if end_amino_barcode in value.get("proteinSequence", "") else 0
         both_counts_amino += 1 if (start_amino_barcode in value.get("proteinSequence", "") and end_amino_barcode in value["proteinSequence"]) else 0
         
-        sequences_lengths[len(value)] = sequences_lengths.get(len(value), 0) + 1
+        sequences_lengths[sequence_length] = sequences_lengths.get(sequence_length, 0) + 1
 
 
         # print(f"Forward Read ID: {key}, Finalized Sequence: {converted_seq}")
@@ -188,7 +188,7 @@ def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barc
         "start_counts_amino": start_counts_amino,
         "end_counts_amino": end_counts_amino,
         "both_counts_amino": both_counts_amino,
-        "sequence_length_score" : sequences_lengths.get(sequence_length, 0) / sum(sequences_lengths.values())
+        "sequence_length_score" : sequences_lengths.get(target_sequence_length, 0) / sum(sequences_lengths.values())
     }
     
 
@@ -237,6 +237,8 @@ def evalutate_p3anut(files, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGA
         t2["retention_rate"] = (sequence_length_count - f2_count) / sequence_length_count
 
         t3 = evalutate_dict_file(merged_data, flip=False, start_barcode=start_barcode, end_barcode=end_barcode)
+
+        t3["retention_rate"] = t3["total_reads"] / sequence_length_count if sequence_length_count > 0 else 0
         
         results[forward] = {
             "forward": t1,
@@ -293,7 +295,7 @@ if __name__ == "__main__":
     
     # file_list = _return_data_files()    
 
-    file_list = _large_evaluation("file_pairs copy.txt")
+    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/file_pairs copy.txt")
     
     for forFile, revFile in file_list:
         print(os.path.exists(forFile), os.path.exists(revFile))
