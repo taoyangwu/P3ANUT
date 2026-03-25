@@ -131,7 +131,7 @@ def calculate_overlap(file1, file2):
     sequences1 = _load(file1)
     sequences2 = _load(file2)
 
-    overlap = sequences1.intersection(sequences2)
+    overlap = sequences1.union(sequences2)
 
     return len(overlap), len(overlap) - len(sequences1), len(overlap) - len(sequences2)
 
@@ -142,7 +142,7 @@ def evalutate_json_file(file, flip = False, start_barcode = "AAA", end_barcode =
     
     return evalutate_dict_file(file_data, flip=flip, start_barcode=start_barcode, end_barcode=end_barcode, **kwargs)
     
-def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barcode = "TTT", **kwargs):
+def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barcode = "TTT", sequence_length = 68, **kwargs):
     
     
     start_amino_barcode = aminoConversion_simplified( start_barcode)
@@ -156,6 +156,8 @@ def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barc
     end_counts_amino = 0
     both_counts_amino = 0
 
+    sequences_lengths = {}
+
     for key, value in file_data.items():
         
         
@@ -167,6 +169,9 @@ def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barc
         end_counts_amino += 1 if end_amino_barcode in value.get("proteinSequence", "") else 0
         both_counts_amino += 1 if (start_amino_barcode in value.get("proteinSequence", "") and end_amino_barcode in value["proteinSequence"]) else 0
         
+        sequences_lengths[len(value)] = sequences_lengths.get(len(value), 0) + 1
+
+
         # print(f"Forward Read ID: {key}, Finalized Sequence: {converted_seq}")
         # print(f"Foward barcode CCCGGGTACCTTTCTATTCTCACTCTTCTTGT in finalized sequence: {'CCCGGGTACCTTTCTATTCTCACTCTTCTTGT' in converted_seq}")
         # print(f"End Barcode TGTGGTGGAGGTTCGGCCGGGCGCGGTGGT in finalized sequence: {'TGTGGTGGAGGTTCGGCCGGGCGCGGTGGT' in converted_seq}")
@@ -182,7 +187,8 @@ def evalutate_dict_file(file_data, flip = False, start_barcode = "AAA", end_barc
         "both_counts": both_counts,
         "start_counts_amino": start_counts_amino,
         "end_counts_amino": end_counts_amino,
-        "both_counts_amino": both_counts_amino
+        "both_counts_amino": both_counts_amino,
+        "sequence_length_score" : sequences_lengths.get(sequence_length, 0) / sum(sequences_lengths.values())
     }
     
 
@@ -227,8 +233,8 @@ def evalutate_p3anut(files, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGA
         merged_data = {}
         t0 = parse(forward, reverse, data=merged_data, **parse_args)
         
-        t1["retention_rate"] = f1_count / sequence_length_count
-        t2["retention_rate"] = f2_count / sequence_length_count
+        t1["retention_rate"] = (sequence_length_count - f1_count) / sequence_length_count
+        t2["retention_rate"] = (sequence_length_count - f2_count) / sequence_length_count
 
         t3 = evalutate_dict_file(merged_data, flip=False, start_barcode=start_barcode, end_barcode=end_barcode)
         
@@ -287,7 +293,7 @@ if __name__ == "__main__":
     
     # file_list = _return_data_files()    
 
-    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/file_pairs.txt")
+    file_list = _large_evaluation("file_pairs copy.txt")
     
     for forFile, revFile in file_list:
         print(os.path.exists(forFile), os.path.exists(revFile))
