@@ -1,116 +1,97 @@
 import json
-import os
-import csv
+import matplotlib.pyplot as plt
 
-def load_metrics(metrics_path):
-
-    data = {}
+def runtime_comparison(metrics_path, file_sizes):
 
     with open(metrics_path, 'r') as f:
         data = json.load(f)
 
-    parsed_data = {}
+    with open(file_sizes, 'r') as f:
+        size_data = json.load(f)
+
+    flash_times = []
+    casper_times = []
+    p3anut_times = []
+    run_names = []
+
+    pass
+
+
+def calc_averages(metrics_path):
+
+    with open(metrics_path, 'r') as f:
+        data = json.load(f)
+
+    base = {
+        "time_taken": 0,
+        "retention_rate": 0,
+        "tau_score": 0,
+        "upsilon_score": 0,
+        "phi_score": 0,
+        "sequence_length_score": 0
+    }
+
+    p3anut_avg = base.copy()
+    flash_avg = base.copy()
+    casper_avg = base.copy()
+    rebollo_avg = base.copy()
+    rebollo_reverse_avg = base.copy()
+    forward_avg = base.copy()
+    reverse_avg = base.copy()
 
     for run_name, metrics in data.items():
+        for tool in ["p3anut", "flash", "casper", "rebollo", "rebollo_reverse", "forward", "reverse"]:
+            for metric in base.keys():
+                if tool in metrics and metric in metrics[tool]:
+                    if metrics[tool][metric] is not None:
+                        if tool == "p3anut":
+                            p3anut_avg[metric] += metrics[tool][metric]
+                        elif tool == "flash":
+                            flash_avg[metric] += metrics[tool][metric]
+                        elif tool == "casper":
+                            casper_avg[metric] += metrics[tool][metric]
+                        elif tool == "rebollo":
+                            rebollo_avg[metric] += metrics[tool][metric]
+                        elif tool == "forward":
+                            forward_avg[metric] += metrics[tool][metric]
+                        elif tool == "reverse":
+                            reverse_avg[metric] += metrics[tool][metric]
+                        elif tool == "rebollo_reverse":
+                            rebollo_reverse_avg[metric] += metrics[tool][metric]
 
-        sanity_lambda = lambda x, default = 0: default if x is None else x
-        
-        parsed_data[run_name] = {
-            "flash": {
-                "retention_rate": sanity_lambda(data[run_name].get("flash", {}).get("total_reads", 0)) / sanity_lambda(data[run_name].get("flash", {}).get("total_pairs"), 1),
-                "time_taken": sanity_lambda(data[run_name].get("flash", {}).get("time_seconds")),
-                "tau_score": sanity_lambda(data[run_name].get("flash", {}).get("both_counts",0)) / sanity_lambda(data[run_name].get("flash", {}).get("total_reads"), 1),
-            },
-            "casper": {
-                "retention_rate": sanity_lambda(data[run_name].get("casper", {}).get("total_reads", 0)) / sanity_lambda(data[run_name].get("casper", {}).get("total_pairs"), 1),
-                "time_taken": sanity_lambda(data[run_name].get("casper", {}).get("time_seconds")),
-                "tau_score": sanity_lambda(data[run_name].get("casper", {}).get("both_counts", 0))/ sanity_lambda(data[run_name].get("casper", {}).get("total_reads"),1)
-            }
-        }
+    num_runs = len(data)
+    for metric in base.keys():
+        p3anut_avg[metric] /= num_runs
+        flash_avg[metric] /= num_runs
+        casper_avg[metric] /= num_runs
+        rebollo_avg[metric] /= num_runs
+        forward_avg[metric] /= num_runs
+        reverse_avg[metric] /= num_runs
+        rebollo_reverse_avg[metric] /= num_runs
 
-    return parsed_data
+    total_score = lambda x: x["retention_rate"] * x["tau_score"] *  x["sequence_length_score"] 
 
-def load_p3anut_evaluation(evaluation_path, p3anut_log_path):
+    print("Average Metrics:")
+    print("P3ANUT:", p3anut_avg)
+    print("FLASH:", flash_avg)
+    print("CASPER:", casper_avg)
+    print("REBOLLO:", rebollo_avg)
+    print("REBOLLO REVERSE:", rebollo_reverse_avg)
+    print("FORWARD:", forward_avg)
+    print("REVERSE:", reverse_avg)  
 
-    p3anut_log = load_p3anut_log(p3anut_log_path)
-
-    data = {}
-
-    with open(evaluation_path, 'r') as f:
-        inp_data = json.load(f)
-    
-
-    for run_name, metrics in inp_data.items():
-        file_name = os.path.basename(run_name).split("_R1_")[0]
-
-        data[file_name] = {
-            "forward": {
-                "retention_rate": 1,
-                "tau_score": inp_data[run_name].get("forward", {}).get("both_counts")/ inp_data[run_name].get("forward", {}).get("total_reads"),
-            },
-            "reverse": {
-                "retention_rate": 1,
-                "tau_score": inp_data[run_name].get("reverse", {}).get("both_counts")/ inp_data[run_name].get("reverse", {}).get("total_reads")
-            },
-            "p3anut": {
-                "retention_rate": p3anut_log.get(file_name, {}).get("retention_rate"),
-                "time_taken": p3anut_log.get(file_name, {}).get("time_taken"),
-                "tau_score": inp_data[run_name].get("merged", {}).get("both_counts") / p3anut_log.get(file_name, {}).get("final_count")
-            }
-        }
-    
-    return data
-
-def load_p3anut_log(log_path):
-
-    data = []
-    header = {}
-    cleaned_data = {}
-
-    with open(log_path, 'r') as f:
-        data = csv.reader(f)
-            
-        t = next(data)
-        for i, v in enumerate(t):
-            header[v] = i
-
-
-
-        for line in list(data)[20:]:
-            file_name = os.path.basename(line[header["forwardFile"]]).split("_R1_")[0]
-
-            cleaned_data[file_name] = {
-                "retention_rate": float(line[header["finalCount"]]) / (float(line[header["finalCount"]]) + float(line[header["droppedCount"]])),
-                "time_taken": float(line[header["totalTime"]]),
-                "final_count": int(line[header["finalCount"]])
-            }
-    
-
-
-    return cleaned_data
-
-def join(p3anut_evaluation, flash_casper_metrics):
-
-    joined_data = {}
-
-    for run_name in p3anut_evaluation.keys():
-        joined_data[run_name] = {
-            "forward": p3anut_evaluation[run_name]["forward"],
-            "reverse": p3anut_evaluation[run_name]["reverse"],
-            "p3anut": p3anut_evaluation[run_name]["p3anut"],
-            "flash": flash_casper_metrics.get(run_name, {}).get("flash", {}),
-            "casper": flash_casper_metrics.get(run_name, {}).get("casper", {})
-        }
-
-    return joined_data
+    print("\nAverage Total Scores:")
+    print("P3ANUT:", total_score(p3anut_avg))
+    print("FLASH:", total_score(flash_avg))
+    print("CASPER:", total_score(casper_avg))
+    print("REBOLLO:", total_score(rebollo_avg))
+    print("REBOLLO REVERSE:", total_score(rebollo_reverse_avg))
+    print("FORWARD:", total_score(forward_avg))
+    print("REVERSE:", total_score(reverse_avg))
 
 
 if __name__ == "__main__":
+    calc_averages("joined_data.json")
 
-    p3anut_evaluation = load_p3anut_evaluation("p3anut_evaluation.json", "log.csv")
-    flash_casper_metrics = load_metrics("metrics.json")
 
-    joined_data = join(p3anut_evaluation, flash_casper_metrics)
 
-    with open("joined_data.json", 'w') as f:
-        json.dump(joined_data, f, indent=4)
