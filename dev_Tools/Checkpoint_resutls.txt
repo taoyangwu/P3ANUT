@@ -1,0 +1,17 @@
+Average Metrics:
+P3ANUT: {'time_taken': 29.06128187437315, 'retention_rate': 0.9634965449004116, 'tau_score': 0.9674643636789411, 'upsilon_score': 0.8975430594513343, 'phi_score': 0.9499993606940709, 'sequence_length_score': 0.916618096284121}
+FLASH: {'time_taken': 0.5594324324324322, 'retention_rate': 0.7613996148455343, 'tau_score': 0.9375743605665605, 'upsilon_score': 0.8829092329115408, 'phi_score': 0.9260313223090383, 'sequence_length_score': 0.9060308993490298}
+CASPER: {'time_taken': 19.228, 'retention_rate': 0.8442796584948552, 'tau_score': 0.9490212902796605, 'upsilon_score': 0.891648989760785, 'phi_score': 0.9345773715730143, 'sequence_length_score': 0.8773623955503757}
+REBOLLO: {'time_taken': 58.866936406573735, 'retention_rate': 0.999974448510005, 'tau_score': 0.95575582319947, 'upsilon_score': 0.8853381333908469, 'phi_score': 0.9367646006477433, 'sequence_length_score': 0.8910557710559533}
+REBOLLO REVERSE: {'time_taken': 58.71760336128441, 'retention_rate': 0.999973299347626, 'tau_score': 0.8235403923999435, 'upsilon_score': 0.7565773867314122, 'phi_score': 0.812355723382277, 'sequence_length_score': 0.7931229044825572}
+FORWARD: {'time_taken': 0.0, 'retention_rate': 0.9999875874704602, 'tau_score': 0.9557929415540053, 'upsilon_score': 0.8855969053300885, 'phi_score': 0.9370542083445865, 'sequence_length_score': 0.8910714117675937}
+REVERSE: {'time_taken': 0.0, 'retention_rate': 0.9999875874704602, 'tau_score': 0.8241540790201772, 'upsilon_score': 0.7577346942471817, 'phi_score': 0.8129812923205902, 'sequence_length_score': 0.7931774911347707}
+
+Average Total Scores:
+P3ANUT: 0.8544242492629727
+FLASH: 0.6467871519440159
+CASPER: 0.7029772938284606
+REBOLLO: 0.8516099815222865
+REBOLLO REVERSE: 0.6531513079472667
+FORWARD: 0.8516691942877774
+REVERSE: 0.6536923506293834

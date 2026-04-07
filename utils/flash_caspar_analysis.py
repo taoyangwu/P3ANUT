@@ -107,8 +107,11 @@ def parse_casper_log(log_path: Path) -> dict:
 
     return metrics
 
-def calculate_tau_score(file):
-    return evalutate_fastq_file(file, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG")
+def calculate_performance_scores(file, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG"):
+    upsilion_statement = "[TAGC]{7}start_barcode[TGCA]{27}end_barcode[TAGC]{7}".replace("start_barcode", start_barcode).replace("end_barcode", end_barcode)
+    phi_statement = "[TAGC]*start_barcode[TGCA]{27}end_barcode[TAGC]*".replace("start_barcode", start_barcode).replace("end_barcode", end_barcode)
+
+    return evalutate_fastq_file(file, start_barcode=start_barcode, end_barcode=end_barcode, flip=False, upsilion_statement=upsilion_statement, phi_statement=phi_statement)
 
 def calculate_sequence_length(file_path, target_length = 68):
 
@@ -144,7 +147,7 @@ def main() -> int:
 
     flash_dir = "/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/merged"
     caspar_dir = "/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/casper_merged"
-    output_path = "metrics.json"
+    output_path = "metrics_ups_chi.json"
 
     flash_dir = Path(flash_dir)
     casper_dir = Path(caspar_dir)
@@ -170,8 +173,8 @@ def main() -> int:
                 
 
                 try:
-                    tau_score = calculate_tau_score(output_file)
-                    summary[run_name]["flash"] = summary[run_name]["flash"] | tau_score
+                    scores = calculate_performance_scores(output_file)
+                    summary[run_name]["flash"] = summary[run_name]["flash"] | scores
                     summary[run_name]["flash"]["sequence_length_score"] = calculate_sequence_length(output_file)
                 except Exception as e:
                     print(f"Error calculating tau score for {output_file}: {e}")
@@ -198,7 +201,7 @@ def main() -> int:
                 
 
                 try:
-                    tau_score = calculate_tau_score(output_file)
+                    tau_score = calculate_performance_scores(output_file)
                     summary[run_name]["casper"] = summary[run_name]["casper"] | tau_score
                     summary[run_name]["casper"]["sequence_length_score"] = calculate_sequence_length(output_file)
                 except Exception as e:
@@ -224,8 +227,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # from evaluation_comparision import t
+    from evaluation_comparision import t
 
-    # t()
+    t()
 
     raise SystemExit(main())
