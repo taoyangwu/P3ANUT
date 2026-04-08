@@ -130,20 +130,20 @@ def graph_sequence_length_distribution(data_path, output_path):
     
     ax1 = fig.add_subplot(111)
     
-    ax1.bar(np.arange(len(data)) + 1, data, width=1.0, alpha=0.7)
+    ax1.bar(np.arange(len(data)), data, width=1.0, alpha=0.7)
     ax1.set_xlabel('Sequence Length (base pairs)')
     ax1.set_xlim(min(has_values)-5, max(has_values)+5)
     ax1.set_ylabel('Count')
     ax1.set_yscale('log')
     
     ax2 = ax1.twinx()
-    ax2.plot(np.arange(len(data)) + 1, percentages, color='xkcd:burnt orange', marker='o', label='Percentage of Total Sequences')
+    ax2.plot(np.arange(len(data)), percentages, color='xkcd:burnt orange', marker='o', label='Percentage of Total Sequences')
     ax2.set_ylabel('Percentage of Total Sequences (%)', color='xkcd:burnt orange')
     ax2.tick_params(axis='y')
     ax2.set_ylim(bottom=0, top=max(percentages[has_values]) + 5)
     
     
-    plt.title(f'Distribution of Sequence Lengths - Target length 68 base pairs \n Percentage at Target Length: {percentages[68]:.2f}, Percetage within 1bp: {np.sum(percentages[67:69]):.2f}%')
+    plt.title(f'Distribution of Sequence Lengths - Target length 68 base pairs \n Percentage at Target Length: {percentages[68]:.2f}%, Percetage within 1bp: {np.sum(percentages[67:69]):.2f}%')
     plt.savefig(output_path)
     plt.show()
     
@@ -152,11 +152,11 @@ def graph_delta_score(json_file):
     with open(json_file, 'r') as f:
         data = json.load(f)
 
-    extracted_data = {d_length : values["both_counts"] / values["total_reads"] for d_length, values in data.items()}
+    extracted_data = {d_length : 100 * (values["both_counts"] / values["total_reads"]) for d_length, values in data.items()}
     delta_lengths = list(extracted_data.keys())
     ratios = list(extracted_data.values())
     plt.figure(figsize=(10, 6))
-    plt.plot(delta_lengths, ratios, color='blue', marker='o', label='Total Reads to Final Reads Ratio')
+    plt.plot(delta_lengths, ratios , color='blue', marker='o', label='Total Reads to Final Reads Ratio')
     plt.xlabel('Threshold of Quailty Score Difference (δ)')
     plt.ylabel('Percentage of Reads with Fixed Regions')
     # plt.title('Effect of Delta Threshold on Read Retention')
@@ -179,11 +179,11 @@ def graph_improvements(json_file):
         reverses.append(value["reverse"]["both_counts"] / value["reverse"]["total_reads"])
         mergeds.append(value["merged"]["both_counts"] / value["merged"]["total_reads"])
         
-    data = [forawrds, reverses, mergeds]
+    data = [[f * 100 for f in forawrds], [r * 100 for r in reverses], [m * 100 for m in mergeds]]
     
-    forawrds_npy = np.array(forawrds) * 100
-    reverses_npy = np.array(reverses) * 100
-    mergeds_npy = np.array(mergeds) * 100
+    forawrds_npy = np.array(forawrds) 
+    reverses_npy = np.array(reverses) 
+    mergeds_npy = np.array(mergeds) 
     
     print("Forward Reads - Mean: ", np.mean(forawrds_npy), " Std Dev: ", np.std(forawrds_npy))
     print("Reverse Reads - Mean: ", np.mean(reverses_npy), " Std Dev: ", np.std(reverses_npy))
@@ -213,9 +213,9 @@ if __name__ == "__main__":
     # output_image = "dev_Tools/levenstein_distribution.png"
     # graph_levenstein_distribution(input_file, output_image)
     
-    # input_file = "sequence_length_distribution.npy"
-    # output_image = "dev_Tools/sequence_len_distribution.png"
-    # graph_sequence_length_distribution(input_file, output_image)
+    input_file = "sequence_length_distribution.npy"
+    output_image = "dev_Tools/sequence_len_distribution.png"
+    graph_sequence_length_distribution(input_file, output_image)
     
     # input_file = "dev_Tools/p3anut_delta_evaluation.json"
     # graph_delta_score(input_file)
