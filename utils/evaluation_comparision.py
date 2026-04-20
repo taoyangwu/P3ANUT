@@ -363,27 +363,30 @@ def calculate_file_lengths(file_list):
     return lengths
 
 def t():
-    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/cleaned_file_pairs.txt")
+    file_list = [["/home/proxima/Desktop/Side_Projects/P3ANUT/data/Original_Sequencing/M7-Gal/PID-1309-GAL-CA3-PC_S91_R1_001.fastq", 
+                 "/home/proxima/Desktop/Side_Projects/P3ANUT/data/Original_Sequencing/M7-Gal/PID-1309-GAL-CA3-PC_S91_R2_001.fastq"]]
     
     for forFile, revFile in file_list:
         print(os.path.exists(forFile), os.path.exists(revFile))
     
     t = evalutate_p3anut(file_list, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={"multiprocess": True, "cull_maxlength": 100, "scoreOffset":11})
     
-    with open("p3anut_evaluation_ups_phi.json", 'w') as outfile:
+    with open("p3anut_evaluation_ups_phi_2.json", 'w') as outfile:
         json.dump(t, outfile, indent=4)
 
 
     
 if __name__ == "__main__":
     
-    # file_list = _return_data_files()    
+    # file_list = _return_data_files() 
+    # 
+    t()   
 
-    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/file_pairs.txt")
+    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/missed_files.txt")
 
     file_lengths = calculate_file_lengths(file_list)
 
-    with open("file_lengths.json", 'w') as outfile:
+    with open("file_lengths_2.json", 'w') as outfile:
         json.dump(file_lengths, outfile, indent=4)
     
     # t = evalutate_p3anut(file_list, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={"multiprocess": True, "cull_maxlength": 100, "scoreOffset":11})

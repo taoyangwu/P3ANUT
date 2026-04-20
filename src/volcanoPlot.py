@@ -461,7 +461,7 @@ class moveableLine(tk.Frame):
         #Redraw the figure to ensure the new size is used when saving
         self.figureCanvas.draw()
 
-        self.fig.savefig(fileName, dpi=100)
+        self.fig.savefig(fileName, dpi=600)
 
         self.fig.set_size_inches(original_size)
         self.fig.set_dpi(original_dpi)

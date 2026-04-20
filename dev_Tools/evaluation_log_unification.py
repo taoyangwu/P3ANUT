@@ -185,9 +185,9 @@ if __name__ == "__main__":
     sequence_lengths = _load_lengths("file_lengths.json")
     p3anut_evaluation = load_p3anut_evaluation("p3anut_evaluation_ups_phi.json", "log.csv")
     flash_casper_metrics = load_metrics("metrics_ups_phi.json")
-    rebollo_forward, rebollo_reverse = load_rebollo("rebollo_output_ups_phi.json", sequence_lengths)
+    rebollo_forward, rebollo_reverse = load_rebollo("rebollo_output_ups_phi_trimmed.json", sequence_lengths)
 
     joined_data = join(p3anut_evaluation, flash_casper_metrics, rebollo_forward, rebollo_reverse, sequence_lengths)
 
-    with open("joined_data.json", 'w') as f:
+    with open("joined_data_r_trimmed.json", 'w') as f:
         json.dump(joined_data, f, indent=4)
