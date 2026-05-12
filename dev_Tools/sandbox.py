@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from matplotlib.colors import ListedColormap
+from scipy import stats as sp
 
 
 def _convert_tool_name(tool_name):
@@ -10,6 +11,12 @@ def _convert_tool_name(tool_name):
         return "Rebollo"
     elif tool_name.lower() == "avg_raw":
         return "Avg Raw"
+    elif tool_name.lower() == "rebollo_filtered_forward":
+        return "Rebollo Filtered Forward"
+    elif tool_name.lower() == "rebollo_filtered_reverse":
+        return "Rebollo Filtered Reverse"
+    elif tool_name.lower() == "rebollo_filtered":
+        return "Filtered Rebollo"
     else:
         return tool_name.upper()
 
@@ -376,6 +383,140 @@ def compare_table(avg_metrics, non_included_metrics = [], non_included_tools = [
     # plt.show()
 
 
+def output_comparison_txt(metrics_data, output_path, non_included_metrics=None, non_included_tools=None,
+                          inverse_metrics=None, include_avg_raw_values=False, include_avg_rebollo_values=False):
+    if non_included_metrics is None:
+        non_included_metrics = []
+    if non_included_tools is None:
+        non_included_tools = []
+    if inverse_metrics is None:
+        inverse_metrics = set(["time_taken"])
+
+    def _derived_tool_value(run_metrics, tool_name, metric):
+        if tool_name == "avg_raw":
+            forward_val = run_metrics.get("forward", {}).get(metric, None)
+            reverse_val = run_metrics.get("reverse", {}).get(metric, None)
+            if forward_val is None or reverse_val is None:
+                return None
+            return (forward_val + reverse_val) / 2
+
+        if tool_name == "avg_rebollo":
+            rebollo_val = run_metrics.get("rebollo", {}).get(metric, None)
+            rebollo_reverse_val = run_metrics.get("rebollo_reverse", {}).get(metric, None)
+            if rebollo_val is None or rebollo_reverse_val is None:
+                return None
+            return (rebollo_val + rebollo_reverse_val) / 2
+
+        return run_metrics.get(tool_name, {}).get(metric, None)
+
+    def _collect_tools():
+        tool_set = set()
+        for run_metrics in metrics_data.values():
+            tool_set.update(run_metrics.keys())
+
+        if include_avg_raw_values:
+            tool_set.add("avg_raw")
+        if include_avg_rebollo_values:
+            tool_set.add("avg_rebollo")
+
+        return sorted([tool for tool in tool_set if tool not in non_included_tools])
+
+    def _collect_metrics():
+        metric_set = set()
+        for run_metrics in metrics_data.values():
+            for tool_name, tool_metrics in run_metrics.items():
+                if tool_name in non_included_tools:
+                    continue
+                if not isinstance(tool_metrics, dict):
+                    continue
+                for metric_name, value in tool_metrics.items():
+                    if metric_name in non_included_metrics:
+                        continue
+                    if isinstance(value, (int, float)) and not np.isnan(value):
+                        metric_set.add(metric_name)
+
+        return sorted(metric_set)
+
+    tools = _collect_tools()
+    metrics = _collect_metrics()
+
+    def _format_value(value):
+        return f"{value:.6g}" if value is not None else "N/A"
+
+    lines = []
+    for metric in metrics:
+        entries = []
+        for tool in tools:
+            values = []
+            for run_metrics in metrics_data.values():
+                value = _derived_tool_value(run_metrics, tool, metric)
+                if value is None or not isinstance(value, (int, float)) or np.isnan(value):
+                    continue
+                values.append(float(value))
+
+            score = float(np.mean(values)) if len(values) > 0 else None
+
+            t_stat = None
+            p_value = None
+            n_pairs = 0
+            if tool == "p3anut":
+                n_pairs = len(values)
+            else:
+                tool_vals = []
+                p3anut_vals = []
+                for run_metrics in metrics_data.values():
+                    tool_value = _derived_tool_value(run_metrics, tool, metric)
+                    p3anut_value = _derived_tool_value(run_metrics, "p3anut", metric)
+                    if tool_value is None or p3anut_value is None:
+                        continue
+                    if not isinstance(tool_value, (int, float)) or not isinstance(p3anut_value, (int, float)):
+                        continue
+                    if np.isnan(tool_value) or np.isnan(p3anut_value):
+                        continue
+                    tool_vals.append(float(tool_value))
+                    p3anut_vals.append(float(p3anut_value))
+
+                n_pairs = len(tool_vals)
+                if n_pairs >= 2:
+                    test_result = sp.ttest_rel(tool_vals, p3anut_vals, nan_policy="omit")
+                    if test_result.statistic is not None:
+                        t_stat = float(test_result.statistic)
+                    if test_result.pvalue is not None:
+                        p_value = float(test_result.pvalue)
+
+            entries.append({
+                "tool": tool,
+                "score": score,
+                "t_stat": t_stat,
+                "p_value": p_value,
+                "n_pairs": n_pairs,
+            })
+
+        if metric in inverse_metrics:
+            ordered = sorted(entries, key=lambda e: (e["score"] is None, e["score"] if e["score"] is not None else 0.0))
+        else:
+            ordered = sorted(entries, key=lambda e: (e["score"] is None, -(e["score"] if e["score"] is not None else 0.0)))
+
+        lines.append(f"Metric: {metric}")
+        for idx, entry in enumerate(ordered, start=1):
+            tool_label = _convert_tool_name(entry["tool"])
+            score_text = _format_value(entry["score"])
+            t_text = _format_value(entry["t_stat"])
+            p_text = _format_value(entry["p_value"])
+            lines.append(
+                f"{idx}. {tool_label} | score={score_text} | t_stat={t_text} | p_value={p_text} | n={entry['n_pairs']}"
+            )
+        lines.append("")
+
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    with open(output_path, "w") as handle:
+        handle.write("\n".join(lines))
+
+
+
 def plot_metric_barplot(metrics_data, metric_name, excluded_tools=None, excluded_metrics=None, 
                         output_path=None, figsize=(14, 6), show_plot=True, include_avg_raw_values=False,
                         include_avg_rebollo_values=False):
@@ -738,12 +879,10 @@ def plot_metric_stacked_bar_with_error(metrics_data, metric_names=None, excluded
 
     ax.set_xticks(x_positions + width * (len(selected_tools) - 1) / 2)
     ax.set_xticklabels([metric.replace('_', ' ').title() for metric in selected_metrics],
-                       rotation=45, ha='right')
-    ax.set_xlabel("Metric")
+                       )
     ax.set_ylabel("Metric Value")
     ax.set_ylim(bottom=0.5)
-    ax.set_title("Metric Comparison Across Tools")
-    ax.legend(title="Tools", loc="upper left", bbox_to_anchor=(1.02, 1.0))
+    ax.legend(title="Tools", loc="upper right", fontsize=20)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
     plt.tight_layout()
 
@@ -759,8 +898,8 @@ def plot_metric_stacked_bar_with_error(metrics_data, metric_names=None, excluded
 
 def main():
 
-    full_37_data = load_data("joined_data.json")
-    paper_7_data = load_data("joined_data.json", 
+    full_37_data = load_data("joined_data_r_trimmed.json")
+    paper_7_data = load_data("joined_data_r_trimmed.json", 
                              included_fileNames = ["PID-1309-GAL-CA-1-PC_S105", "PID-1309-GAL-CA-2-PC_S106", "PID-1309-GAL-CA3-PC_S91",
                                                     "PID-1309-M7-MON-BSA-1_S87", "PID-1309-M7-MON-BSA-2_S88", "PID-1309-M7-MON-CONA-1_S85", "PID-1309-M7-MON-CONA-2_S86"])
 
@@ -768,11 +907,11 @@ def main():
     runtime_comparison(paper_7_data, "file_lengths.json", save_path="data/final_comparisons/paper_7/runtime_comparison.png", show_plot=False)
 
     plot_metric_stacked_bar_with_error(full_37_data, metric_names=["retention_rate", "tau_score", "sequence_length_score"],
-                                       excluded_tools=['forward', 'reverse', 'rebollo', "rebollo_reverse", 'meta'], error_type="sem",
+                                       excluded_tools=['forward', 'reverse', 'rebollo', "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse"], error_type="sem",
                                        output_path="data/final_comparisons/full_37/stacked_bar_comparison.png", show_plot=False,
                                        include_total_performance_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
     plot_metric_stacked_bar_with_error(paper_7_data, metric_names=["retention_rate", "tau_score", "sequence_length_score"],
-                                       excluded_tools=['forward', 'reverse', 'meta', "rebollo_reverse", "rebollo"], error_type="sem",
+                                       excluded_tools=['forward', 'reverse', 'meta', "rebollo_reverse", "rebollo", "rebollo_filtered_forward", "rebollo_filtered_reverse"], error_type="sem",
                                        output_path="data/final_comparisons/paper_7/stacked_bar_comparison.png", show_plot=False,
                                        include_total_performance_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
 
@@ -783,8 +922,16 @@ def main():
     calculate_total_performance_scores(avgs)
     compare_table(avgs, include_ranking_sum=False,
                   non_included_metrics=["upsilon_score", "phi_score"], 
-                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw"],
+                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
                   save_path="data/final_comparisons/full_37/tool_comparison_heatmap.png")
+    output_comparison_txt(
+        full_37_data,
+        "data/final_comparisons/full_37/tool_comparison.txt",
+        non_included_metrics=["upsilon_score", "phi_score"],
+        non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
+        include_avg_rebollo_values=True,
+        include_avg_raw_values=False,
+    )
     
     avgs = calc_averages(paper_7_data, print_results=False)
     avgs["avg_rebollo"] = avg_rebollo(avgs)
@@ -792,8 +939,16 @@ def main():
     calculate_total_performance_scores(avgs)
     compare_table(avgs, include_ranking_sum=False,
                   non_included_metrics=["upsilon_score", "phi_score"], 
-                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw"],
+                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
                   save_path="data/final_comparisons/paper_7/tool_comparison_heatmap.png")
+    output_comparison_txt(
+        paper_7_data,
+        "data/final_comparisons/paper_7/tool_comparison.txt",
+        non_included_metrics=["upsilon_score", "phi_score"],
+        non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
+        include_avg_rebollo_values=True,
+        include_avg_raw_values=False,
+    )
     
     # Example usage of plot_metric_barplot:
     # Plot time_seconds excluding rebollo tools
@@ -806,7 +961,7 @@ def main():
             output_path = os.path.join(save_dir, f"{name}_{metric}_comparison.png")
 
             _, _ = plot_metric_barplot(data, metric_name=metric, 
-                                        excluded_tools=['forward', 'reverse', "rebollo", "rebollo_reverse", 'meta'],
+                                        excluded_tools=['forward', 'reverse', "rebollo", "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse"],
                                         output_path=output_path, show_plot=False, include_avg_raw_values=False, include_avg_rebollo_values=True)
             
             plt.cla()  # Clear the current axes for the next plot

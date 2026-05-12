@@ -147,7 +147,7 @@ def main() -> int:
 
     flash_dir = "/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/merged"
     caspar_dir = "/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/casper_merged"
-    output_path = "metrics_ups_chi.json"
+    output_path = "metrics_ups_chi_2.json"
 
     flash_dir = Path(flash_dir)
     casper_dir = Path(caspar_dir)
@@ -159,7 +159,8 @@ def main() -> int:
     casper_count = 0
 
     if flash_dir.is_dir():
-        for log_path in sorted(flash_dir.glob("*.flash.log")):
+        #for log_path in sorted(flash_dir.glob("*.flash.log")):
+        for log_path in [Path("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/merged/PID-1309-GAL-CA3-PC_S91.flash.log")]:
 
             print(f"Parsing FLASH log: {log_path}")
 
@@ -185,7 +186,8 @@ def main() -> int:
         print(f"Warning: FLASH log directory not found, skipping: {flash_dir}")
 
     if casper_dir.is_dir():
-        for log_path in sorted(casper_dir.glob("*.casper.log")):
+        #for log_path in sorted(casper_dir.glob("*.casper.log")):
+        for log_path in [Path("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/casper_merged/PID-1309-GAL-CA3-PC_S91.casper.log")]:
 
             print(f"Parsing CASPER log: {log_path}")
 
@@ -228,7 +230,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     from evaluation_comparision import t
-
-    t()
 
     raise SystemExit(main())

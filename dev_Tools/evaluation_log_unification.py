@@ -124,6 +124,24 @@ def load_rebollo(rebollo_path, sequence_lengths):
 
     return forward_data, reverse_data
 
+
+def load_rebollo_filtered(filtered_path):
+    if not os.path.exists(filtered_path):
+        return {
+            "forward": {},
+            "reverse": {},
+            "average": {},
+        }
+
+    with open(filtered_path, "r") as f:
+        data = json.load(f)
+
+    return {
+        "forward": data.get("forward", {}),
+        "reverse": data.get("reverse", {}),
+        "average": data.get("average", {}),
+    }
+
 def _load_lengths(sequence_length_path):
 
     sequence_lengths = {}
@@ -161,7 +179,14 @@ def load_p3anut_log(log_path):
 
     return cleaned_data
 
-def join(p3anut_evaluation, flash_casper_metrics, rebollo, rebollo_reverse, sequence_lengths):
+def join(
+    p3anut_evaluation,
+    flash_casper_metrics,
+    rebollo,
+    rebollo_reverse,
+    rebollo_filtered,
+    sequence_lengths,
+):
 
     joined_data = {}
 
@@ -174,6 +199,9 @@ def join(p3anut_evaluation, flash_casper_metrics, rebollo, rebollo_reverse, sequ
             "casper": flash_casper_metrics.get(run_name, {}).get("casper", {}), 
             "rebollo": rebollo.get(run_name, {}),
             "rebollo_reverse": rebollo_reverse.get(run_name, {}),
+            "rebollo_filtered": rebollo_filtered.get("average", {}).get(run_name, {}),
+            "rebollo_filtered_forward": rebollo_filtered.get("forward", {}).get(run_name, {}),
+            "rebollo_filtered_reverse": rebollo_filtered.get("reverse", {}).get(run_name, {}),
             "meta": sequence_lengths.get(run_name, {})
         }
 
@@ -186,8 +214,16 @@ if __name__ == "__main__":
     p3anut_evaluation = load_p3anut_evaluation("p3anut_evaluation_ups_phi.json", "log.csv")
     flash_casper_metrics = load_metrics("metrics_ups_phi.json")
     rebollo_forward, rebollo_reverse = load_rebollo("rebollo_output_ups_phi_trimmed.json", sequence_lengths)
+    rebollo_filtered = load_rebollo_filtered("rebollo_filtered.json")
 
-    joined_data = join(p3anut_evaluation, flash_casper_metrics, rebollo_forward, rebollo_reverse, sequence_lengths)
+    joined_data = join(
+        p3anut_evaluation,
+        flash_casper_metrics,
+        rebollo_forward,
+        rebollo_reverse,
+        rebollo_filtered,
+        sequence_lengths,
+    )
 
     with open("joined_data_r_trimmed.json", 'w') as f:
         json.dump(joined_data, f, indent=4)
