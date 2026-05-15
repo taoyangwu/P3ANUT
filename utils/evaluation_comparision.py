@@ -362,6 +362,9 @@ def calculate_file_lengths(file_list):
 
     return lengths
 
+def calculate_rebollo_file_lengths(rebollo_path):
+    pass
+
 def t():
     file_list = [["/home/proxima/Desktop/Side_Projects/P3ANUT/data/Original_Sequencing/M7-Gal/PID-1309-GAL-CA3-PC_S91_R1_001.fastq", 
                  "/home/proxima/Desktop/Side_Projects/P3ANUT/data/Original_Sequencing/M7-Gal/PID-1309-GAL-CA3-PC_S91_R2_001.fastq"]]
@@ -380,13 +383,13 @@ if __name__ == "__main__":
     
     # file_list = _return_data_files() 
     # 
-    t()   
+    #t()   
 
-    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/missed_files.txt")
+    file_list = _large_evaluation("/home/proxima/Desktop/Side_Projects/FLASH_CASPAR/file_pairs.txt")
 
     file_lengths = calculate_file_lengths(file_list)
 
-    with open("file_lengths_2.json", 'w') as outfile:
+    with open("file_lengths.json", 'w') as outfile:
         json.dump(file_lengths, outfile, indent=4)
     
     # t = evalutate_p3anut(file_list, start_barcode="TATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", parse_args={"multiprocess": True, "cull_maxlength": 100, "scoreOffset":11})

@@ -57,6 +57,10 @@ def _iter_bc_sequences(file_path):
             yield sequence, quality
 
 
+def _count_bc_sequences(file_path):
+    return sum(1 for _ in _iter_bc_sequences(file_path))
+
+
 def _min_quality_score(quality):
     try:
         return min(ord(char) - 33 for char in quality)
@@ -184,40 +188,51 @@ def _load_lengths(length_path):
         return json.load(handle)
 
 
-def _load_rebollo_times(rebollo_path):
-    if not rebollo_path or not os.path.exists(rebollo_path):
-        return {"forward": {}, "reverse": {}}
+def build_rebollo_filtered_lengths(root_folder, output_path):
+    lengths = {}
 
-    with open(rebollo_path, "r") as handle:
-        data = json.load(handle)
-
-    if not isinstance(data, list):
-        return {"forward": {}, "reverse": {}}
-
-    times = {"forward": {}, "reverse": {}}
-    for entry in data:
-        if entry.get("status") != "ok":
+    for folder in sorted(os.listdir(root_folder)):
+        folder_path = os.path.join(root_folder, folder)
+        if not os.path.isdir(folder_path):
             continue
 
-        file_fastq = entry.get("file_fastq", "")
-        if not file_fastq:
-            continue
-
-        try:
-            time_taken = float(entry.get("time_taken"))
-        except (TypeError, ValueError):
-            continue
-
-        run_name, read_direction = _extract_run_name(os.path.basename(file_fastq))
+        run_name, read_direction = _extract_run_name(folder)
         if not read_direction:
             continue
 
-        if read_direction == "1":
-            times["forward"][run_name] = time_taken
-        else:
-            times["reverse"][run_name] = time_taken
+        total_sequences = 0
+        for entry in os.listdir(folder_path):
+            if not BC_FILE_RE.match(entry):
+                continue
+            bc_file = os.path.join(folder_path, entry)
+            total_sequences += _count_bc_sequences(bc_file)
 
-    return times
+        if total_sequences == 0:
+            continue
+
+        entry = lengths.setdefault(
+            run_name,
+            {
+                "forward_length": 0,
+                "reverse_length": 0,
+                "total_length": 0,
+            },
+        )
+
+        if read_direction == "1":
+            entry["forward_length"] += total_sequences
+        else:
+            entry["reverse_length"] += total_sequences
+
+    for entry in lengths.values():
+        entry["total_length"] = entry.get("forward_length", 0) + entry.get("reverse_length", 0)
+
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w") as handle:
+        json.dump(lengths, handle, indent=4)
+
+    return lengths
 
 
 def build_rebollo_filtered(
@@ -226,10 +241,8 @@ def build_rebollo_filtered(
     start_barcode,
     end_barcode,
     target_length,
-    rebollo_path=None,
 ):
-    sequence_lengths = _load_lengths(length_path)
-    rebollo_times = _load_rebollo_times(rebollo_path)
+    sequence_lengths = _load_lengths(length_path) if type(length_path) is str else length_path
 
     forward_data = {}
     reverse_data = {}
@@ -268,13 +281,6 @@ def build_rebollo_filtered(
         )
         time_taken = time.perf_counter() - start_time
 
-        if read_direction == "1":
-            rebollo_time = rebollo_times["forward"].get(run_name)
-        else:
-            rebollo_time = rebollo_times["reverse"].get(run_name)
-        if rebollo_time is not None:
-            time_taken += rebollo_time
-
         length_key = "forward_length" if read_direction == "1" else "reverse_length"
         file_length = sequence_lengths.get(run_name, {}).get(length_key, 0)
         metrics = _normalize_metrics(raw_metrics, file_length, time_taken, bc_file)
@@ -299,56 +305,41 @@ def build_rebollo_filtered(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate rebollo filtered metrics.")
-    parser.add_argument(
-        "--root-folder",
-        default="data/Rebollo_Filtered",
-        help="Root folder that contains Rebollo_Filtered subfolders.",
-    )
-    parser.add_argument(
-        "--file-lengths",
-        default="file_lengths.json",
-        help="Path to file_lengths.json for normalization.",
-    )
-    parser.add_argument(
-        "--rebollo-output",
-        default="rebollo_output_ups_phi_trimmed.json",
-        help="Path to the original Rebollo output JSON for runtime aggregation.",
-    )
-    parser.add_argument(
-        "--output",
-        default="rebollo_filtered.json",
-        help="Output JSON file path.",
-    )
-    parser.add_argument(
-        "--start-barcode",
-        default="TATTCTCACTCTTCT",
-        help="Start barcode sequence.",
-    )
-    parser.add_argument(
-        "--end-barcode",
-        default="GGTGGAGGTTCG",
-        help="End barcode sequence.",
-    )
-    parser.add_argument(
-        "--target-length",
-        type=int,
-        default=68,
-        help="Target sequence length for sequence_length_score.",
-    )
 
-    args = parser.parse_args()
+    
+    
+
+    #args = parser.parse_args()
+
+    root_folder = "data/Rebollo_Filtered"
+    file_lengths = "joined_file_lengths.json"
+    start_barcode = "TATTCTCACTCTTCT"
+    end_barcode = "GGTGGAGGTTCG"
+    target_length = 68
+
+    build_rebollo_filtered_lengths(root_folder=root_folder, output_path="rebollo_file_lengths.json")
+
+    with open("rebollo_file_lengths.json", 'r') as f:
+        rebollo_lengths = json.load(f)
+
+    with open("file_lengths.json", 'r') as f:
+        file_lengths = json.load(f)
+
+    joined_lengths =  rebollo_lengths | file_lengths
+
+    with open("joined_file_lengths.json", 'w') as f:
+        json.dump(joined_lengths, f, indent=4)
+
 
     data = build_rebollo_filtered(
-        args.root_folder,
-        args.file_lengths,
-        args.start_barcode,
-        args.end_barcode,
-        args.target_length,
-        args.rebollo_output,
+        root_folder,
+        file_lengths,
+        start_barcode,
+        end_barcode,
+        target_length,
     )
 
-    output_path = Path(args.output)
+    output_path = Path("rebollo_filtered.json")
     with output_path.open("w") as handle:
         json.dump(data, handle, indent=4)
 
