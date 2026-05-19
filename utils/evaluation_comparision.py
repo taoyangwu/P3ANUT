@@ -341,15 +341,15 @@ def calculate_file_lengths(file_list):
             regexExpression = regexExpression.replace("SPLIT", f"[{cleanedFileSeparator}]?")
             entries = re.findall(regexExpression, file.read())
 
-        return len(entries)
+        return len(entries), set([entry[0] for entry in entries])
     
     for forward, reverse in file_list:
 
         run_name = run_name_lambda(forward)
 
         try:
-            f_len = _load(forward)
-            r_len = _load(reverse)
+            f_len, f_set = _load(forward)
+            r_len, r_set = _load(reverse)
         except Exception as e:
             print(f"Error calculating lengths for {forward} and {reverse}: {e}")
             continue
@@ -357,6 +357,7 @@ def calculate_file_lengths(file_list):
         lengths[run_name] = {
             "forward_length": f_len,
             "reverse_length": r_len,
+            "union_length": len(f_set.union(r_set)),
             "total_length": f_len + r_len
         }
 

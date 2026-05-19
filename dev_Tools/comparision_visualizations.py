@@ -205,116 +205,68 @@ def load_data(metrics_path, included_fileNames = None):
     return data
 
 
+def _effectiveness_score(metrics):
+    retention_rate = metrics.get("retention_rate")
+    tau_score = metrics.get("tau_score")
+    sequence_length_score = metrics.get("sequence_length_score")
+
+    if retention_rate is None or tau_score is None or sequence_length_score is None:
+        return None
+
+    if not all(isinstance(value, (int, float)) for value in [retention_rate, tau_score, sequence_length_score]):
+        return None
+
+    if any(np.isnan(value) for value in [retention_rate, tau_score, sequence_length_score]):
+        return None
+
+    return retention_rate * tau_score * sequence_length_score
+
+
 def calc_averages(metrics_data, print_results = True):
 
-    base = {
-        "time_taken": 0,
-        "retention_rate": 0,
-        "tau_score": 0,
-        "upsilon_score": 0,
-        "phi_score": 0,
-        "sequence_length_score": 0
-    }
+    metric_set = set()
+    tool_sums = {}
+    tool_counts = {}
 
-    p3anut_avg = base.copy()
-    flash_avg = base.copy()
-    casper_avg = base.copy()
-    rebollo_avg = base.copy()
-    rebollo_reverse_avg = base.copy()
-    forward_avg = base.copy()
-    reverse_avg = base.copy()
-    rebollo_filtered_avg = base.copy()
-    rebollo_filtered_forward_avg = base.copy()
-    rebollo_filtered_reverse_avg = base.copy()  
+    for run_metrics in metrics_data.values():
+        for tool, tool_metrics in run_metrics.items():
+            if not isinstance(tool_metrics, dict):
+                continue
+            for metric, value in tool_metrics.items():
+                if value is None or not isinstance(value, (int, float)) or np.isnan(value):
+                    continue
+                metric_set.add(metric)
+                tool_sums.setdefault(tool, {}).setdefault(metric, 0.0)
+                tool_counts.setdefault(tool, {}).setdefault(metric, 0)
+                tool_sums[tool][metric] += float(value)
+                tool_counts[tool][metric] += 1
 
-    for run_name, metrics in metrics_data.items():
-        for tool in ["p3anut", "flash", "casper", "rebollo", "rebollo_reverse", "forward", "reverse"]:
-            for metric in base.keys():
-                if tool in metrics and metric in metrics[tool]:
-                    if metrics[tool][metric] is not None:
-                        if tool == "p3anut":
-                            p3anut_avg[metric] += metrics[tool][metric]
-                        elif tool == "flash":
-                            flash_avg[metric] += metrics[tool][metric]
-                        elif tool == "casper":
-                            casper_avg[metric] += metrics[tool][metric]
-                        elif tool == "rebollo":
-                            rebollo_avg[metric] += metrics[tool][metric]
-                        elif tool == "forward":
-                            forward_avg[metric] += metrics[tool][metric]
-                        elif tool == "reverse":
-                            reverse_avg[metric] += metrics[tool][metric]
-                        elif tool == "rebollo_reverse":
-                            rebollo_reverse_avg[metric] += metrics[tool][metric]
-                        elif tool == "rebollo_filtered":
-                            rebollo_filtered_avg[metric] += metrics[tool][metric]
-                        elif tool == "rebollo_filtered_forward":
-                            rebollo_filtered_forward_avg[metric] += metrics[tool][metric]
-                        elif tool == "rebollo_filtered_reverse":
-                            rebollo_filtered_reverse_avg[metric] += metrics[tool][metric]
-
-
-    num_runs = len(metrics_data)
-    for metric in base.keys():
-        p3anut_avg[metric] /= num_runs
-        flash_avg[metric] /= num_runs
-        casper_avg[metric] /= num_runs
-        rebollo_avg[metric] /= num_runs
-        forward_avg[metric] /= num_runs
-        reverse_avg[metric] /= num_runs
-        rebollo_reverse_avg[metric] /= num_runs
-        rebollo_filtered_avg[metric] /= num_runs
-        rebollo_filtered_forward_avg[metric] /= num_runs
-        rebollo_filtered_reverse_avg[metric] /= num_runs
-
-    total_performance_score = lambda x: x["retention_rate"] * x["tau_score"] *  x["sequence_length_score"] 
+    metrics = sorted(metric_set)
+    avg_metrics = {}
+    for tool in sorted(tool_sums.keys()):
+        avg_metrics[tool] = {}
+        for metric in metrics:
+            total = tool_sums.get(tool, {}).get(metric, 0.0)
+            count = tool_counts.get(tool, {}).get(metric, 0)
+            avg_metrics[tool][metric] = (total / count) if count else 0.0
 
     if print_results:
 
         print("Average Metrics:")
-        print("P3ANUT:", p3anut_avg)
-        print("FLASH:", flash_avg)
-        print("CASPER:", casper_avg)
-        print("REBOLLO:", rebollo_avg)
-        print("REBOLLO REVERSE:", rebollo_reverse_avg)
-        print("FORWARD:", forward_avg)
-        print("REVERSE:", reverse_avg)
-        print("REBOLLO FILTERED:", rebollo_filtered_avg)
-        print("REBOLLO FILTERED FORWARD:", rebollo_filtered_forward_avg)
-        print("REBOLLO FILTERED REVERSE:", rebollo_filtered_reverse_avg)  
+        for tool in sorted(avg_metrics.keys()):
+            print(f"{tool.upper()}: {avg_metrics[tool]}")
 
-        print("\nAverage Total Performance Scores:")
-        print("P3ANUT:", total_performance_score(p3anut_avg))
-        print("FLASH:", total_performance_score(flash_avg))
-        print("CASPER:", total_performance_score(casper_avg))
-        print("REBOLLO:", total_performance_score(rebollo_avg))
-        print("REBOLLO REVERSE:", total_performance_score(rebollo_reverse_avg))
-        print("FORWARD:", total_performance_score(forward_avg))
-        print("REVERSE:", total_performance_score(reverse_avg))
-        print("REBOLLO FILTERED:", total_performance_score(rebollo_filtered_avg))
-        print("REBOLLO FILTERED FORWARD:", total_performance_score(rebollo_filtered_forward_avg))
-        print("REBOLLO FILTERED REVERSE:", total_performance_score(rebollo_filtered_reverse_avg))
+        print("\nAverage Effectiveness Scores:")
+        for tool in sorted(avg_metrics.keys()):
+            score = _effectiveness_score(avg_metrics[tool])
+            print(f"{tool.upper()}: {score if score is not None else 0.0}")
 
-    return {
-        "p3anut": p3anut_avg,
-        "flash": flash_avg,
-        "casper": casper_avg,
-        "rebollo": rebollo_avg,
-        "rebollo_reverse": rebollo_reverse_avg,
-        "forward": forward_avg,
-        "reverse": reverse_avg,
-        "rebollo_filtered": rebollo_filtered_avg,
-        "rebollo_filtered_forward": rebollo_filtered_forward_avg,
-        "rebollo_filtered_reverse": rebollo_filtered_reverse_avg,
-    }
+    return avg_metrics
 
-def calculate_total_performance_scores(avg_metrics):
-    total_performance_scores = {}
+def calculate_effectiveness_scores(avg_metrics):
     for tool, metrics in avg_metrics.items():
-        total_performance_scores[tool] = metrics["retention_rate"] *  metrics["sequence_length_score"] * metrics["tau_score"]
-
-    for tool, score in total_performance_scores.items():
-        avg_metrics[tool]["total_performance_score"] = score
+        score = _effectiveness_score(metrics)
+        metrics["effectiveness_score"] = score if score is not None else 0.0
 
 def compare_table(avg_metrics, non_included_metrics = [], non_included_tools = [], inverse_metrics = set(["time_taken"]), 
                   include_ranking_sum = False, save_path = "tool_comparison_heatmap.png"):
@@ -365,16 +317,16 @@ def compare_table(avg_metrics, non_included_metrics = [], non_included_tools = [
 
         metircs.append("sum_of_ranks")
         
-        total_performance_scores = np.sum(rankings, axis=1)
-        total_performance_scores_rankings, sorted_indices = _permute_ranking(total_performance_scores, invert=True)
+        rank_sums = np.sum(rankings, axis=1)
+        rank_sum_rankings, sorted_indices = _permute_ranking(rank_sums, invert=True)
 
-        score_table = np.hstack((score_table, total_performance_scores[:, np.newaxis]))
-        rankings = np.hstack((rankings, total_performance_scores_rankings[:, np.newaxis]))
+        score_table = np.hstack((score_table, rank_sums[:, np.newaxis]))
+        rankings = np.hstack((rankings, rank_sum_rankings[:, np.newaxis]))
 
-        percentage_total_performance_scores = np.sum(percentage_table, axis=1)
-        percentage_total_performance_scores /= np.max(percentage_total_performance_scores)
+        percentage_rank_sums = np.sum(percentage_table, axis=1)
+        percentage_rank_sums /= np.max(percentage_rank_sums)
 
-        percentage_table = np.hstack((percentage_table, percentage_total_performance_scores[:, np.newaxis]))
+        percentage_table = np.hstack((percentage_table, percentage_rank_sums[:, np.newaxis]))
 
     score_table = np.round(score_table, 3)
     percentage_table = np.round(percentage_table,3)
@@ -650,7 +602,7 @@ def plot_metric_barplot(metrics_data, metric_name, excluded_tools=None, excluded
 def plot_metric_stacked_bar_with_error(metrics_data, metric_names=None, excluded_tools=None,
                                        excluded_metrics=None, output_path=None,
                                        figsize=(14, 8), show_plot=True, error_type="sem",
-                                       include_total_performance_score=True, include_avg_raw_values=False,
+                                       include_effectiveness_score=True, include_avg_raw_values=False,
                                        include_avg_rebollo_values=False, inlcude_avg_rebollo=None):
     """
     Create a vertical grouped bar plot for one or more metrics with error bars.
@@ -677,9 +629,9 @@ def plot_metric_stacked_bar_with_error(metrics_data, metric_names=None, excluded
         Whether to show the figure.
     8. error_type: str
         "sem" for standard error of the mean or "std" for standard deviation.
-    9. include_total_performance_score: bool
+    9. include_effectiveness_score: bool
         If True, include a derived metric:
-        total_performance_score = retention_rate * tau_score * sequence_length_score
+        effectiveness_score = retention_rate * tau_score * sequence_length_score
     10. include_avg_raw_values: bool
         If True, include a derived tool "avg_raw" computed from forward and reverse.
     11. include_avg_rebollo_values: bool
@@ -778,32 +730,32 @@ def plot_metric_stacked_bar_with_error(metrics_data, metric_names=None, excluded
     def _build_summary_from_raw(data, selected_metrics, selected_tools):
         summary = {metric: {} for metric in selected_metrics}
 
-        if include_total_performance_score and "total_performance_score" in selected_metrics:
+        if include_effectiveness_score and "effectiveness_score" in selected_metrics:
             for tool in selected_tools:
-                total_performance_values = []
+                effectiveness_values = []
                 for run_metrics in data.values():
                     r = _derived_tool_value_from_run(run_metrics, tool, "retention_rate")
                     t = _derived_tool_value_from_run(run_metrics, tool, "tau_score")
                     s = _derived_tool_value_from_run(run_metrics, tool, "sequence_length_score")
                     if r is not None and t is not None and s is not None:
-                        total_performance_values.append(r * t * s)
+                        effectiveness_values.append(r * t * s)
 
-                if len(total_performance_values) == 0:
-                    summary["total_performance_score"][tool] = {"value": None, "error": 0.0}
+                if len(effectiveness_values) == 0:
+                    summary["effectiveness_score"][tool] = {"value": None, "error": 0.0}
                 else:
-                    total_performance_values = np.asarray(total_performance_values, dtype=float)
+                    effectiveness_values = np.asarray(effectiveness_values, dtype=float)
                     if error_type == "std":
-                        total_performance_error = float(np.std(total_performance_values, ddof=1)) if len(total_performance_values) > 1 else 0.0
+                        effectiveness_error = float(np.std(effectiveness_values, ddof=1)) if len(effectiveness_values) > 1 else 0.0
                     else:
-                        total_performance_error = float(np.std(total_performance_values, ddof=1) / np.sqrt(len(total_performance_values))) if len(total_performance_values) > 1 else 0.0
+                        effectiveness_error = float(np.std(effectiveness_values, ddof=1) / np.sqrt(len(effectiveness_values))) if len(effectiveness_values) > 1 else 0.0
 
-                    summary["total_performance_score"][tool] = {
-                        "value": float(np.mean(total_performance_values)),
-                        "error": total_performance_error,
+                    summary["effectiveness_score"][tool] = {
+                        "value": float(np.mean(effectiveness_values)),
+                        "error": effectiveness_error,
                     }
 
         for metric in selected_metrics:
-            if metric == "total_performance_score":
+            if metric == "effectiveness_score":
                 continue
             for tool in selected_tools:
                 values = []
@@ -832,11 +784,11 @@ def plot_metric_stacked_bar_with_error(metrics_data, metric_names=None, excluded
         summary = {metric: {} for metric in selected_metrics}
         for metric in selected_metrics:
             for tool in selected_tools:
-                if metric == "total_performance_score" and include_total_performance_score:
+                if metric == "effectiveness_score" and include_effectiveness_score:
                     r = _derived_tool_value_from_aggregated(data, tool, "retention_rate")
                     t = _derived_tool_value_from_aggregated(data, tool, "tau_score")
                     s = _derived_tool_value_from_aggregated(data, tool, "sequence_length_score")
-                    value = (r * s) if (r is not None and t is not None and s is not None) else None
+                    value = (r * t * s) if (r is not None and t is not None and s is not None) else None
                 else:
                     value = _derived_tool_value_from_aggregated(data, tool, metric)
 
@@ -857,8 +809,8 @@ def plot_metric_stacked_bar_with_error(metrics_data, metric_names=None, excluded
 
     selected_metrics = [metric for metric in selected_metrics if metric not in excluded_metrics]
 
-    if include_total_performance_score and "total_performance_score" not in selected_metrics and "total_performance_score" not in excluded_metrics:
-        selected_metrics.append("total_performance_score")
+    if include_effectiveness_score and "effectiveness_score" not in selected_metrics and "effectiveness_score" not in excluded_metrics:
+        selected_metrics.append("effectiveness_score")
 
     if len(selected_metrics) == 0:
         raise ValueError("No metrics remain after applying exclusions")
@@ -929,28 +881,28 @@ def main():
     runtime_comparison(paper_7_data, "file_lengths.json", save_path="data/final_comparisons/paper_7/runtime_comparison.png", show_plot=False)
 
     plot_metric_stacked_bar_with_error(full_37_data, metric_names=["retention_rate", "tau_score", "sequence_length_score"],
-                                       excluded_tools=['forward', 'reverse', 'rebollo', "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse"], error_type="sem",
+                                       excluded_tools=['forward', 'reverse', 'rebollo', "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"], error_type="sem",
                                        output_path="data/final_comparisons/full_37/stacked_bar_comparison.png", show_plot=False,
-                                       include_total_performance_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
+                                       include_effectiveness_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
     plot_metric_stacked_bar_with_error(paper_7_data, metric_names=["retention_rate", "tau_score", "sequence_length_score"],
-                                       excluded_tools=['forward', 'reverse', 'meta', "rebollo_reverse", "rebollo", "rebollo_filtered_forward", "rebollo_filtered_reverse"], error_type="sem",
+                                       excluded_tools=['forward', 'reverse', 'meta', "rebollo_reverse", "rebollo", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"], error_type="sem",
                                        output_path="data/final_comparisons/paper_7/stacked_bar_comparison.png", show_plot=False,
-                                       include_total_performance_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
+                                       include_effectiveness_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
 
 
     avgs = calc_averages(full_37_data, print_results=False) 
     avgs["avg_rebollo"] = avg_rebollo(avgs)
     avgs["avg_raw"] = avg_raw_data(avgs)
-    calculate_total_performance_scores(avgs)
+    calculate_effectiveness_scores(avgs)
     compare_table(avgs, include_ranking_sum=False,
                   non_included_metrics=["upsilon_score", "phi_score"], 
-                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
+                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
                   save_path="data/final_comparisons/full_37/tool_comparison_heatmap.png")
     output_comparison_txt(
         full_37_data,
         "data/final_comparisons/full_37/tool_comparison.txt",
         non_included_metrics=["upsilon_score", "phi_score"],
-        non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
+        non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
         include_avg_rebollo_values=True,
         include_avg_raw_values=False,
     )
@@ -958,16 +910,16 @@ def main():
     avgs = calc_averages(paper_7_data, print_results=False)
     avgs["avg_rebollo"] = avg_rebollo(avgs)
     avgs["avg_raw"] = avg_raw_data(avgs)
-    calculate_total_performance_scores(avgs)
+    calculate_effectiveness_scores(avgs)
     compare_table(avgs, include_ranking_sum=False,
                   non_included_metrics=["upsilon_score", "phi_score"], 
-                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
+                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
                   save_path="data/final_comparisons/paper_7/tool_comparison_heatmap.png")
     output_comparison_txt(
         paper_7_data,
         "data/final_comparisons/paper_7/tool_comparison.txt",
         non_included_metrics=["upsilon_score", "phi_score"],
-        non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse"],
+        non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
         include_avg_rebollo_values=True,
         include_avg_raw_values=False,
     )
@@ -983,7 +935,7 @@ def main():
             output_path = os.path.join(save_dir, f"{name}_{metric}_comparison.png")
 
             _, _ = plot_metric_barplot(data, metric_name=metric, 
-                                        excluded_tools=['forward', 'reverse', "rebollo", "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse"],
+                                        excluded_tools=['forward', 'reverse', "rebollo", "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
                                         output_path=output_path, show_plot=False, include_avg_raw_values=False, include_avg_rebollo_values=True)
             
             plt.cla()  # Clear the current axes for the next plot

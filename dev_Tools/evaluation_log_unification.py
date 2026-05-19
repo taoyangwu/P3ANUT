@@ -142,6 +142,24 @@ def load_rebollo_filtered(filtered_path):
         "average": data.get("average", {}),
     }
 
+
+def load_rebollo_post_process(post_path):
+    if not os.path.exists(post_path):
+        return {
+            "forward": {},
+            "reverse": {},
+            "average": {},
+        }
+
+    with open(post_path, 'r') as f:
+        data = json.load(f)
+
+    return {
+        "rebollo_post_f": data.get("rebollo_post_f", {}),
+        "rebollo_post_r": data.get("rebollo_post_r", {}),
+        "rebollo_post_a": data.get("rebollo_post_a", {}),
+    }
+
 def _load_lengths(sequence_length_path):
 
     sequence_lengths = {}
@@ -185,6 +203,7 @@ def join(
     rebollo,
     rebollo_reverse,
     rebollo_filtered,
+    rebollo_post_process,
     sequence_lengths,
 ):
 
@@ -202,6 +221,9 @@ def join(
             "rebollo_filtered": rebollo_filtered.get("average", {}).get(run_name, {}),
             "rebollo_filtered_forward": rebollo_filtered.get("forward", {}).get(run_name, {}),
             "rebollo_filtered_reverse": rebollo_filtered.get("reverse", {}).get(run_name, {}),
+            "rebollo_post_process": rebollo_post_process.get("rebollo_post_a", {}).get(run_name, {}),
+            "rebollo_post_process_forward": rebollo_post_process.get("rebollo_post_f", {}).get(run_name, {}),
+            "rebollo_post_process_reverse": rebollo_post_process.get("rebollo_post_r", {}).get(run_name, {}),
             "meta": sequence_lengths.get(run_name, {})
         }
 
@@ -215,6 +237,7 @@ if __name__ == "__main__":
     flash_casper_metrics = load_metrics("metrics_ups_phi.json")
     rebollo_forward, rebollo_reverse = load_rebollo("rebollo_output_ups_phi.json", sequence_lengths)
     rebollo_filtered = load_rebollo_filtered("rebollo_filtered.json")
+    rebollo_post_process = load_rebollo_post_process("rebollo_postprocessing.json")
 
     joined_data = join(
         p3anut_evaluation,
@@ -222,6 +245,7 @@ if __name__ == "__main__":
         rebollo_forward,
         rebollo_reverse,
         rebollo_filtered,
+        rebollo_post_process,
         sequence_lengths,
     )
 

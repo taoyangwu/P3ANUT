@@ -188,6 +188,42 @@ def _load_lengths(length_path):
         return json.load(handle)
 
 
+def _load_rebollo_times(rebollo_path):
+    if not rebollo_path or not os.path.exists(rebollo_path):
+        return {"forward": {}, "reverse": {}}
+
+    with open(rebollo_path, "r") as handle:
+        data = json.load(handle)
+
+    if not isinstance(data, list):
+        return {"forward": {}, "reverse": {}}
+
+    times = {"forward": {}, "reverse": {}}
+    for entry in data:
+        if entry.get("status") != "ok":
+            continue
+
+        file_fastq = entry.get("file_fastq", "")
+        if not file_fastq:
+            continue
+
+        try:
+            time_taken = float(entry.get("time_taken"))
+        except (TypeError, ValueError):
+            continue
+
+        run_name, read_direction = _extract_run_name(os.path.basename(file_fastq))
+        if not read_direction:
+            continue
+
+        if read_direction == "1":
+            times["forward"][run_name] = time_taken
+        else:
+            times["reverse"][run_name] = time_taken
+
+    return times
+
+
 def build_rebollo_filtered_lengths(root_folder, output_path):
     lengths = {}
 
@@ -241,8 +277,10 @@ def build_rebollo_filtered(
     start_barcode,
     end_barcode,
     target_length,
+    rebollo_path=None,
 ):
     sequence_lengths = _load_lengths(length_path) if type(length_path) is str else length_path
+    rebollo_times = _load_rebollo_times(rebollo_path)
 
     forward_data = {}
     reverse_data = {}
@@ -281,8 +319,19 @@ def build_rebollo_filtered(
         )
         time_taken = time.perf_counter() - start_time
 
+        if read_direction == "1":
+            rebollo_time = rebollo_times["forward"].get(run_name)
+        else:
+            rebollo_time = rebollo_times["reverse"].get(run_name)
+        if rebollo_time is not None:
+            time_taken += rebollo_time
+
         length_key = "forward_length" if read_direction == "1" else "reverse_length"
-        file_length = sequence_lengths.get(run_name, {}).get(length_key, 0)
+        file_length = sequence_lengths.get(run_name, {}).get("union_length", 0)
+
+        if file_length == 0:
+            file_length = sequence_lengths.get(run_name, {}).get(length_key, 0)
+
         metrics = _normalize_metrics(raw_metrics, file_length, time_taken, bc_file)
 
         if read_direction == "1":
@@ -313,6 +362,7 @@ def main():
 
     root_folder = "data/Rebollo_Filtered"
     file_lengths = "joined_file_lengths.json"
+    rebollo_output = "rebollo_output_ups_phi_trimmed.json"
     start_barcode = "TATTCTCACTCTTCT"
     end_barcode = "GGTGGAGGTTCG"
     target_length = 68
@@ -337,6 +387,7 @@ def main():
         start_barcode,
         end_barcode,
         target_length,
+        rebollo_output,
     )
 
     output_path = Path("rebollo_filtered.json")
