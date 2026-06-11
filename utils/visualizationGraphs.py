@@ -91,10 +91,10 @@ def plot_distribution_2(ratio_ranges, counts, counts_below, output_path, counts_
     ax1.xaxis.set_ticks(xticks)
     
     #ax1.xaxis.xlabel('A1/A2 Ratios within 0.1 intervals')
-    ax1.set_xlabel('A1/A2 Ratios within 0.1 intervals')
+    ax1.set_xlabel('F1/F2 Ratios within 0.1 intervals')
     ax1.set_ylabel("Number of sequences")
     #plt.yscale('log')
-    ax1.set_title('Distribution of Average A1/A2 Ratios')
+    ax1.set_title('Distribution of Average F1/F2 Ratios')
     
     ax1.set_ylim(bottom=1)
     
@@ -201,17 +201,17 @@ def graph_improvements(json_file):
         
 
 if __name__ == "__main__":
-    input_file = "dev_Tools/demo.txt"
+    input_file = "dev_Tools/ratio.txt"
     output_image = "dev_Tools/volcano_plot_distribution.png"
     
-    #Count_Below_Pvalue - Blue and Red seperated by a1va2 ration
-    #Count_Above_Pvalue - Yellow and Green seperated by a1va2 ration
-    # ratio_ranges, counts, counts_below, counts_below_pvalue, counts_above_pvalue = load_distribution_data(input_file)
-    # plot_distribution_2(ratio_ranges, counts, counts_below, output_image, counts_below_pvalue, counts_above_pvalue)
+    # Count_Below_Pvalue - Blue and Red seperated by a1va2 ration
+    # Count_Above_Pvalue - Yellow and Green seperated by a1va2 ration
+    ratio_ranges, counts, counts_below, counts_below_pvalue, counts_above_pvalue = load_distribution_data(input_file)
+    plot_distribution_2(ratio_ranges, counts, counts_below, output_image, counts_below_pvalue, counts_above_pvalue)
     
-    input_file = "leven_idel_Count.npy"
-    output_image = "dev_Tools/levenstein_distribution.png"
-    graph_levenstein_distribution(input_file, output_image)
+    # input_file = "leven_idel_Count.npy"
+    # output_image = "dev_Tools/levenstein_distribution.png"
+    # graph_levenstein_distribution(input_file, output_image)
     
     # input_file = "sequence_length_distribution.npy"
     # output_image = "dev_Tools/sequence_len_distribution.png"

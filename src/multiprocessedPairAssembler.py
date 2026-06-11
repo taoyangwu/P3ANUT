@@ -907,8 +907,8 @@ if(__name__ == "__main__"):
     # global_sequence_length = {}
     
     num = 7
-    forFile = f"data/Rhau/matched/R{num}_Rhau18_12aa/Rhau18_12aa_F.fastq"
-    revFile = f"data/Rhau/matched/R{num}_Rhau18_12aa/Rhau18_12aa_R.fastq"
+    forFile = f"data/example-cut-for.fastq"
+    revFile = f"data/example-cut-rev.fastq"
     
     
     
