@@ -2,6 +2,7 @@ import re
 import numpy as np
 import random
 from matplotlib import pyplot as plt
+import json
 
 INCLUDE_N = True  # Set to True to include 'N' in the DNA sequences, False to exclude
 CULL_MINLENGTH = 10  # Minimum length of DNA sequences to be extracted
@@ -27,6 +28,16 @@ def extract_sequences(file_path):
         
         
     return [x[2] for x in entries]  # Return only the DNA sequences
+
+def load_from_json(file_path):
+    seqs = []
+    
+    with open(file_path, "r") as file:
+        data = json.load(file)
+        for key, entry in data.items() :
+            seqs.append(entry["sequences"])
+            
+    return seqs
 
 def _validate_umi(umi):
 
@@ -232,15 +243,107 @@ def NKKN_analysis(sequences):
         
     pass
 
+def plot_nkkn_composition(raw, merged):
+    
+    def _t(data):
+        counts_per_top_umi = []
+
+        for region, umis in data.items():
+            sorted_umis = sorted(umis.items(), key=lambda x: x[1], reverse=True)
+            total_umis = sum(umis.values())
+
+            if total_umis <= 100:
+                continue
+
+            for i, (umi, count) in enumerate(sorted_umis):
+
+                if i > 100:
+                    break
+
+                if len(counts_per_top_umi) <= i:
+                    counts_per_top_umi.append([])
+                counts_per_top_umi[i].append(count/total_umis)
+                
+        return counts_per_top_umi
+                
+    raw_distribution = _t(raw)
+    merged_distribution = _t(merged)
+    
+    raw_means = [np.mean(counts) for counts in raw_distribution]
+    merged_means = [np.mean(counts) for counts in merged_distribution]
+    
+    differences = [m - r for m, r in zip(merged_means, raw_means)]
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(differences, marker='o', label='Difference in Mean Proportion (Merged - Raw)')
+    plt.plot(raw_means, marker='o', label='Raw Mean Proportion')
+    plt.plot(merged_means, marker='o', label='Merged Mean Proportion')
+    plt.xlabel('UMI Rank')
+    plt.ylabel('Difference in Mean Proportion of Regions (Merged - Raw)')
+    plt.title('Difference in Mean Proportion of Regions for Top UMIs (Merged vs Raw)')
+    plt.legend()
+    plt.axhline(0, color='gray', linestyle='--')
+    plt.show()
+    
+    
+def plot_nkkn_composition_bins(raw, merged, threshold=0.1):
+    
+    def _parse(data):
+        
+        counts = []
+        total_lengths  = 0
+        
+        for region, umis in data.items():
+            
+            if sum(umis.values()) <= 100:
+                continue
+            
+            total_umis = sum(umis.values())
+            
+            for i, (umi, count) in enumerate(umis.items()):
+                counts.append(count)
+                
+                     
+    
+        return [c for c in counts]
+    
+    raw_bins = _parse(raw) 
+    merged_bins = _parse(merged)
+    
+    mean_raw = np.mean(raw_bins)
+    mean_merged = np.mean(merged_bins)
+    
+    max_raw = max(raw_bins)
+    max_merged = max(merged_bins)
+    
+    
+    print(f"Mean Raw Count: {mean_raw}")
+    print(f"Mean Merged Count: {mean_merged}")
+    
+    plt.figure(figsize=(10, 6))
+    plt.hist(raw_bins, bins=200, alpha=0.5, label='Raw', color='blue')
+    plt.hist(merged_bins, bins=200, alpha=0.5, label='Merged', color='orange')
+    
+    plt.legend()
+    plt.show()
+                
+
+    
+
 
 
 def main():
-    file_path = "data/Original_Sequencing/M7-Gal/PID-1309-GAL-BSA-1-PC_S107_R1_001.fastq"  # Replace with your actual file path
+    file_path = "data/MON_BSA/PID-1309-M7-MON-BSA-1_S87_R1_001.fastq"  # Replace with your actual file path
     sequences = extract_sequences(file_path)
 
-    umi_fixed, region_fixed = umi_analysis(sequences, only_front_umi=False, target_length=68)
+    umi_fixed, region_fixed = umi_analysis(sequences, only_front_umi=True, target_length=68)
+    
+    merged_path = "data/MON_BSA/merged.json"
+    sequences = load_from_json(merged_path)
+    umi_merged, region_merged = umi_analysis(sequences, only_front_umi=True, target_length=68)
 
-    plot_region_distribution(region_fixed)
+    # plot_region_distribution(region_fixed)
+    plot_nkkn_composition_bins(region_fixed, region_merged)
 
     #umi_counts = _umi_gt_analysis(sequences, only_front_umi=False, target_length=68)
     
