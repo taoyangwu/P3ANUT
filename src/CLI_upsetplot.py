@@ -112,7 +112,7 @@ def run_upset_plot(
         )
         sorted_counts = np.take(intersection_counts, sorted_axis)
 
-        fig = Figure(figsize=(14, 6), dpi=100)
+        fig = Figure(figsize=(14, 6), dpi=300)
         fig.suptitle("Upset Plot")
         axes = fig.subplots(
             2, 2,
@@ -207,7 +207,7 @@ def run_upset_plot(
         ax1.set_ylabel("File Names")
         ax1.yaxis.label.set_size(10)
 
-        fig.savefig(graph_output, dpi=100)
+        fig.savefig(graph_output, dpi=300)
         plt.close("all")
         print(f"Graph saved to: {graph_output}")
 

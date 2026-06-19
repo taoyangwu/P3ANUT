@@ -170,7 +170,7 @@ def run_ranking_plot(
 
         fig.tight_layout()
         fig.subplots_adjust(wspace=0, hspace=0)
-        fig.savefig(output_path, dpi=100)
+        fig.savefig(output_path, dpi=300)
         plt.close(fig)
         print(f"Graph saved to: {output_path}")
 

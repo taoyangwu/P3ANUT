@@ -12,11 +12,17 @@ def _convert_tool_name(tool_name):
     elif tool_name.lower() == "avg_raw":
         return "Avg Raw"
     elif tool_name.lower() == "rebollo_filtered_forward":
-        return "Rebollo Filtered Forward"
+        return "Rebollo Step 1 Forward"
     elif tool_name.lower() == "rebollo_filtered_reverse":
-        return "Rebollo Filtered Reverse"
+        return "Rebollo Step 1 Reverse"
     elif tool_name.lower() == "rebollo_filtered":
-        return "Filtered Rebollo"
+        return "Rebollo Step 1"
+    elif tool_name.lower() == "rebollo_post_process_forward":
+        return "Rebollo Step 2 Forward"
+    elif tool_name.lower() == "rebollo_post_process_reverse":
+        return "Rebollo Step 2 Reverse"
+    elif tool_name.lower() == "rebollo_post_process":
+        return "Rebollo Step 2"
     else:
         return tool_name.upper()
 
@@ -36,6 +42,8 @@ class ColorManager:
         self.tool_color_mapping["p3anut"] = (0.0, 127/255, 22/255, 1.0)  # Green
         self.tool_color_mapping["flash"] = (31/255, 0.0, 252/255, 1.0)    # Blue
         self.tool_color_mapping["casper"] = (255/255, 163/255, 34/255, 1.0) # Yellow
+        self.tool_color_mapping["rebollo_filtered"] = (1.0, 0.0, 28/255, 1.0)  # Red
+        self.tool_color_mapping["rebollo_post_process"] = (255/255, 192/255, 203/255, 1)  # Pink
 
     def get_color(self, tool_name):
         if tool_name.lower() in self.tool_color_mapping:
@@ -353,7 +361,7 @@ def compare_table(avg_metrics, non_included_metrics = [], non_included_tools = [
     plt.yticks(ticks=range(len(tools)), labels=[_convert_tool_name(t) for t in tools])
     plt.title("Tool Positions Across Metrics")
     plt.tight_layout()
-    plt.savefig(save_path, dpi=600)
+    plt.savefig(save_path, dpi=300)
     # plt.show()
 
 
@@ -883,11 +891,11 @@ def main():
     plot_metric_stacked_bar_with_error(full_37_data, metric_names=["retention_rate", "tau_score", "sequence_length_score"],
                                        excluded_tools=['forward', 'reverse', 'rebollo', "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"], error_type="sem",
                                        output_path="data/final_comparisons/full_37/stacked_bar_comparison.png", show_plot=False,
-                                       include_effectiveness_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
+                                       include_effectiveness_score=True, include_avg_rebollo_values=False, include_avg_raw_values=False)
     plot_metric_stacked_bar_with_error(paper_7_data, metric_names=["retention_rate", "tau_score", "sequence_length_score"],
                                        excluded_tools=['forward', 'reverse', 'meta', "rebollo_reverse", "rebollo", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"], error_type="sem",
                                        output_path="data/final_comparisons/paper_7/stacked_bar_comparison.png", show_plot=False,
-                                       include_effectiveness_score=True, include_avg_rebollo_values=True, include_avg_raw_values=False)
+                                       include_effectiveness_score=True, include_avg_rebollo_values=False, include_avg_raw_values=False)
 
 
     avgs = calc_averages(full_37_data, print_results=False) 
@@ -896,14 +904,14 @@ def main():
     calculate_effectiveness_scores(avgs)
     compare_table(avgs, include_ranking_sum=False,
                   non_included_metrics=["upsilon_score", "phi_score"], 
-                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
+                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse", "avg_rebollo"],
                   save_path="data/final_comparisons/full_37/tool_comparison_heatmap.png")
     output_comparison_txt(
         full_37_data,
         "data/final_comparisons/full_37/tool_comparison.txt",
         non_included_metrics=["upsilon_score", "phi_score"],
         non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
-        include_avg_rebollo_values=True,
+        include_avg_rebollo_values=False,
         include_avg_raw_values=False,
     )
     
@@ -913,14 +921,14 @@ def main():
     calculate_effectiveness_scores(avgs)
     compare_table(avgs, include_ranking_sum=False,
                   non_included_metrics=["upsilon_score", "phi_score"], 
-                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
+                  non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse", "avg_rebollo"],
                   save_path="data/final_comparisons/paper_7/tool_comparison_heatmap.png")
     output_comparison_txt(
         paper_7_data,
         "data/final_comparisons/paper_7/tool_comparison.txt",
         non_included_metrics=["upsilon_score", "phi_score"],
         non_included_tools=["forward", "reverse", "rebollo_reverse", "rebollo", "avg_raw", "meta", "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
-        include_avg_rebollo_values=True,
+        include_avg_rebollo_values=False,
         include_avg_raw_values=False,
     )
     
@@ -936,7 +944,7 @@ def main():
 
             _, _ = plot_metric_barplot(data, metric_name=metric, 
                                         excluded_tools=['forward', 'reverse', "rebollo", "rebollo_reverse", 'meta', "rebollo_filtered_forward", "rebollo_filtered_reverse", "rebollo_post_process_forward", "rebollo_post_process_reverse"],
-                                        output_path=output_path, show_plot=False, include_avg_raw_values=False, include_avg_rebollo_values=True)
+                                        output_path=output_path, show_plot=False, include_avg_raw_values=False, include_avg_rebollo_values=False)
             
             plt.cla()  # Clear the current axes for the next plot
 

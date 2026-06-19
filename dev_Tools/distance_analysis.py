@@ -174,7 +174,7 @@ def _save_heatmap(
             )
 
     fig.tight_layout()
-    fig.savefig(output_path, dpi=100)
+    fig.savefig(output_path, dpi=300)
     plt.close(fig)
     print(f"Heatmap saved to: {output_path}")
 
