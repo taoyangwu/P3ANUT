@@ -695,9 +695,9 @@ class supportingLogic:
             for key, value in ratioCount.items():
                 roundedKey = round(key, stepDecimal)
                 if(key == end):
-                    f.write(f"{roundedKey}-{roundedKey}+, {value["total"]}, {rolling_count}, {value["belowPvalue"]}, {value["abovePvalue"]}\n")
+                    f.write(f"{roundedKey}-{roundedKey}+, {value['total']}, {rolling_count}, {value['belowPvalue']}, {value['abovePvalue']}\n")
                 else:
-                    f.write(f"{roundedKey}-{round(key + step, stepDecimal)}, {value["total"]}, {rolling_count}, {value["belowPvalue"]}, {value["abovePvalue"]}\n")
+                    f.write(f"{roundedKey}-{round(key + step, stepDecimal)}, {value['total']}, {rolling_count}, {value['belowPvalue']}, {value['abovePvalue']}\n")
                 rolling_count -= ratioCount[key]["total"]
             
         pass
