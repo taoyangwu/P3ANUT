@@ -148,8 +148,9 @@ class sequenceCountFrame(tk.Frame):
         trimmedParametersPaired = {}
         trimmedParametersGlobal = {}
         
-        for key,value in self.parameters.get("pairedAssembler", {}).items():
-            trimmedParametersPaired[key] = value["Value"]
+        for section in ["paired Assembler", "sequenceCount"]:
+            for key,value in self.parameters.get(section, {}).items():
+                trimmedParametersPaired[key] = value["Value"]
             
         for key,value in self.parameters.get("global", {}).items():
             trimmedParametersGlobal[key] = value["Value"]
