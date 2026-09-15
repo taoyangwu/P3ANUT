@@ -44,6 +44,9 @@ def run_upset_plot(
     export_intersection: bool = False,
     intersection_output: str = None,
     selection: list[bool] = None,
+    figure_width: float = 14.0,
+    figure_height: float = 6.0,
+    dpi: int = 300,
 ) -> dict:
     """
     Run the Upset Plot logic programmatically.
@@ -71,7 +74,7 @@ def run_upset_plot(
         "intersection_size"   – number of sequences in the queried intersection
     """
     if len(files) < 2:
-        raise ValueError("At least two files are required.")
+        raise ValueError("At least two files are required to build an upset plot.")
 
     if selection is None:
         selection = [True] * len(files)
@@ -112,7 +115,7 @@ def run_upset_plot(
         )
         sorted_counts = np.take(intersection_counts, sorted_axis)
 
-        fig = Figure(figsize=(14, 6), dpi=300)
+        fig = Figure(figsize=(figure_width, figure_height), dpi=dpi)
         fig.suptitle("Upset Plot")
         axes = fig.subplots(
             2, 2,
@@ -207,7 +210,7 @@ def run_upset_plot(
         ax1.set_ylabel("File Names")
         ax1.yaxis.label.set_size(10)
 
-        fig.savefig(graph_output, dpi=300)
+        fig.savefig(graph_output, dpi=dpi)
         plt.close("all")
         print(f"Graph saved to: {graph_output}")
 
@@ -262,6 +265,10 @@ def _build_parser() -> argparse.ArgumentParser:
              "in the intersection query (default: all true). "
              "Example: --selection true false true",
     )
+    p.add_argument(
+        "--dpi", type=int, default=300,
+        help="Resolution of the exported figure (default: 300).",
+    )
     return p
 
 
@@ -275,33 +282,9 @@ def main():
         export_intersection  = args.export_intersection,
         intersection_output  = args.intersection_output,
         selection            = args.selection,
+        dpi                  = args.dpi,
     )
 
 
 if __name__ == "__main__":
-    #main()
-
-    #data/Rhau/matched/R7_Rhau18_12aa/C_1000/rankingPlot_M_trimmed_C1000.png
-    forward_lambda = lambda I, C, T: f"data/Rhau/Forward/R{I}_Rhau18_12aa_F/C_{C}/rankingPlot_F{T}_C{C}.csv"
-    matched_lambda = lambda I, C, T: f"data/Rhau/matched/R{I}_Rhau18_12aa/C_{C}/rankingPlot_M{T}_C{C}.csv"
-    reverse_lambda = lambda I, C, T: f"data/Rhau/Reverse/R{I}_Rhau18_12aa_R/C_{C}/rankingPlot_R{T}_C{C}.csv"
-
-
-    for i in [4,5,6,7]:
-        for count in [10, 25, 50, 100,1000]:
-            for t in ["", "_trimmed"]:
-                file1 = forward_lambda(i, count, t)
-                file2 = matched_lambda(i, count, t)
-                file3 = reverse_lambda(i, count, t)
-                output = f"data/Rhau/UpsetPlots/R{i}_C{count}{t}.png"
-
-                os.makedirs(os.path.dirname(output), exist_ok=True)
-
-                run_upset_plot(
-                    files=[file1, file2, file3],
-                    graph_output=output,
-                    export_intersection=False,
-                    intersection_output=None,
-                    selection=[True, True, True],
-                )
-
+    main()

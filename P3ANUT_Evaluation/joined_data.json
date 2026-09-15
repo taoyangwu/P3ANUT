@@ -1,0 +1,2333 @@
+{
+    "PID-1309-GAL-BSA-1-PC_S107": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.9998985122847461,
+            "tau_score": 0.9595169471954921,
+            "upsilon_score": 0.8920143314572963,
+            "phi_score": 0.940039758168494,
+            "sequence_length_score": 0.896241595839648
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.9998985122847461,
+            "tau_score": 0.8322486858876447,
+            "upsilon_score": 0.7673831519735387,
+            "phi_score": 0.8207108320780356,
+            "sequence_length_score": 0.7995581000937523
+        },
+        "p3anut": {
+            "retention_rate": 0.9662622109121412,
+            "time_taken": 36.471640825271606,
+            "tau_score": 0.9709379478301207,
+            "upsilon_score": 0.9038007747892524,
+            "phi_score": 0.9527527660197204,
+            "sequence_length_score": 0.9207876011630123
+        },
+        "flash": {
+            "retention_rate": 0.4932340791421577,
+            "time_taken": 0.672,
+            "tau_score": 0.9743499251512967,
+            "upsilon_score": 0.9402042026160795,
+            "phi_score": 0.9667499029739032,
+            "sequence_length_score": 0.9581098356058934
+        },
+        "casper": {
+            "retention_rate": 0.8376115886543098,
+            "time_taken": 34.885,
+            "tau_score": 0.9855022599547569,
+            "upsilon_score": 0.9543758487779794,
+            "phi_score": 0.9748702072101315,
+            "sequence_length_score": 0.930337465391708
+        },
+        "rebollo": {
+            "time_taken": 78.83658170700073,
+            "retention_rate": 0.999964768476305,
+            "tau_score": 0.9594616623179398,
+            "upsilon_score": 0.8917608715542781,
+            "phi_score": 0.9397456809832855,
+            "sequence_length_score": 0.8962184480671566
+        },
+        "rebollo_reverse": {
+            "time_taken": 76.58612132072449,
+            "retention_rate": 0.9999563550469603,
+            "tau_score": 0.8316062026314226,
+            "upsilon_score": 0.7662008225233198,
+            "phi_score": 0.8200550136745423,
+            "sequence_length_score": 0.7994998183213099
+        },
+        "meta": {
+            "forward_length": 1901706,
+            "reverse_length": 1901709,
+            "total_length": 3803415
+        }
+    },
+    "PID-1309-GAL-CA-2-PC_S106": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9547078146157475,
+            "upsilon_score": 0.8912689467234944,
+            "phi_score": 0.9390359876600188,
+            "sequence_length_score": 0.8962292431811273
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.831478374260567,
+            "upsilon_score": 0.7677338863589924,
+            "phi_score": 0.822474185023371,
+            "sequence_length_score": 0.8045794187295615
+        },
+        "p3anut": {
+            "retention_rate": 0.9606698538634535,
+            "time_taken": 45.36581039428711,
+            "tau_score": 0.9675914222554498,
+            "upsilon_score": 0.9044080076160561,
+            "phi_score": 0.9532342242039267,
+            "sequence_length_score": 0.9249680423257657
+        },
+        "flash": {
+            "retention_rate": 0.850035980054351,
+            "time_taken": 0.901,
+            "tau_score": 0.9628626860052726,
+            "upsilon_score": 0.9083286938871853,
+            "phi_score": 0.9527050377911522,
+            "sequence_length_score": 0.9338232401474601
+        },
+        "casper": {
+            "retention_rate": 0.8763390929639946,
+            "time_taken": 30.073,
+            "tau_score": 0.9736277345925505,
+            "upsilon_score": 0.9157611937703143,
+            "phi_score": 0.9607183759112894,
+            "sequence_length_score": 0.906827390413539
+        },
+        "rebollo": {
+            "time_taken": 96.8932409286499,
+            "retention_rate": 0.9999589404085641,
+            "tau_score": 0.9546579355068108,
+            "upsilon_score": 0.8910058330017524,
+            "phi_score": 0.9387348566300657,
+            "sequence_length_score": 0.8962013528500437
+        },
+        "rebollo_reverse": {
+            "time_taken": 94.90833306312561,
+            "retention_rate": 0.9999589404085641,
+            "tau_score": 0.8308467588320451,
+            "upsilon_score": 0.7665787624554482,
+            "phi_score": 0.8218297339169157,
+            "sequence_length_score": 0.8045059726890222
+        },
+        "meta": {
+            "forward_length": 2362420,
+            "reverse_length": 2362420,
+            "total_length": 4724840
+        }
+    },
+    "PID-1309-GAL-CA-1-PC_S105": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9590948942932953,
+            "upsilon_score": 0.8942343059260065,
+            "phi_score": 0.9416174509944535,
+            "sequence_length_score": 0.8993255158874282
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8256657474004737,
+            "upsilon_score": 0.7628185133828893,
+            "phi_score": 0.816220364474119,
+            "sequence_length_score": 0.7969528333060539
+        },
+        "p3anut": {
+            "retention_rate": 0.9645346255348035,
+            "time_taken": 51.51866340637207,
+            "tau_score": 0.9700815471030557,
+            "upsilon_score": 0.9056997786387398,
+            "phi_score": 0.9540325515039139,
+            "sequence_length_score": 0.9239335859428907
+        },
+        "flash": {
+            "retention_rate": 0.8442821381012856,
+            "time_taken": 0.994,
+            "tau_score": 0.9652124967131213,
+            "upsilon_score": 0.9101869503608262,
+            "phi_score": 0.9543822311333158,
+            "sequence_length_score": 0.9334397309139448
+        },
+        "casper": {
+            "retention_rate": 0.87230516333307,
+            "time_taken": 32.015,
+            "tau_score": 0.9755535770699906,
+            "upsilon_score": 0.9172352848908752,
+            "phi_score": 0.9618356025777262,
+            "sequence_length_score": 0.9043296663833235
+        },
+        "rebollo": {
+            "time_taken": 105.01671290397644,
+            "retention_rate": 0.9999633847167808,
+            "tau_score": 0.9590159353566811,
+            "upsilon_score": 0.8939289933302371,
+            "phi_score": 0.9412729399567169,
+            "sequence_length_score": 0.8992786789205814
+        },
+        "rebollo_reverse": {
+            "time_taken": 103.56297969818115,
+            "retention_rate": 0.999966082685018,
+            "tau_score": 0.8250174886155376,
+            "upsilon_score": 0.7616136933450759,
+            "phi_score": 0.8155587973999294,
+            "sequence_length_score": 0.7968668880285368
+        },
+        "meta": {
+            "forward_length": 2594545,
+            "reverse_length": 2594545,
+            "total_length": 5189090
+        }
+    },
+    "PID-1309-GAL-BSA-3-PC_S109": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.9999504615597684,
+            "tau_score": 0.959105279115382,
+            "upsilon_score": 0.8953491160267214,
+            "phi_score": 0.943808723517968,
+            "sequence_length_score": 0.8988435533280013
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.9999504615597684,
+            "tau_score": 0.8338713489227152,
+            "upsilon_score": 0.7707770844303037,
+            "phi_score": 0.8255549136000845,
+            "sequence_length_score": 0.8049860201303721
+        },
+        "p3anut": {
+            "retention_rate": 0.9660436809088899,
+            "time_taken": 36.91853070259094,
+            "tau_score": 0.9697140305143063,
+            "upsilon_score": 0.9064272338672759,
+            "phi_score": 0.9557575018160612,
+            "sequence_length_score": 0.9241334113857247
+        },
+        "flash": {
+            "retention_rate": 0.6478281644779003,
+            "time_taken": 0.736,
+            "tau_score": 0.9682442705408234,
+            "upsilon_score": 0.9236346203973763,
+            "phi_score": 0.9604613662882249,
+            "sequence_length_score": 0.9447400511288557
+        },
+        "casper": {
+            "retention_rate": 0.8578943415242721,
+            "time_taken": 29.192,
+            "tau_score": 0.9810558526046107,
+            "upsilon_score": 0.9395847550188734,
+            "phi_score": 0.9709687414427208,
+            "sequence_length_score": 0.9195533336273999
+        },
+        "rebollo": {
+            "time_taken": 76.26507902145386,
+            "retention_rate": 0.9999600499216179,
+            "tau_score": 0.9590538329969537,
+            "upsilon_score": 0.895079375479068,
+            "phi_score": 0.9435020664843877,
+            "sequence_length_score": 0.8988165721447812
+        },
+        "rebollo_reverse": {
+            "time_taken": 75.28641700744629,
+            "retention_rate": 0.9999632459278885,
+            "tau_score": 0.8332659508677956,
+            "upsilon_score": 0.7696345313562839,
+            "phi_score": 0.8249323645172992,
+            "sequence_length_score": 0.804920038586449
+        },
+        "meta": {
+            "forward_length": 1877343,
+            "reverse_length": 1877343,
+            "total_length": 3754686
+        }
+    },
+    "PID-1309-M7-MON-CONA-2_S86": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.9998242017765572,
+            "tau_score": 0.9521831901987071,
+            "upsilon_score": 0.8761066939219773,
+            "phi_score": 0.9348510691957471,
+            "sequence_length_score": 0.8849619045090725
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.9998242017765572,
+            "tau_score": 0.8273822675794975,
+            "upsilon_score": 0.7579314778789142,
+            "phi_score": 0.8157581275116831,
+            "sequence_length_score": 0.7929251732324147
+        },
+        "p3anut": {
+            "retention_rate": 0.9685921396352885,
+            "time_taken": 12.26825761795044,
+            "tau_score": 0.9629654039672615,
+            "upsilon_score": 0.8865964004308244,
+            "phi_score": 0.9464678121785944,
+            "sequence_length_score": 0.9070987167190744
+        },
+        "flash": {
+            "retention_rate": 0.6483218270305777,
+            "time_taken": 0.255,
+            "tau_score": 0.960700634009303,
+            "upsilon_score": 0.904550641429105,
+            "phi_score": 0.949949596516275,
+            "sequence_length_score": 0.9292340834894026
+        },
+        "casper": {
+            "retention_rate": 0.8653347886235233,
+            "time_taken": 8.62,
+            "tau_score": 0.9756073716535614,
+            "upsilon_score": 0.9178452443480027,
+            "phi_score": 0.9618823249769013,
+            "sequence_length_score": 0.8993734573761154
+        },
+        "rebollo": {
+            "time_taken": 21.68072485923767,
+            "retention_rate": 1.0000066333341624,
+            "tau_score": 0.9521720023548337,
+            "upsilon_score": 0.8758687594835949,
+            "phi_score": 0.934595325157749,
+            "sequence_length_score": 0.8849531106191388
+        },
+        "rebollo_reverse": {
+            "time_taken": 23.441649913787842,
+            "retention_rate": 0.9999983416719594,
+            "tau_score": 0.8267627612488537,
+            "upsilon_score": 0.7567663929872623,
+            "phi_score": 0.8151179817484416,
+            "sequence_length_score": 0.7928433195084053
+        },
+        "meta": {
+            "forward_length": 603015,
+            "reverse_length": 603017,
+            "total_length": 1206032
+        }
+    },
+    "PID-1309-M7-MON-GAL10-2_S80": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9518478118968164,
+            "upsilon_score": 0.864942984486213,
+            "phi_score": 0.9206465318664341,
+            "sequence_length_score": 0.8732431140644741
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8083739249829586,
+            "upsilon_score": 0.7320184123506643,
+            "phi_score": 0.787851780793209,
+            "sequence_length_score": 0.7678611360476535
+        },
+        "p3anut": {
+            "retention_rate": 0.9620222960437383,
+            "time_taken": 18.24412965774536,
+            "tau_score": 0.9634072803151147,
+            "upsilon_score": 0.877237694528955,
+            "phi_score": 0.934149715900687,
+            "sequence_length_score": 0.8976935277238605
+        },
+        "flash": {
+            "retention_rate": 0.8357896962192434,
+            "time_taken": 0.376,
+            "tau_score": 0.9577866853191616,
+            "upsilon_score": 0.8823382898380898,
+            "phi_score": 0.934302867304878,
+            "sequence_length_score": 0.9083386460250311
+        },
+        "casper": {
+            "retention_rate": 0.8696171784329038,
+            "time_taken": 10.889,
+            "tau_score": 0.9700447511646714,
+            "upsilon_score": 0.8910133013162399,
+            "phi_score": 0.9433627374614877,
+            "sequence_length_score": 0.8740403428446573
+        },
+        "rebollo": {
+            "time_taken": 33.664726972579956,
+            "retention_rate": 1.0000064712213999,
+            "tau_score": 0.9518454844895609,
+            "upsilon_score": 0.8647007815078377,
+            "phi_score": 0.9203856416539579,
+            "sequence_length_score": 0.8732535791247026
+        },
+        "rebollo_reverse": {
+            "time_taken": 34.88711905479431,
+            "retention_rate": 0.9999913717885527,
+            "tau_score": 0.8077656060078237,
+            "upsilon_score": 0.7308903990655647,
+            "phi_score": 0.7872347768690593,
+            "sequence_length_score": 0.7678072802691139
+        },
+        "meta": {
+            "forward_length": 927182,
+            "reverse_length": 927191,
+            "total_length": 1854373
+        }
+    },
+    "PID-1309-M7-MON-CONA-1_S85": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.999969145722183,
+            "tau_score": 0.9534876842095787,
+            "upsilon_score": 0.8801600866278539,
+            "phi_score": 0.9391894585630528,
+            "sequence_length_score": 0.8897115277032944
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.999969145722183,
+            "tau_score": 0.8255426644538205,
+            "upsilon_score": 0.7584813249265783,
+            "phi_score": 0.817930748560856,
+            "sequence_length_score": 0.7962962724530275
+        },
+        "p3anut": {
+            "retention_rate": 0.9679056253026666,
+            "time_taken": 15.517914772033691,
+            "tau_score": 0.9629544947129727,
+            "upsilon_score": 0.8899273454038772,
+            "phi_score": 0.949833090792691,
+            "sequence_length_score": 0.9111615320678181
+        },
+        "flash": {
+            "retention_rate": 0.5850113007279263,
+            "time_taken": 0.313,
+            "tau_score": 0.9626118315653452,
+            "upsilon_score": 0.9152618358507111,
+            "phi_score": 0.9560079729780215,
+            "sequence_length_score": 0.9400500169213661
+        },
+        "casper": {
+            "retention_rate": 0.8581469377470026,
+            "time_taken": 12.024,
+            "tau_score": 0.978416123711402,
+            "upsilon_score": 0.9275044232938671,
+            "phi_score": 0.9674871046564063,
+            "sequence_length_score": 0.9092211548548563
+        },
+        "rebollo": {
+            "time_taken": 28.97085165977478,
+            "retention_rate": 1.0000038563484495,
+            "tau_score": 0.9534692996099946,
+            "upsilon_score": 0.879878602150814,
+            "phi_score": 0.9388871606734727,
+            "sequence_length_score": 0.8897045779997892
+        },
+        "rebollo_reverse": {
+            "time_taken": 29.473912954330444,
+            "retention_rate": 0.9999948582417243,
+            "tau_score": 0.8249244161533478,
+            "upsilon_score": 0.7573565706529005,
+            "phi_score": 0.8172991886305441,
+            "sequence_length_score": 0.7962218360190451
+        },
+        "meta": {
+            "forward_length": 777938,
+            "reverse_length": 777944,
+            "total_length": 1555882
+        }
+    },
+    "PID-1309-M7-MON-LECB2_S78": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.953180833905132,
+            "upsilon_score": 0.8745121147042836,
+            "phi_score": 0.9323086999527709,
+            "sequence_length_score": 0.8834600201391921
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8262054689713167,
+            "upsilon_score": 0.7549045194072864,
+            "phi_score": 0.8126099961856836,
+            "sequence_length_score": 0.7922190176016203
+        },
+        "p3anut": {
+            "retention_rate": 0.9670231879840699,
+            "time_taken": 18.07521915435791,
+            "tau_score": 0.9636767613149285,
+            "upsilon_score": 0.8853140654431789,
+            "phi_score": 0.9440134828577593,
+            "sequence_length_score": 0.905857928468541
+        },
+        "flash": {
+            "retention_rate": 0.8558716959113817,
+            "time_taken": 0.344,
+            "tau_score": 0.9571556258692538,
+            "upsilon_score": 0.8886015047767489,
+            "phi_score": 0.9416915272716392,
+            "sequence_length_score": 0.9155290202297888
+        },
+        "casper": {
+            "retention_rate": 0.8838176768880268,
+            "time_taken": 10.746,
+            "tau_score": 0.9704604669680339,
+            "upsilon_score": 0.8986010109409411,
+            "phi_score": 0.9522663018006441,
+            "sequence_length_score": 0.8872599081617987
+        },
+        "rebollo": {
+            "time_taken": 33.579577922821045,
+            "retention_rate": 0.9999944324060691,
+            "tau_score": 0.9531653998534609,
+            "upsilon_score": 0.8742169179136221,
+            "phi_score": 0.9319918401343349,
+            "sequence_length_score": 0.8834413075382995
+        },
+        "rebollo_reverse": {
+            "time_taken": 34.37368297576904,
+            "retention_rate": 0.999987751293352,
+            "tau_score": 0.8255906660401268,
+            "upsilon_score": 0.753700779685854,
+            "phi_score": 0.811984579991849,
+            "sequence_length_score": 0.7921895565300082
+        },
+        "meta": {
+            "forward_length": 898054,
+            "reverse_length": 898054,
+            "total_length": 1796108
+        }
+    },
+    "PID-1309-M7-MON-LECA2_S76": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9533320277885948,
+            "upsilon_score": 0.8572686953631403,
+            "phi_score": 0.9131242510937688,
+            "sequence_length_score": 0.8645767446467039
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8165041118285128,
+            "upsilon_score": 0.7279243718060642,
+            "phi_score": 0.7839400528008967,
+            "sequence_length_score": 0.7654394540200956
+        },
+        "p3anut": {
+            "retention_rate": 0.9631933541801588,
+            "time_taken": 25.61652112007141,
+            "tau_score": 0.9647189143406149,
+            "upsilon_score": 0.8678298505764563,
+            "phi_score": 0.9246996043183657,
+            "sequence_length_score": 0.8878075065736246
+        },
+        "flash": {
+            "retention_rate": 0.8450544274021267,
+            "time_taken": 0.551,
+            "tau_score": 0.9577040723034016,
+            "upsilon_score": 0.8691657805085453,
+            "phi_score": 0.9206487565086021,
+            "sequence_length_score": 0.8959687906371911
+        },
+        "casper": {
+            "retention_rate": 0.8746241988910491,
+            "time_taken": 16.152,
+            "tau_score": 0.9716382491700307,
+            "upsilon_score": 0.8802460019536761,
+            "phi_score": 0.9324137848229042,
+            "sequence_length_score": 0.8665547877591313
+        },
+        "rebollo": {
+            "time_taken": 50.13010621070862,
+            "retention_rate": 0.9999947492859029,
+            "tau_score": 0.9533121504524615,
+            "upsilon_score": 0.8570260555435539,
+            "phi_score": 0.91286439955834,
+            "sequence_length_score": 0.8645608302729171
+        },
+        "rebollo_reverse": {
+            "time_taken": 50.81830096244812,
+            "retention_rate": 0.9999969995919445,
+            "tau_score": 0.8159002124288903,
+            "upsilon_score": 0.7267693406303257,
+            "phi_score": 0.7833502856388469,
+            "sequence_length_score": 0.7654145963851083
+        },
+        "meta": {
+            "forward_length": 1333152,
+            "reverse_length": 1333152,
+            "total_length": 2666304
+        }
+    },
+    "PID-1309-M7-MON-BSA-2_S88": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9541982868289374,
+            "upsilon_score": 0.8800251038927996,
+            "phi_score": 0.9378536171656348,
+            "sequence_length_score": 0.8887795776439658
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.828597203428056,
+            "upsilon_score": 0.7602874284689503,
+            "phi_score": 0.8189096032302416,
+            "sequence_length_score": 0.7976690252213183
+        },
+        "p3anut": {
+            "retention_rate": 0.9666139738147198,
+            "time_taken": 28.30346655845642,
+            "tau_score": 0.9641593611912306,
+            "upsilon_score": 0.8900001420838011,
+            "phi_score": 0.9488498316306958,
+            "sequence_length_score": 0.9115421775763345
+        },
+        "flash": {
+            "retention_rate": 0.8555004490217837,
+            "time_taken": 0.573,
+            "tau_score": 0.9586237134081463,
+            "upsilon_score": 0.8941533904500039,
+            "phi_score": 0.947638030632422,
+            "sequence_length_score": 0.9213091800538818
+        },
+        "casper": {
+            "retention_rate": 0.8829111262443058,
+            "time_taken": 17.912,
+            "tau_score": 0.9707564781169096,
+            "upsilon_score": 0.9033095437469751,
+            "phi_score": 0.9573546696986226,
+            "sequence_length_score": 0.8934496238751811
+        },
+        "rebollo": {
+            "time_taken": 54.41899800300598,
+            "retention_rate": 0.9999959305894202,
+            "tau_score": 0.9541784368715728,
+            "upsilon_score": 0.8797597691287731,
+            "phi_score": 0.9375684593550663,
+            "sequence_length_score": 0.8887667312120401
+        },
+        "rebollo_reverse": {
+            "time_taken": 56.66584610939026,
+            "retention_rate": 0.9999925394189971,
+            "tau_score": 0.8280152955475253,
+            "upsilon_score": 0.7591392117285759,
+            "phi_score": 0.8183145055398205,
+            "sequence_length_score": 0.7976500526310079
+        },
+        "meta": {
+            "forward_length": 1474415,
+            "reverse_length": 1474416,
+            "total_length": 2948831
+        }
+    },
+    "PID-1309-M7-MON-RCA120-1_S83": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9562297039132172,
+            "upsilon_score": 0.8821616498536564,
+            "phi_score": 0.9406166690895106,
+            "sequence_length_score": 0.8895194642119252
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8395505751908612,
+            "upsilon_score": 0.7722239605360731,
+            "phi_score": 0.8302393257023265,
+            "sequence_length_score": 0.8063354089946854
+        },
+        "p3anut": {
+            "retention_rate": 0.9699589955057221,
+            "time_taken": 17.40173077583313,
+            "tau_score": 0.9666055637490522,
+            "upsilon_score": 0.8929238044627024,
+            "phi_score": 0.9522023919702407,
+            "sequence_length_score": 0.9110898809985849
+        },
+        "flash": {
+            "retention_rate": 0.8668486905494818,
+            "time_taken": 0.356,
+            "tau_score": 0.9608564790368571,
+            "upsilon_score": 0.8967710423487169,
+            "phi_score": 0.95041979089661,
+            "sequence_length_score": 0.9205448818648171
+        },
+        "casper": {
+            "retention_rate": 0.8923373743245625,
+            "time_taken": 10.57,
+            "tau_score": 0.9730326214359177,
+            "upsilon_score": 0.9060739118279956,
+            "phi_score": 0.960347219906796,
+            "sequence_length_score": 0.895016825337341
+        },
+        "rebollo": {
+            "time_taken": 31.893069982528687,
+            "retention_rate": 0.9999965670265186,
+            "tau_score": 0.9562250108138665,
+            "upsilon_score": 0.8819091452124896,
+            "phi_score": 0.940345219813292,
+            "sequence_length_score": 0.8895211917453009
+        },
+        "rebollo_reverse": {
+            "time_taken": 32.301886796951294,
+            "retention_rate": 0.9999954227020248,
+            "tau_score": 0.8389225956025899,
+            "upsilon_score": 0.7710000709481186,
+            "phi_score": 0.8295917736800789,
+            "sequence_length_score": 0.8062853167146902
+        },
+        "meta": {
+            "forward_length": 873878,
+            "reverse_length": 873878,
+            "total_length": 1747756
+        }
+    },
+    "PID-1309-M7-MON-RCA120-_S84": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9569137897278601,
+            "upsilon_score": 0.8820792273053579,
+            "phi_score": 0.9384285061671996,
+            "sequence_length_score": 0.8902147099132024
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8199845784896068,
+            "upsilon_score": 0.7534655923885698,
+            "phi_score": 0.8105304084739893,
+            "sequence_length_score": 0.7903752785346951
+        },
+        "p3anut": {
+            "retention_rate": 0.9641712866594527,
+            "time_taken": 29.627828359603882,
+            "tau_score": 0.9671810158596524,
+            "upsilon_score": 0.8929231794444974,
+            "phi_score": 0.9501469552799349,
+            "sequence_length_score": 0.9131685231182902
+        },
+        "flash": {
+            "retention_rate": 0.8456817428566209,
+            "time_taken": 0.602,
+            "tau_score": 0.9607666000368765,
+            "upsilon_score": 0.897949185977348,
+            "phi_score": 0.9499690252480874,
+            "sequence_length_score": 0.924457093218188
+        },
+        "casper": {
+            "retention_rate": 0.8748580980043686,
+            "time_taken": 21.024,
+            "tau_score": 0.9734610947419603,
+            "upsilon_score": 0.9068188885831325,
+            "phi_score": 0.9594604369929385,
+            "sequence_length_score": 0.8944134099059262
+        },
+        "rebollo": {
+            "time_taken": 56.63942313194275,
+            "retention_rate": 0.9999967378851579,
+            "tau_score": 0.9569061580899143,
+            "upsilon_score": 0.8818207559233481,
+            "phi_score": 0.938152259862678,
+            "sequence_length_score": 0.8902128725661361
+        },
+        "rebollo_reverse": {
+            "time_taken": 58.928762912750244,
+            "retention_rate": 0.9999941281932843,
+            "tau_score": 0.8193917069211638,
+            "upsilon_score": 0.752278261005723,
+            "phi_score": 0.8099237448034511,
+            "sequence_length_score": 0.7903334403307002
+        },
+        "meta": {
+            "forward_length": 1532748,
+            "reverse_length": 1532748,
+            "total_length": 3065496
+        }
+    },
+    "PID-1309-M7-MON-FIMH-2_S82": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9500592453146782,
+            "upsilon_score": 0.8687604225208048,
+            "phi_score": 0.9268047410043087,
+            "sequence_length_score": 0.8788120136396391
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8231423008588866,
+            "upsilon_score": 0.749056421397601,
+            "phi_score": 0.8070623406272727,
+            "sequence_length_score": 0.7889502342836627
+        },
+        "p3anut": {
+            "retention_rate": 0.9625080522941903,
+            "time_taken": 17.40393614768982,
+            "tau_score": 0.9619214635480584,
+            "upsilon_score": 0.8804428598054379,
+            "phi_score": 0.9393984503779654,
+            "sequence_length_score": 0.9035371175868304
+        },
+        "flash": {
+            "retention_rate": 0.8527491339840182,
+            "time_taken": 0.355,
+            "tau_score": 0.9557695131924824,
+            "upsilon_score": 0.8845369797750751,
+            "phi_score": 0.9374093071572063,
+            "sequence_length_score": 0.9137187904624219
+        },
+        "casper": {
+            "retention_rate": 0.8804915179263872,
+            "time_taken": 10.907,
+            "tau_score": 0.9689553976060515,
+            "upsilon_score": 0.8943849342792906,
+            "phi_score": 0.9480902304302609,
+            "sequence_length_score": 0.8857847369060322
+        },
+        "rebollo": {
+            "time_taken": 32.02188205718994,
+            "retention_rate": 0.9999977021134812,
+            "tau_score": 0.9500519896824895,
+            "upsilon_score": 0.8685045929006796,
+            "phi_score": 0.926531972218552,
+            "sequence_length_score": 0.8788106139378307
+        },
+        "rebollo_reverse": {
+            "time_taken": 33.37794518470764,
+            "retention_rate": 0.9999954042269622,
+            "tau_score": 0.822553756182751,
+            "upsilon_score": 0.7479092105036392,
+            "phi_score": 0.8064651037208528,
+            "sequence_length_score": 0.7888874207947241
+        },
+        "meta": {
+            "forward_length": 870365,
+            "reverse_length": 870365,
+            "total_length": 1740730
+        }
+    },
+    "PID-1309-M7-MON-BSA-1_S87": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.9999979690503584,
+            "tau_score": 0.9555285360507235,
+            "upsilon_score": 0.8771486093081179,
+            "phi_score": 0.9366148826683082,
+            "sequence_length_score": 0.884107655458651
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.9999979690503584,
+            "tau_score": 0.8273348588863463,
+            "upsilon_score": 0.7559267734553776,
+            "phi_score": 0.8153714721586575,
+            "sequence_length_score": 0.7892194253750318
+        },
+        "p3anut": {
+            "retention_rate": 0.9663258768199484,
+            "time_taken": 19.509539365768433,
+            "tau_score": 0.9668243923516878,
+            "upsilon_score": 0.8885373230907423,
+            "phi_score": 0.9489839358199075,
+            "sequence_length_score": 0.9065267782453497
+        },
+        "flash": {
+            "retention_rate": 0.850842693491504,
+            "time_taken": 0.4,
+            "tau_score": 0.9614548709533045,
+            "upsilon_score": 0.8930962255706401,
+            "phi_score": 0.9478884081754438,
+            "sequence_length_score": 0.9163416369087403
+        },
+        "casper": {
+            "retention_rate": 0.8808165246522246,
+            "time_taken": 11.891,
+            "tau_score": 0.9730825278536117,
+            "upsilon_score": 0.9017041891094223,
+            "phi_score": 0.9569375783959271,
+            "sequence_length_score": 0.8869548359401506
+        },
+        "rebollo": {
+            "time_taken": 36.4968740940094,
+            "retention_rate": 0.999993907874884,
+            "tau_score": 0.9555193638196812,
+            "upsilon_score": 0.8768943970725308,
+            "phi_score": 0.936342369308686,
+            "sequence_length_score": 0.8841023964389498
+        },
+        "rebollo_reverse": {
+            "time_taken": 37.37055420875549,
+            "retention_rate": 0.999987815638425,
+            "tau_score": 0.8267434552209482,
+            "upsilon_score": 0.7547602777628294,
+            "phi_score": 0.8147692738831256,
+            "sequence_length_score": 0.7891780531217858
+        },
+        "meta": {
+            "forward_length": 984878,
+            "reverse_length": 984869,
+            "total_length": 1969747
+        }
+    },
+    "PID-1309-M7-MON-FIMH-1_S81": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9519436875094436,
+            "upsilon_score": 0.8774213380989845,
+            "phi_score": 0.9359471471221129,
+            "sequence_length_score": 0.8851450275883269
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8129107981220657,
+            "upsilon_score": 0.7474731351069379,
+            "phi_score": 0.8055190401669274,
+            "sequence_length_score": 0.7833562858633282
+        },
+        "p3anut": {
+            "retention_rate": 0.9642240281931476,
+            "time_taken": 19.076639413833618,
+            "tau_score": 0.9630576709646813,
+            "upsilon_score": 0.8892508000574091,
+            "phi_score": 0.9486966267760946,
+            "sequence_length_score": 0.9085913182952121
+        },
+        "flash": {
+            "retention_rate": 0.8426037820763916,
+            "time_taken": 0.386,
+            "tau_score": 0.9565572716527451,
+            "upsilon_score": 0.8941620549645654,
+            "phi_score": 0.9480744598250274,
+            "sequence_length_score": 0.9197809126989033
+        },
+        "casper": {
+            "retention_rate": 0.8731050030419962,
+            "time_taken": 11.491,
+            "tau_score": 0.9692550919352337,
+            "upsilon_score": 0.9031106444415278,
+            "phi_score": 0.9575701893591381,
+            "sequence_length_score": 0.8884620299194037
+        },
+        "rebollo": {
+            "time_taken": 35.0155189037323,
+            "retention_rate": 0.9999968746614216,
+            "tau_score": 0.951926041987882,
+            "upsilon_score": 0.8771908623434206,
+            "phi_score": 0.9357003258686357,
+            "sequence_length_score": 0.8851427654662588
+        },
+        "rebollo_reverse": {
+            "time_taken": 36.384506940841675,
+            "retention_rate": 0.9999937493228434,
+            "tau_score": 0.812346337519898,
+            "upsilon_score": 0.7463850250443798,
+            "phi_score": 0.8049434522073224,
+            "sequence_length_score": 0.7833161092451683
+        },
+        "meta": {
+            "forward_length": 959896,
+            "reverse_length": 959896,
+            "total_length": 1919792
+        }
+    },
+    "PID-1309-M7-MON-LECB1_S77": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9558268504542162,
+            "upsilon_score": 0.8790507627404471,
+            "phi_score": 0.9373928044188631,
+            "sequence_length_score": 0.886498471201641
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8154540935345548,
+            "upsilon_score": 0.7448752625338098,
+            "phi_score": 0.8032311172176786,
+            "sequence_length_score": 0.7818597302752274
+        },
+        "p3anut": {
+            "retention_rate": 0.9650804423151439,
+            "time_taken": 17.913326740264893,
+            "tau_score": 0.9661041337639265,
+            "upsilon_score": 0.8894003762081422,
+            "phi_score": 0.9485875948788347,
+            "sequence_length_score": 0.90877010572586
+        },
+        "flash": {
+            "retention_rate": 0.8428891235013515,
+            "time_taken": 0.375,
+            "tau_score": 0.9592260718107989,
+            "upsilon_score": 0.891483747088326,
+            "phi_score": 0.9450992067655761,
+            "sequence_length_score": 0.9173713058087972
+        },
+        "casper": {
+            "retention_rate": 0.8720700004974767,
+            "time_taken": 10.784,
+            "tau_score": 0.9731581909731202,
+            "upsilon_score": 0.9023393725502127,
+            "phi_score": 0.9567899356526766,
+            "sequence_length_score": 0.8872643968597664
+        },
+        "rebollo": {
+            "time_taken": 32.946372985839844,
+            "retention_rate": 0.9999955779849983,
+            "tau_score": 0.955808593080652,
+            "upsilon_score": 0.8787969908187914,
+            "phi_score": 0.937120052179777,
+            "sequence_length_score": 0.8864857694029727
+        },
+        "rebollo_reverse": {
+            "time_taken": 34.5067880153656,
+            "retention_rate": 0.9999933669774975,
+            "tau_score": 0.8148712364506696,
+            "upsilon_score": 0.7437652352235605,
+            "phi_score": 0.8026421539635074,
+            "sequence_length_score": 0.7817978807493104
+        },
+        "meta": {
+            "forward_length": 904565,
+            "reverse_length": 904565,
+            "total_length": 1809130
+        }
+    },
+    "PID-1309-M7-MON-LECA1_S75": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9526667156388211,
+            "upsilon_score": 0.8781844325278868,
+            "phi_score": 0.9362491645035278,
+            "sequence_length_score": 0.8895515484049745
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8196674514441677,
+            "upsilon_score": 0.7527324602956715,
+            "phi_score": 0.8099770392502839,
+            "sequence_length_score": 0.7920002213786208
+        },
+        "p3anut": {
+            "retention_rate": 0.9662984068257435,
+            "time_taken": 26.747594833374023,
+            "tau_score": 0.963300801582741,
+            "upsilon_score": 0.8890968590577021,
+            "phi_score": 0.9479939092515055,
+            "sequence_length_score": 0.9115827867765521
+        },
+        "flash": {
+            "retention_rate": 0.8507552760256667,
+            "time_taken": 0.535,
+            "tau_score": 0.9565280561336336,
+            "upsilon_score": 0.8920068543200591,
+            "phi_score": 0.9454919171157158,
+            "sequence_length_score": 0.9210216167108379
+        },
+        "casper": {
+            "retention_rate": 0.880804173558977,
+            "time_taken": 16.666,
+            "tau_score": 0.969973385989011,
+            "upsilon_score": 0.9024518900570583,
+            "phi_score": 0.9565384285185968,
+            "sequence_length_score": 0.8903517612847796
+        },
+        "rebollo": {
+            "time_taken": 50.43068790435791,
+            "retention_rate": 0.9999963644956646,
+            "tau_score": 0.9526439205278753,
+            "upsilon_score": 0.8779321251340593,
+            "phi_score": 0.9359773144529475,
+            "sequence_length_score": 0.8895381091741952
+        },
+        "rebollo_reverse": {
+            "time_taken": 52.619811058044434,
+            "retention_rate": 0.9999963644956646,
+            "tau_score": 0.8190580408267137,
+            "upsilon_score": 0.7515758093541527,
+            "phi_score": 0.8093526984530929,
+            "sequence_length_score": 0.7919415410902878
+        },
+        "meta": {
+            "forward_length": 1375325,
+            "reverse_length": 1375325,
+            "total_length": 2750650
+        }
+    },
+    "PID-1309-M7-NAT-RCA120-2_S67": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.9999849307243872,
+            "tau_score": 0.9599381233871344,
+            "upsilon_score": 0.8928938801732832,
+            "phi_score": 0.9405173372957336,
+            "sequence_length_score": 0.8977054687584121
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.9999849307243872,
+            "tau_score": 0.8295359389790988,
+            "upsilon_score": 0.7655091316438828,
+            "phi_score": 0.8180916449178119,
+            "sequence_length_score": 0.7975448172557126
+        },
+        "p3anut": {
+            "retention_rate": 0.9665376049839158,
+            "time_taken": 26.97970700263977,
+            "tau_score": 0.9714843355857722,
+            "upsilon_score": 0.9048222872469395,
+            "phi_score": 0.95334108409222,
+            "sequence_length_score": 0.9213571558730823
+        },
+        "flash": {
+            "retention_rate": 0.41509949818556013,
+            "time_taken": 0.552,
+            "tau_score": 0.9775956463638736,
+            "upsilon_score": 0.9537184139238909,
+            "phi_score": 0.9722296653695421,
+            "sequence_length_score": 0.9700786884339065
+        },
+        "casper": {
+            "retention_rate": 0.8292481825103352,
+            "time_taken": 25.079,
+            "tau_score": 0.987966351474957,
+            "upsilon_score": 0.9642287552797568,
+            "phi_score": 0.9790125069985713,
+            "sequence_length_score": 0.9356731271104063
+        },
+        "rebollo": {
+            "time_taken": 55.324642181396484,
+            "retention_rate": 0.9999648417880462,
+            "tau_score": 0.9598658247829519,
+            "upsilon_score": 0.8925916624811653,
+            "phi_score": 0.940180096146947,
+            "sequence_length_score": 0.8976565975461003
+        },
+        "rebollo_reverse": {
+            "time_taken": 55.41299390792847,
+            "retention_rate": 0.9999655593025759,
+            "tau_score": 0.828880677333716,
+            "upsilon_score": 0.7642390758412858,
+            "phi_score": 0.8174298629547249,
+            "sequence_length_score": 0.797492286718806
+        },
+        "meta": {
+            "forward_length": 1393700,
+            "reverse_length": 1393700,
+            "total_length": 2787400
+        }
+    },
+    "PID-1309-M7-NAT-CONA-1_S69": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9594374070962322,
+            "upsilon_score": 0.8939240935823692,
+            "phi_score": 0.9425672946422801,
+            "sequence_length_score": 0.8983047082013831
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8262237844723868,
+            "upsilon_score": 0.7627780792186653,
+            "phi_score": 0.8169208318869787,
+            "sequence_length_score": 0.7968489129592246
+        },
+        "p3anut": {
+            "retention_rate": 0.9658227173828421,
+            "time_taken": 28.569069385528564,
+            "tau_score": 0.9697905618485992,
+            "upsilon_score": 0.9048675632486247,
+            "phi_score": 0.9543464426625938,
+            "sequence_length_score": 0.9227214232177959
+        },
+        "flash": {
+            "retention_rate": 0.8453132560851924,
+            "time_taken": 0.567,
+            "tau_score": 0.965123111292991,
+            "upsilon_score": 0.9092895165515144,
+            "phi_score": 0.954453678211618,
+            "sequence_length_score": 0.9320033088724118
+        },
+        "casper": {
+            "retention_rate": 0.873764100410469,
+            "time_taken": 18.137,
+            "tau_score": 0.9752443980244814,
+            "upsilon_score": 0.9161783327633537,
+            "phi_score": 0.9616665588326817,
+            "sequence_length_score": 0.9023767509950347
+        },
+        "rebollo": {
+            "time_taken": 58.106709003448486,
+            "retention_rate": 0.9999663494768353,
+            "tau_score": 0.9593966057390294,
+            "upsilon_score": 0.8936414644438477,
+            "phi_score": 0.9422530102075497,
+            "sequence_length_score": 0.8982960048079868
+        },
+        "rebollo_reverse": {
+            "time_taken": 58.54380989074707,
+            "retention_rate": 0.9999663494768353,
+            "tau_score": 0.8255664560816927,
+            "upsilon_score": 0.7616156558386014,
+            "phi_score": 0.8162445881546121,
+            "sequence_length_score": 0.7967723764201362
+        },
+        "meta": {
+            "forward_length": 1485861,
+            "reverse_length": 1485861,
+            "total_length": 2971722
+        }
+    },
+    "PID-1309-M7-NAT-BSA-3_S74": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9522915644822053,
+            "upsilon_score": 0.8871229566571618,
+            "phi_score": 0.9356943139716294,
+            "sequence_length_score": 0.892152510481701
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.820724574954499,
+            "upsilon_score": 0.7566869756292449,
+            "phi_score": 0.8112176499311937,
+            "sequence_length_score": 0.795296755005105
+        },
+        "p3anut": {
+            "retention_rate": 0.9584715939359464,
+            "time_taken": 35.383163928985596,
+            "tau_score": 0.9658030636583145,
+            "upsilon_score": 0.9008141062288811,
+            "phi_score": 0.9504877159866159,
+            "sequence_length_score": 0.9224217467103385
+        },
+        "flash": {
+            "retention_rate": 0.8416051967710783,
+            "time_taken": 0.694,
+            "tau_score": 0.960550778832607,
+            "upsilon_score": 0.9048112499506235,
+            "phi_score": 0.9497478504746731,
+            "sequence_length_score": 0.9318238526649958
+        },
+        "casper": {
+            "retention_rate": 0.8696806815997004,
+            "time_taken": 22.913,
+            "tau_score": 0.9723275384792792,
+            "upsilon_score": 0.9130899311995138,
+            "phi_score": 0.9586387964916148,
+            "sequence_length_score": 0.9027718958083527
+        },
+        "rebollo": {
+            "time_taken": 74.01284003257751,
+            "retention_rate": 0.9999517955599833,
+            "tau_score": 0.9522377110537213,
+            "upsilon_score": 0.8868774770571799,
+            "phi_score": 0.9354032800074025,
+            "sequence_length_score": 0.8921317610190086
+        },
+        "rebollo_reverse": {
+            "time_taken": 72.82699918746948,
+            "retention_rate": 0.999960106670331,
+            "tau_score": 0.8201098950417578,
+            "upsilon_score": 0.7555647039333161,
+            "phi_score": 0.8105859166572936,
+            "sequence_length_score": 0.795255796583912
+        },
+        "meta": {
+            "forward_length": 1804813,
+            "reverse_length": 1804813,
+            "total_length": 3609626
+        }
+    },
+    "PID-1309-M7-NAT-RCA120-3_S68": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.999926276921163,
+            "tau_score": 0.959141095881729,
+            "upsilon_score": 0.8935600052315991,
+            "phi_score": 0.9412649292149663,
+            "sequence_length_score": 0.8976819060997103
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.999926276921163,
+            "tau_score": 0.8239093926336516,
+            "upsilon_score": 0.7606055029252282,
+            "phi_score": 0.8139161367256481,
+            "sequence_length_score": 0.7937173215858827
+        },
+        "p3anut": {
+            "retention_rate": 0.9629168389816579,
+            "time_taken": 33.98467421531677,
+            "tau_score": 0.9702508919204431,
+            "upsilon_score": 0.9051031881941504,
+            "phi_score": 0.9537738273212863,
+            "sequence_length_score": 0.9230515494478992
+        },
+        "flash": {
+            "retention_rate": 0.344575971761979,
+            "time_taken": 0.684,
+            "tau_score": 0.9828457184504645,
+            "upsilon_score": 0.971824652551411,
+            "phi_score": 0.9808982678555309,
+            "sequence_length_score": 0.9856281059287824
+        },
+        "casper": {
+            "retention_rate": 0.816344574819754,
+            "time_taken": 35.556,
+            "tau_score": 0.9901647903870511,
+            "upsilon_score": 0.9726139614959904,
+            "phi_score": 0.9825126741482655,
+            "sequence_length_score": 0.9417453938760041
+        },
+        "rebollo": {
+            "time_taken": 69.48019409179688,
+            "retention_rate": 0.9999752335818807,
+            "tau_score": 0.9591014282735734,
+            "upsilon_score": 0.893297631293694,
+            "phi_score": 0.9409706823205788,
+            "sequence_length_score": 0.8976599766619706
+        },
+        "rebollo_reverse": {
+            "time_taken": 69.21062397956848,
+            "retention_rate": 0.9999654424461218,
+            "tau_score": 0.8232634541196636,
+            "upsilon_score": 0.7594016705121545,
+            "phi_score": 0.8132567384350267,
+            "sequence_length_score": 0.7936700928561473
+        },
+        "meta": {
+            "forward_length": 1736222,
+            "reverse_length": 1736234,
+            "total_length": 3472456
+        }
+    },
+    "PID-1309-M7-NAT-FIMH-1_S63": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.957136964266617,
+            "upsilon_score": 0.8903212054060228,
+            "phi_score": 0.9382753952046538,
+            "sequence_length_score": 0.8960220175316705
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8313367721050104,
+            "upsilon_score": 0.7664638903478133,
+            "phi_score": 0.8203400843691292,
+            "sequence_length_score": 0.7989964866835618
+        },
+        "p3anut": {
+            "retention_rate": 0.9647476007061111,
+            "time_taken": 27.19052529335022,
+            "tau_score": 0.9699972373428595,
+            "upsilon_score": 0.9036039283300924,
+            "phi_score": 0.9525871404049704,
+            "sequence_length_score": 0.9211578977174024
+        },
+        "flash": {
+            "retention_rate": 0.8488970508018473,
+            "time_taken": 0.542,
+            "tau_score": 0.9657536769903127,
+            "upsilon_score": 0.9083826040468098,
+            "phi_score": 0.9532929914641219,
+            "sequence_length_score": 0.9302591176087568
+        },
+        "casper": {
+            "retention_rate": 0.8755831121131677,
+            "time_taken": 16.94,
+            "tau_score": 0.9755557641398708,
+            "upsilon_score": 0.9147890617277593,
+            "phi_score": 0.9601564271611112,
+            "sequence_length_score": 0.9028436294816808
+        },
+        "rebollo": {
+            "time_taken": 55.11044979095459,
+            "retention_rate": 0.9999541801520055,
+            "tau_score": 0.9570748027200989,
+            "upsilon_score": 0.8900469107967562,
+            "phi_score": 0.9379548347212626,
+            "sequence_length_score": 0.8959969453434671
+        },
+        "rebollo_reverse": {
+            "time_taken": 53.970710039138794,
+            "retention_rate": 0.9999636350412743,
+            "tau_score": 0.8306869340703298,
+            "upsilon_score": 0.7652474635441289,
+            "phi_score": 0.8196807156623878,
+            "sequence_length_score": 0.7989468707953017
+        },
+        "meta": {
+            "forward_length": 1374950,
+            "reverse_length": 1374950,
+            "total_length": 2749900
+        }
+    },
+    "PID-1309-M7-NAT-BSA-2_S73": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.955469543355436,
+            "upsilon_score": 0.8893359659629912,
+            "phi_score": 0.937972765774356,
+            "sequence_length_score": 0.8932217078911433
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8192071007789293,
+            "upsilon_score": 0.7564041719753362,
+            "phi_score": 0.8098766198286866,
+            "sequence_length_score": 0.792269482056393
+        },
+        "p3anut": {
+            "retention_rate": 0.962641897206824,
+            "time_taken": 31.641454458236694,
+            "tau_score": 0.9672959196445937,
+            "upsilon_score": 0.9016624526038287,
+            "phi_score": 0.9513280556448864,
+            "sequence_length_score": 0.9211241694637389
+        },
+        "flash": {
+            "retention_rate": 0.8401208020174982,
+            "time_taken": 0.675,
+            "tau_score": 0.9618914146125577,
+            "upsilon_score": 0.90594415253269,
+            "phi_score": 0.951148290689148,
+            "sequence_length_score": 0.9309029691113493
+        },
+        "casper": {
+            "retention_rate": 0.8689258012914953,
+            "time_taken": 20.28,
+            "tau_score": 0.972996348193429,
+            "upsilon_score": 0.9134487582948727,
+            "phi_score": 0.9591414374120347,
+            "sequence_length_score": 0.9009517650591152
+        },
+        "rebollo": {
+            "time_taken": 65.72589898109436,
+            "retention_rate": 0.9999532198986755,
+            "tau_score": 0.9554100579647983,
+            "upsilon_score": 0.8890540030704758,
+            "phi_score": 0.9376494153398635,
+            "sequence_length_score": 0.8931900930681003
+        },
+        "rebollo_reverse": {
+            "time_taken": 65.49762105941772,
+            "retention_rate": 0.9999599027702933,
+            "tau_score": 0.8185885896649998,
+            "upsilon_score": 0.7552629132824503,
+            "phi_score": 0.809236822136587,
+            "sequence_length_score": 0.79220096731529
+        },
+        "meta": {
+            "forward_length": 1645999,
+            "reverse_length": 1645999,
+            "total_length": 3291998
+        }
+    },
+    "PID-1309-M7-NAT-GAL10-2_S61": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.9999936113972673,
+            "tau_score": 0.9579204889057878,
+            "upsilon_score": 0.8925832318862345,
+            "phi_score": 0.9401153248490541,
+            "sequence_length_score": 0.8957342160562267
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.9999936113972673,
+            "tau_score": 0.8229190382374975,
+            "upsilon_score": 0.7591514863917377,
+            "phi_score": 0.8129633727269576,
+            "sequence_length_score": 0.79422505285215
+        },
+        "p3anut": {
+            "retention_rate": 0.9625933475355601,
+            "time_taken": 36.34403038024902,
+            "tau_score": 0.9694294963790173,
+            "upsilon_score": 0.9045531123361873,
+            "phi_score": 0.9530584838024055,
+            "sequence_length_score": 0.922739253835296
+        },
+        "flash": {
+            "retention_rate": 0,
+            "time_taken": 0,
+            "tau_score": 0,
+            "upsilon_score": 0,
+            "phi_score": 0,
+            "sequence_length_score": 0
+        },
+        "casper": {
+            "retention_rate": 0.0,
+            "time_taken": 0,
+            "tau_score": 0.0,
+            "upsilon_score": 0.0,
+            "phi_score": 0.0,
+            "sequence_length_score": 0
+        },
+        "rebollo": {
+            "time_taken": 77.05318284034729,
+            "retention_rate": 0.9999632699535977,
+            "tau_score": 0.9578690398180318,
+            "upsilon_score": 0.8923319906460815,
+            "phi_score": 0.9398266022418104,
+            "sequence_length_score": 0.895722333624867
+        },
+        "rebollo_reverse": {
+            "time_taken": 75.45174908638,
+            "retention_rate": 0.9999606081044035,
+            "tau_score": 0.822285592307721,
+            "upsilon_score": 0.7579932277878949,
+            "phi_score": 0.8123189103988748,
+            "sequence_length_score": 0.7941837333828748
+        },
+        "meta": {
+            "forward_length": 1878571,
+            "reverse_length": 1878559,
+            "total_length": 3757130
+        }
+    },
+    "PID-1309-M7-NAT-CONA-2_S70": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9508972513361783,
+            "upsilon_score": 0.8880872531637047,
+            "phi_score": 0.936170434470354,
+            "sequence_length_score": 0.8949420802380273
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8108915841333865,
+            "upsilon_score": 0.7506883680841178,
+            "phi_score": 0.8040684941291091,
+            "sequence_length_score": 0.7890186932763432
+        },
+        "p3anut": {
+            "retention_rate": 0.961686504459938,
+            "time_taken": 24.505241632461548,
+            "tau_score": 0.9632134288907928,
+            "upsilon_score": 0.9010383695911012,
+            "phi_score": 0.9500374145249711,
+            "sequence_length_score": 0.9224015125128917
+        },
+        "flash": {
+            "retention_rate": 0.8360278468678684,
+            "time_taken": 0.501,
+            "tau_score": 0.9571729529125804,
+            "upsilon_score": 0.9046462501054311,
+            "phi_score": 0.9492685002722038,
+            "sequence_length_score": 0.9320602375457188
+        },
+        "casper": {
+            "retention_rate": 0.8669445049873074,
+            "time_taken": 15.078,
+            "tau_score": 0.9691880815476944,
+            "upsilon_score": 0.9128576168825947,
+            "phi_score": 0.9579155186293983,
+            "sequence_length_score": 0.8996939593043588
+        },
+        "rebollo": {
+            "time_taken": 49.280394077301025,
+            "retention_rate": 0.9999639413831124,
+            "tau_score": 0.9508176491704915,
+            "upsilon_score": 0.8878056168106875,
+            "phi_score": 0.9358517205569373,
+            "sequence_length_score": 0.8948971447985846
+        },
+        "rebollo_reverse": {
+            "time_taken": 48.62847089767456,
+            "retention_rate": 0.9999623387779174,
+            "tau_score": 0.8102515449114079,
+            "upsilon_score": 0.749536045796046,
+            "phi_score": 0.8034180363599067,
+            "sequence_length_score": 0.7889449088438165
+        },
+        "meta": {
+            "forward_length": 1247968,
+            "reverse_length": 1247968,
+            "total_length": 2495936
+        }
+    },
+    "PID-1309-M7-NAT-FIMH-3_S65": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9595935433016896,
+            "upsilon_score": 0.8928174371979849,
+            "phi_score": 0.9411227252476095,
+            "sequence_length_score": 0.8966427910483566
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8267493160019517,
+            "upsilon_score": 0.7627399997666824,
+            "phi_score": 0.8161210122416265,
+            "sequence_length_score": 0.795472402986191
+        },
+        "p3anut": {
+            "retention_rate": 0.9660661790530132,
+            "time_taken": 28.336426973342896,
+            "tau_score": 0.9704296469497384,
+            "upsilon_score": 0.9040554490912782,
+            "phi_score": 0.953288258390001,
+            "sequence_length_score": 0.9212105156310516
+        },
+        "flash": {
+            "retention_rate": 0.8451146150752075,
+            "time_taken": 0.563,
+            "tau_score": 0.9657220417260926,
+            "upsilon_score": 0.9086107599837513,
+            "phi_score": 0.9535038906893457,
+            "sequence_length_score": 0.9305966143582476
+        },
+        "casper": {
+            "retention_rate": 0.8728746720315644,
+            "time_taken": 17.898,
+            "tau_score": 0.9756107708889885,
+            "upsilon_score": 0.9151448257671091,
+            "phi_score": 0.960433052476722,
+            "sequence_length_score": 0.9018539938582623
+        },
+        "rebollo": {
+            "time_taken": 57.07260489463806,
+            "retention_rate": 0.9999677941677293,
+            "tau_score": 0.9595570122032695,
+            "upsilon_score": 0.8925544912403562,
+            "phi_score": 0.9408282928921728,
+            "sequence_length_score": 0.8966343534816218
+        },
+        "rebollo_reverse": {
+            "time_taken": 57.60564684867859,
+            "retention_rate": 0.9999712203200986,
+            "tau_score": 0.8261536026334777,
+            "upsilon_score": 0.7616227079897188,
+            "phi_score": 0.815510602913737,
+            "sequence_length_score": 0.7954217011120606
+        },
+        "meta": {
+            "forward_length": 1459363,
+            "reverse_length": 1459363,
+            "total_length": 2918726
+        }
+    },
+    "PID-1309-M7-NAT-LECB1_S57": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9582525797154735,
+            "upsilon_score": 0.8918498005524167,
+            "phi_score": 0.9396670245575744,
+            "sequence_length_score": 0.8944417390760157
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8164136436618064,
+            "upsilon_score": 0.7528894226376179,
+            "phi_score": 0.806557494745911,
+            "sequence_length_score": 0.7870964794339943
+        },
+        "p3anut": {
+            "retention_rate": 0.9613590051986521,
+            "time_taken": 29.66242814064026,
+            "tau_score": 0.9700448186917795,
+            "upsilon_score": 0.904146452761154,
+            "phi_score": 0.9529582955938166,
+            "sequence_length_score": 0.9214349425876832
+        },
+        "flash": {
+            "retention_rate": 0.8346574105091104,
+            "time_taken": 0.609,
+            "tau_score": 0.9647333489497931,
+            "upsilon_score": 0.9088771765440774,
+            "phi_score": 0.9533770594206293,
+            "sequence_length_score": 0.9317162489263684
+        },
+        "casper": {
+            "retention_rate": 0.8638368563127524,
+            "time_taken": 19.562,
+            "tau_score": 0.9758093903082145,
+            "upsilon_score": 0.91620877980917,
+            "phi_score": 0.961206301448615,
+            "sequence_length_score": 0.9011999879170506
+        },
+        "rebollo": {
+            "time_taken": 61.84790277481079,
+            "retention_rate": 0.9999648071365913,
+            "tau_score": 0.9582136884597388,
+            "upsilon_score": 0.8916007669437345,
+            "phi_score": 0.939384854816404,
+            "sequence_length_score": 0.8944318372890546
+        },
+        "rebollo_reverse": {
+            "time_taken": 61.51590704917908,
+            "retention_rate": 0.9999661105759768,
+            "tau_score": 0.8158546456534859,
+            "upsilon_score": 0.7517716999847498,
+            "phi_score": 0.8059804405885811,
+            "sequence_length_score": 0.7870538489913335
+        },
+        "meta": {
+            "forward_length": 1534402,
+            "reverse_length": 1534402,
+            "total_length": 3068804
+        }
+    },
+    "PID-1309-M7-NAT-LECA2_S55": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9563211216473129,
+            "upsilon_score": 0.8896407200593446,
+            "phi_score": 0.9369777402844226,
+            "sequence_length_score": 0.8934302173551296
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.823485201712715,
+            "upsilon_score": 0.758265753999834,
+            "phi_score": 0.8122778548098095,
+            "sequence_length_score": 0.7924376650831702
+        },
+        "p3anut": {
+            "retention_rate": 0.9596438966779602,
+            "time_taken": 63.89971947669983,
+            "tau_score": 0.9702190681688976,
+            "upsilon_score": 0.903878107395731,
+            "phi_score": 0.9523531577859321,
+            "sequence_length_score": 0.9215437490309577
+        },
+        "flash": {
+            "retention_rate": 0.8401684560500883,
+            "time_taken": 1.199,
+            "tau_score": 0.9653464825896502,
+            "upsilon_score": 0.9085382283536098,
+            "phi_score": 0.9526141545018276,
+            "sequence_length_score": 0.9312793724970253
+        },
+        "casper": {
+            "retention_rate": 0.8678445102638813,
+            "time_taken": 41.417,
+            "tau_score": 0.9765425237413294,
+            "upsilon_score": 0.9161507746893501,
+            "phi_score": 0.9607840177115988,
+            "sequence_length_score": 0.9026069493108224
+        },
+        "rebollo": {
+            "time_taken": 140.18348598480225,
+            "retention_rate": 0.9999594764602414,
+            "tau_score": 0.9562836318719773,
+            "upsilon_score": 0.8893948068322078,
+            "phi_score": 0.9366949183785831,
+            "sequence_length_score": 0.8934240044996363
+        },
+        "rebollo_reverse": {
+            "time_taken": 134.06593990325928,
+            "retention_rate": 0.9999597811485103,
+            "tau_score": 0.8228624670670067,
+            "upsilon_score": 0.7571217074243086,
+            "phi_score": 0.8116465872019349,
+            "sequence_length_score": 0.7923750541964258
+        },
+        "meta": {
+            "forward_length": 3282043,
+            "reverse_length": 3282043,
+            "total_length": 6564086
+        }
+    },
+    "PID-1309-M7-NAT-FIMH-2_S64": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9586175222203297,
+            "upsilon_score": 0.893125488830307,
+            "phi_score": 0.9406836463965739,
+            "sequence_length_score": 0.8966251536929091
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8244817724218851,
+            "upsilon_score": 0.7597882718055182,
+            "phi_score": 0.8135169736340876,
+            "sequence_length_score": 0.7937516596941836
+        },
+        "p3anut": {
+            "retention_rate": 0.9631484215561773,
+            "time_taken": 23.624294757843018,
+            "tau_score": 0.9696315697323333,
+            "upsilon_score": 0.9043433751514134,
+            "phi_score": 0.9528322786506255,
+            "sequence_length_score": 0.9221226099913172
+        },
+        "flash": {
+            "retention_rate": 0.842502088236241,
+            "time_taken": 0.468,
+            "tau_score": 0.9650058119190594,
+            "upsilon_score": 0.9082561427359056,
+            "phi_score": 0.9523493023686084,
+            "sequence_length_score": 0.9308401046950902
+        },
+        "casper": {
+            "retention_rate": 0.8711562475114831,
+            "time_taken": 14.537,
+            "tau_score": 0.9755069374482171,
+            "upsilon_score": 0.9155243637268897,
+            "phi_score": 0.9601276630504545,
+            "sequence_length_score": 0.9011129670295441
+        },
+        "rebollo": {
+            "time_taken": 46.20790696144104,
+            "retention_rate": 0.9999567951122564,
+            "tau_score": 0.9585614297259794,
+            "upsilon_score": 0.8928815288091886,
+            "phi_score": 0.9404001280897848,
+            "sequence_length_score": 0.8966073150110723
+        },
+        "rebollo_reverse": {
+            "time_taken": 46.50241208076477,
+            "retention_rate": 0.999960183730903,
+            "tau_score": 0.8238731572268223,
+            "upsilon_score": 0.758660038528594,
+            "phi_score": 0.8128889498840245,
+            "sequence_length_score": 0.7936890366326619
+        },
+        "meta": {
+            "forward_length": 1180422,
+            "reverse_length": 1180422,
+            "total_length": 2360844
+        }
+    },
+    "PID-1309-M7-NAT-LECB2_S58": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9552062665626473,
+            "upsilon_score": 0.8903849876980516,
+            "phi_score": 0.9379544322956243,
+            "sequence_length_score": 0.8919990809370737
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8219941222079163,
+            "upsilon_score": 0.7573737325569279,
+            "phi_score": 0.8125447060132568,
+            "sequence_length_score": 0.7936776645666983
+        },
+        "p3anut": {
+            "retention_rate": 0.9559264644300706,
+            "time_taken": 44.487547159194946,
+            "tau_score": 0.9694531555515447,
+            "upsilon_score": 0.9049959765965767,
+            "phi_score": 0.9536946688024547,
+            "sequence_length_score": 0.9231854262551514
+        },
+        "flash": {
+            "retention_rate": 0.8386981148130398,
+            "time_taken": 0.891,
+            "tau_score": 0.9641633623315788,
+            "upsilon_score": 0.9092266778250948,
+            "phi_score": 0.9534210973143549,
+            "sequence_length_score": 0.9329164342724251
+        },
+        "casper": {
+            "retention_rate": 0.8661882753266198,
+            "time_taken": 29.31,
+            "tau_score": 0.9760685231117384,
+            "upsilon_score": 0.9172860726917911,
+            "phi_score": 0.9622146630622945,
+            "sequence_length_score": 0.9044298024347861
+        },
+        "rebollo": {
+            "time_taken": 92.92833209037781,
+            "retention_rate": 0.9999607610936986,
+            "tau_score": 0.955169769993876,
+            "upsilon_score": 0.8901288579229745,
+            "phi_score": 0.9376599591650843,
+            "sequence_length_score": 0.8919920446424123
+        },
+        "rebollo_reverse": {
+            "time_taken": 90.84349799156189,
+            "retention_rate": 0.9999607610936986,
+            "tau_score": 0.8213721536913009,
+            "upsilon_score": 0.7562452687358062,
+            "phi_score": 0.811909404860422,
+            "sequence_length_score": 0.7936337740288701
+        },
+        "meta": {
+            "forward_length": 2268157,
+            "reverse_length": 2268157,
+            "total_length": 4536314
+        }
+    },
+    "PID-1309-M7-NAT-GAL10-1_S60": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9589568859394677,
+            "upsilon_score": 0.8933686131903272,
+            "phi_score": 0.940079521174989,
+            "sequence_length_score": 0.8953625854286644
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8200460150512285,
+            "upsilon_score": 0.7560199247438572,
+            "phi_score": 0.8098161664702149,
+            "sequence_length_score": 0.7901912004714843
+        },
+        "p3anut": {
+            "retention_rate": 0.9588423108663849,
+            "time_taken": 34.96457266807556,
+            "tau_score": 0.9712391146600149,
+            "upsilon_score": 0.9060756237407097,
+            "phi_score": 0.95380876613107,
+            "sequence_length_score": 0.9230852335100116
+        },
+        "flash": {
+            "retention_rate": 0.836244338873184,
+            "time_taken": 0.683,
+            "tau_score": 0.9659166876422619,
+            "upsilon_score": 0.9106277251358,
+            "phi_score": 0.9541777972647824,
+            "sequence_length_score": 0.9331203295469
+        },
+        "casper": {
+            "retention_rate": 0.8648866416645353,
+            "time_taken": 22.5,
+            "tau_score": 0.9768489684192897,
+            "upsilon_score": 0.9176240147383626,
+            "phi_score": 0.96172657615693,
+            "sequence_length_score": 0.9032422630418425
+        },
+        "rebollo": {
+            "time_taken": 70.78064799308777,
+            "retention_rate": 0.9999592602567962,
+            "tau_score": 0.9589173639575492,
+            "upsilon_score": 0.893108532939214,
+            "phi_score": 0.9397815670768556,
+            "sequence_length_score": 0.8953480871558906
+        },
+        "rebollo_reverse": {
+            "time_taken": 70.69549918174744,
+            "retention_rate": 0.9999609577460964,
+            "tau_score": 0.8194290098658078,
+            "upsilon_score": 0.7548627410151891,
+            "phi_score": 0.8091925835560817,
+            "sequence_length_score": 0.7901399636510957
+        },
+        "meta": {
+            "forward_length": 1767316,
+            "reverse_length": 1767316,
+            "total_length": 3534632
+        }
+    },
+    "PID-1309-M7-NAT-CONA-3_S71": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9550418506130883,
+            "upsilon_score": 0.889431885773382,
+            "phi_score": 0.9380923772204338,
+            "sequence_length_score": 0.8948638472674304
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8263188294761792,
+            "upsilon_score": 0.7622650318278811,
+            "phi_score": 0.8163180613373795,
+            "sequence_length_score": 0.7977520467906263
+        },
+        "p3anut": {
+            "retention_rate": 0.9620891506726739,
+            "time_taken": 20.057631254196167,
+            "tau_score": 0.9680684293033973,
+            "upsilon_score": 0.9025440045451197,
+            "phi_score": 0.952222584616032,
+            "sequence_length_score": 0.9218923269540332
+        },
+        "flash": {
+            "retention_rate": 0.8460051276841155,
+            "time_taken": 0.393,
+            "tau_score": 0.9632239447016979,
+            "upsilon_score": 0.9065881602200253,
+            "phi_score": 0.9518659409412061,
+            "sequence_length_score": 0.9309171526225133
+        },
+        "casper": {
+            "retention_rate": 0.8731266721250406,
+            "time_taken": 12.41,
+            "tau_score": 0.9741531350032969,
+            "upsilon_score": 0.9141658662127846,
+            "phi_score": 0.9600141914198949,
+            "sequence_length_score": 0.9028517140658221
+        },
+        "rebollo": {
+            "time_taken": 40.19734716415405,
+            "retention_rate": 0.9999621499618512,
+            "tau_score": 0.9549943125337413,
+            "upsilon_score": 0.8891800685683323,
+            "phi_score": 0.9378044188923486,
+            "sequence_length_score": 0.8948376532179505
+        },
+        "rebollo_reverse": {
+            "time_taken": 39.867735147476196,
+            "retention_rate": 0.9999651381227577,
+            "tau_score": 0.8257165111826942,
+            "upsilon_score": 0.7610915552580675,
+            "phi_score": 0.8157101563604997,
+            "sequence_length_score": 0.7976855697725611
+        },
+        "meta": {
+            "forward_length": 1003962,
+            "reverse_length": 1003962,
+            "total_length": 2007924
+        }
+    },
+    "PID-1309-M7-NAT-LECA1_S54": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9572030112351007,
+            "upsilon_score": 0.8922077743770422,
+            "phi_score": 0.9401496957292255,
+            "sequence_length_score": 0.8955652085749228
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8215040289321743,
+            "upsilon_score": 0.7579589916037477,
+            "phi_score": 0.8119873950468456,
+            "sequence_length_score": 0.7926199691220946
+        },
+        "p3anut": {
+            "retention_rate": 0.9617163838247978,
+            "time_taken": 36.79363656044006,
+            "tau_score": 0.9695615243291269,
+            "upsilon_score": 0.9047746343989767,
+            "phi_score": 0.9538453124267514,
+            "sequence_length_score": 0.9226417031839825
+        },
+        "flash": {
+            "retention_rate": 0.8397804697010811,
+            "time_taken": 0.714,
+            "tau_score": 0.9645572421284765,
+            "upsilon_score": 0.9090036423437231,
+            "phi_score": 0.9536138663032285,
+            "sequence_length_score": 0.9320922267812722
+        },
+        "casper": {
+            "retention_rate": 0.868231140317998,
+            "time_taken": 24.037,
+            "tau_score": 0.9755372954094123,
+            "upsilon_score": 0.9165372552787078,
+            "phi_score": 0.961657544025207,
+            "sequence_length_score": 0.9023947154130135
+        },
+        "rebollo": {
+            "time_taken": 78.82410502433777,
+            "retention_rate": 0.9999630455922366,
+            "tau_score": 0.9571613946804658,
+            "upsilon_score": 0.8919532305015346,
+            "phi_score": 0.9398582851254286,
+            "sequence_length_score": 0.8955520618975772
+        },
+        "rebollo_reverse": {
+            "time_taken": 78.046701669693,
+            "retention_rate": 0.999960933911793,
+            "tau_score": 0.8208830414111093,
+            "upsilon_score": 0.7567877328259669,
+            "phi_score": 0.8113524996489331,
+            "sequence_length_score": 0.7925780767448024
+        },
+        "meta": {
+            "forward_length": 1894226,
+            "reverse_length": 1894226,
+            "total_length": 3788452
+        }
+    },
+    "PID-1309-M7-NAT-GAL10-3_S62": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 0.9999956269705964,
+            "tau_score": 0.9571278864642301,
+            "upsilon_score": 0.8884570175926453,
+            "phi_score": 0.9369225587416131,
+            "sequence_length_score": 0.8933380658650941
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 0.9999956269705964,
+            "tau_score": 0.8237092013009033,
+            "upsilon_score": 0.7590700968669952,
+            "phi_score": 0.8121949052540428,
+            "sequence_length_score": 0.7921770610045586
+        },
+        "p3anut": {
+            "retention_rate": 0.9651757046588068,
+            "time_taken": 31.34823775291443,
+            "tau_score": 0.9688138329939864,
+            "upsilon_score": 0.9005541533891848,
+            "phi_score": 0.9500170604822035,
+            "sequence_length_score": 0.9186027629434492
+        },
+        "flash": {
+            "retention_rate": 0.5179863485919408,
+            "time_taken": 0.619,
+            "tau_score": 0.9710678913776551,
+            "upsilon_score": 0.9324475244467815,
+            "phi_score": 0.962536242021931,
+            "sequence_length_score": 0.952163121764845
+        },
+        "casper": {
+            "retention_rate": 0.8364542322988366,
+            "time_taken": 27.255,
+            "tau_score": 0.9835472364376171,
+            "upsilon_score": 0.9483488233835528,
+            "phi_score": 0.9716376732361209,
+            "sequence_length_score": 0.9233600668325025
+        },
+        "rebollo": {
+            "time_taken": 65.50415587425232,
+            "retention_rate": 0.9999587760483845,
+            "tau_score": 0.9570808695255685,
+            "upsilon_score": 0.8882006432185663,
+            "phi_score": 0.9366244204443317,
+            "sequence_length_score": 0.89332927756274
+        },
+        "rebollo_reverse": {
+            "time_taken": 65.02941012382507,
+            "retention_rate": 0.999964397318431,
+            "tau_score": 0.82308215537385,
+            "upsilon_score": 0.7579011407224097,
+            "phi_score": 0.811560003322917,
+            "sequence_length_score": 0.792132182138322
+        },
+        "meta": {
+            "forward_length": 1601011,
+            "reverse_length": 1601003,
+            "total_length": 3202014
+        }
+    },
+    "PID-1309-M7-NAT-BSA-1_S72": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.958495446326927,
+            "upsilon_score": 0.8930280251791335,
+            "phi_score": 0.9410968994843635,
+            "sequence_length_score": 0.8945146655059265
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8318335457927586,
+            "upsilon_score": 0.766805875781218,
+            "phi_score": 0.8213354520608565,
+            "sequence_length_score": 0.8023850770511135
+        },
+        "p3anut": {
+            "retention_rate": 0.9625772231898017,
+            "time_taken": 23.713998079299927,
+            "tau_score": 0.9700241217738563,
+            "upsilon_score": 0.9046372320330792,
+            "phi_score": 0.9538362813046087,
+            "sequence_length_score": 0.9225327774158677
+        },
+        "flash": {
+            "retention_rate": 0.8498330902283513,
+            "time_taken": 0.509,
+            "tau_score": 0.9651526222188961,
+            "upsilon_score": 0.9083872797420813,
+            "phi_score": 0.9531547570983758,
+            "sequence_length_score": 0.9314061647599147
+        },
+        "casper": {
+            "retention_rate": 0.8764499475713352,
+            "time_taken": 15.179,
+            "tau_score": 0.976439865561624,
+            "upsilon_score": 0.9163560325401978,
+            "phi_score": 0.9617299392735744,
+            "sequence_length_score": 0.9039042827176598
+        },
+        "rebollo": {
+            "time_taken": 47.548527002334595,
+            "retention_rate": 0.9999598311905784,
+            "tau_score": 0.9584512246047348,
+            "upsilon_score": 0.8927794054514095,
+            "phi_score": 0.9408112593172808,
+            "sequence_length_score": 0.894497458904379
+        },
+        "rebollo_reverse": {
+            "time_taken": 46.41042113304138,
+            "retention_rate": 0.9999564837897933,
+            "tau_score": 0.8311914152559464,
+            "upsilon_score": 0.7656467973324563,
+            "phi_score": 0.8206847610416107,
+            "sequence_length_score": 0.8023167360833905
+        },
+        "meta": {
+            "forward_length": 1194957,
+            "reverse_length": 1194957,
+            "total_length": 2389914
+        }
+    },
+    "PID-1309-M7-NAT-LECB3_S59": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9571717069820768,
+            "upsilon_score": 0.888705994641856,
+            "phi_score": 0.9363894994345043,
+            "sequence_length_score": 0.8929142328367706
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8165255891556132,
+            "upsilon_score": 0.7516752549786636,
+            "phi_score": 0.8048468768391386,
+            "sequence_length_score": 0.786177252659528
+        },
+        "p3anut": {
+            "retention_rate": 0.9614429252465582,
+            "time_taken": 40.009732484817505,
+            "tau_score": 0.9697689358806939,
+            "upsilon_score": 0.9017642948076072,
+            "phi_score": 0.9504858206808718,
+            "sequence_length_score": 0.919675904206857
+        },
+        "flash": {
+            "retention_rate": 0.8352268264467138,
+            "time_taken": 0.787,
+            "tau_score": 0.9644978657968476,
+            "upsilon_score": 0.9066703354179039,
+            "phi_score": 0.9510140440029559,
+            "sequence_length_score": 0.92999468843152
+        },
+        "casper": {
+            "retention_rate": 0.8646280100576872,
+            "time_taken": 26.273,
+            "tau_score": 0.975746047910135,
+            "upsilon_score": 0.9141836721533205,
+            "phi_score": 0.9590034638088888,
+            "sequence_length_score": 0.8993028738212843
+        },
+        "rebollo": {
+            "time_taken": 85.87343001365662,
+            "retention_rate": 0.9999655757909568,
+            "tau_score": 0.9571336173249771,
+            "upsilon_score": 0.8884422899953551,
+            "phi_score": 0.9360902437912787,
+            "sequence_length_score": 0.8929082250586908
+        },
+        "rebollo_reverse": {
+            "time_taken": 84.1256799697876,
+            "retention_rate": 0.9999660606389715,
+            "tau_score": 0.8159240572857627,
+            "upsilon_score": 0.7505335752401695,
+            "phi_score": 0.8042372807396065,
+            "sequence_length_score": 0.7861160861904619
+        },
+        "meta": {
+            "forward_length": 2062502,
+            "reverse_length": 2062502,
+            "total_length": 4125004
+        }
+    },
+    "PID-1309-M7-NAT-LECA3_S56": {
+        "forward": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.9502952791218885,
+            "upsilon_score": 0.8855503385723751,
+            "phi_score": 0.9347623296075622,
+            "sequence_length_score": 0.8849583451931333
+        },
+        "reverse": {
+            "time_taken": 0,
+            "retention_rate": 1.0,
+            "tau_score": 0.8419770174949142,
+            "upsilon_score": 0.7770299476625353,
+            "phi_score": 0.8315047350378432,
+            "sequence_length_score": 0.8153281359073803
+        },
+        "p3anut": {
+            "retention_rate": 0.9545383539542638,
+            "time_taken": 17.790587902069092,
+            "tau_score": 0.9664600974502106,
+            "upsilon_score": 0.9010423925036726,
+            "phi_score": 0.9518732507994062,
+            "sequence_length_score": 0.921716361330345
+        },
+        "flash": {
+            "retention_rate": 0.8606290400109049,
+            "time_taken": 0.325,
+            "tau_score": 0.9635199364235172,
+            "upsilon_score": 0.9053591251564751,
+            "phi_score": 0.9516021245882326,
+            "sequence_length_score": 0.9295657042665433
+        },
+        "casper": {
+            "retention_rate": 0.8790944157872207,
+            "time_taken": 11.234,
+            "tau_score": 0.9749525983193826,
+            "upsilon_score": 0.9139152836075876,
+            "phi_score": 0.9608898730423854,
+            "sequence_length_score": 0.9108973704452477
+        },
+        "rebollo": {
+            "time_taken": 32.11346101760864,
+            "retention_rate": 0.9999605415139144,
+            "tau_score": 0.9502548061631764,
+            "upsilon_score": 0.885364727939717,
+            "phi_score": 0.9345443501426484,
+            "sequence_length_score": 0.8849414459980726
+        },
+        "rebollo_reverse": {
+            "time_taken": 32.804877042770386,
+            "retention_rate": 0.9999533672437171,
+            "tau_score": 0.8414366715212561,
+            "upsilon_score": 0.7759331931959221,
+            "phi_score": 0.8309514756278085,
+            "sequence_length_score": 0.8152792823816664
+        },
+        "meta": {
+            "forward_length": 836322,
+            "reverse_length": 836322,
+            "total_length": 1672644
+        }
+    }
+}

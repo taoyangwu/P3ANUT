@@ -18,8 +18,8 @@ import json
 #Outputs: None
 #---------------------------------------------------------#
 def main():
-    args = parser.parse_args()
-    
+    args = _build_parser().parse_args()
+
     merge(args.f, args.o)
     
 
@@ -68,22 +68,25 @@ def dir_path(string):
 #---------------------------------------------------------#
 #If the file is being run as the main file, create a parser and parse the arguments
 #then call the main function passing the parsed arguments
-#---------------------------------------------------------#  
-if(__name__ == "__main__"):
-    parser = argparse.ArgumentParser(
-                    prog='P3ANUT Sequence Counter CLI interface',
-                    description='Subsection of the P3ANUT Sequence Counter that allows for command line interface',)
+#---------------------------------------------------------#
 
-    #forward Files - required, support multiple files
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+                    prog='CLI_runUnifier',
+                    description='Merge several counted sequence CSV files into one unified CSV',)
+
+    #Input files - required, support multiple files
     parser.add_argument('-f',  metavar='files', type=fileInput, nargs='+',
-                        required=True, help='The fastq file')
-    
-    #Output directory to save the output file - required
-    parser.add_argument('-o', metavar='ouptut', type=fileOutput, required=True,
-                        help='Name of the output File that the output file will be saved to')
-    
-    
+                        required=True, help='The counted sequence CSV files to unify')
+
+    #Output file - required
+    parser.add_argument('-o', metavar='output', type=fileOutput, required=True,
+                        help='Name of the unified CSV file to write')
+
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
-    
-    #python CLI_runUnifier.py -o test.csv -f /Users/ethankoland/Desktop/3rd Year Project/code/testRunData/t/Amino_5.csv /Users/ethankoland/Desktop/3rd Year Project/code/testRunData/t/Amino_5.csv
+    return parser
+
+
+if __name__ == "__main__":
     main()

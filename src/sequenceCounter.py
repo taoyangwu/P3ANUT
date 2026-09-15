@@ -7,8 +7,48 @@ import numpy as np
 import logomaker as lm
 # from  sequenceCounter import countJsontFile, countCSVFile
 import os
+import sys
 from sklearn.cluster import DBSCAN, OPTICS
 import csv
+
+#The shared sequence helpers and the length distribution figure live in utils/
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
+from utils.FASTA_fileConversion import (
+    aminoConversion as dnaToAmino,
+    countByLength,
+    foldSurroundingSequences,
+    logoplot,
+)
+from utils.visualizationGraphs import graph_sequence_length_distribution
+
+
+#DNA codon alternations, used to express an amino barcode as a DNA regex
+_CODON_ALTERNATIONS = {
+    "I": "(?:(?:ATA)|(?:ATT)|(?:ATC))",
+    "T": "(?:(?:ACA)|(?:ACC)|(?:ACG)|(?:ACT))",
+    "N": "(?:(?:AAC)|(?:AAT))",
+    "K": "(?:(?:AAA)|(?:AAG))",
+    "S": "(?:(?:AGC)|(?:AGT)|(?:TCA)|(?:TCC)|(?:TCG)|(?:TCT))",
+    "R": "(?:(?:AGA)|(?:AGG)|(?:CGA)|(?:CGC)|(?:CGG)|(?:CGT))",
+    "L": "(?:(?:CTA)|(?:CTC)|(?:CTG)|(?:CTT)|(?:TTA)|(?:TTG))",
+    "P": "(?:(?:CCA)|(?:CCC)|(?:CCG)|(?:CCT))",
+    "H": "(?:(?:CAC)|(?:CAT))",
+    "Q": "(?:(?:CAA)|(?:CAG)|(?:TAG))",
+    "V": "(?:(?:GTA)|(?:GTC)|(?:GTG)|(?:GTT))",
+    "A": "(?:(?:GCA)|(?:GCC)|(?:GCG)|(?:GCT))",
+    "D": "(?:(?:GAC)|(?:GAT))",
+    "E": "(?:(?:GAA)|(?:GAG))",
+    "G": "(?:(?:GGA)|(?:GGC)|(?:GGG)|(?:GGT))",
+    "F": "(?:(?:TTC)|(?:TTT))",
+    "Y": "(?:(?:TAC)|(?:TAT))",
+    "*": "(?:(?:TAA)|(?:TGA))",
+    "C": "(?:(?:TGC)|(?:TGT))",
+    "W": "(?:(?:TGG))",
+    "M": "(?:(?:ATG))",
+}
 
 
 #---------------------------------------------------------#
@@ -28,6 +68,260 @@ def validEncodings():
 #---------------------------------------------------------#
 def validMethods():
     return ["direct", "DBSCAN", "OPTICS"]
+
+#---------------------------------------------------------#
+#Function: barcodeRegexStatements
+#Description: Builds the regex statements that require a sequence to carry the
+#           front and back barcodes. One statement is produced per permitted
+#           middle length, longest first, and each captures the barcoded region
+#           so that the surrounding noise is stripped off.
+#Inputs: sequenceStart - the front barcode - str
+#        sequenceEnd - the back barcode - str
+#        middleMinLength - shortest middle, in amino acids - int
+#        middleMaxLength - longest middle, in amino acids - int
+#        asAmino - build amino statements rather than DNA ones - bool
+#Outputs: dict of {middleLength: regexStatement}
+#---------------------------------------------------------#
+def barcodeRegexStatements(sequenceStart, sequenceEnd, middleMinLength=3,
+                           middleMaxLength=10, asAmino=True):
+
+    escapeStar = lambda value: re.sub(r"((?<!\\)\*)", r"\*", value.upper())
+
+    sequenceStart = escapeStar(sequenceStart)
+    sequenceEnd = escapeStar(sequenceEnd)
+
+    if not asAmino:
+        sequenceStart = "".join(_CODON_ALTERNATIONS.get(c, c) for c in sequenceStart)
+        sequenceEnd = "".join(_CODON_ALTERNATIONS.get(c, c) for c in sequenceEnd)
+
+    statements = {}
+    for middle in range(middleMaxLength, middleMinLength - 1, -1):
+        width = middle if asAmino else middle * 3
+        statements[width] = (f"(?:.*)({sequenceStart}"
+                             f"(?:[A-Z\\*]{{{width}}})"
+                             f"{sequenceEnd})")
+
+    return statements
+
+
+#---------------------------------------------------------#
+#Function: loadSequences
+#Description: Pulls the raw sequence strings out of whatever the caller has.
+#           Accepts a path to a JSON file produced by the Paired Assembler or
+#           the FASTA block, an already loaded dictionary of those records, or
+#           a plain list of sequences.
+#Inputs: data - the source to read - str | dict | list
+#        dnaDatatag - JSON tag holding the DNA sequence - str
+#        proteinDatatag - JSON tag holding the protein sequence - str
+#        useProtein - read proteinDatatag instead of dnaDatatag - bool
+#Outputs: list of sequence strings
+#---------------------------------------------------------#
+def loadSequences(data, dnaDatatag="sequences", proteinDatatag="proteinSequence",
+                  useProtein=False):
+
+    if isinstance(data, str):
+        with open(data, 'r') as stream:
+            data = json.load(stream)
+
+    if isinstance(data, dict):
+        tag = proteinDatatag if useProtein else dnaDatatag
+        sequences = [record[tag] for record in data.values()
+                     if isinstance(record, dict) and tag in record]
+
+        if not sequences:
+            raise ValueError(f"No sequences found under the tag '{tag}'. "
+                             f"Check the data tag settings for this block.")
+
+        return sequences
+
+    return list(data)
+
+
+#---------------------------------------------------------#
+#Function: countSequences
+#Description: The Sequence Counter block. Selects the reads that are exactly
+#           targetLength bases long, optionally folds in the sequences one base
+#           either side of that, converts them to amino acids, keeps only the
+#           ones carrying both barcodes and counts what is left.
+#
+#           It produces exactly three outputs, all of them on every run: the
+#           counted sequence CSV, a graph of the sequence length distribution
+#           actually present in the data, and a logo plot.
+#Inputs: data - JSON path, loaded records or a list of sequences
+#        targetLength - required read length in bases - int
+#        outputCSV - path for the counted sequence CSV - str
+#        lengthPlotPath - path for the length distribution PNG - str
+#        logoPlotPath - path for the logo plot PNG - str
+#        **kwargs - the sequenceCount configuration values
+#Outputs: dict with the counts DataFrame and the three output paths
+#---------------------------------------------------------#
+def countSequences(data, targetLength, outputCSV=None, lengthPlotPath=None,
+                   logoPlotPath=None, **kwargs):
+
+    targetLength = int(targetLength)
+
+    asAmino = kwargs.get("aminoConversion", True)
+    matchBarcodes = kwargs.get("matchBarcodes", True)
+    includeSurrounding = kwargs.get("includeSurrounding", False)
+    minimumCount = kwargs.get("minimumCount", 1)
+    normalizeCount = kwargs.get("normalizeCount", False)
+    dpi = kwargs.get("dpi", 300)
+
+    sequences = loadSequences(
+        data,
+        dnaDatatag=kwargs.get("dnaDatatag", "sequences"),
+        proteinDatatag=kwargs.get("proteinDatatag", "proteinSequence"),
+    )
+
+    totalReads = len(sequences)
+    print(f"Loaded {totalReads} sequences")
+
+    #The distribution is taken over everything that came in, not just the
+    #reads that survive the target length filter, so the user can see how far
+    #off the target the rest of the run sits.
+    if lengthPlotPath:
+        graph_sequence_length_distribution(sequences, lengthPlotPath,
+                                           target_length=targetLength, dpi=dpi)
+        print(f"Length distribution saved to {lengthPlotPath}")
+
+    byLength = countByLength(sequences)
+
+    if targetLength not in byLength:
+        raise ValueError(
+            f"No sequences of the target length {targetLength} were found. "
+            f"Lengths present in the data: {sorted(byLength)[:20]}")
+
+    convert = dnaToAmino if asAmino else (lambda seq: seq)
+
+    counts = {}
+    for seq, count in byLength[targetLength].items():
+        converted = convert(seq)
+        if converted == "":
+            continue
+        counts[converted] = counts.get(converted, 0) + count
+
+    print(f"{sum(counts.values())} sequences at the target length of {targetLength} bases")
+
+    #A "surrounding" sequence is one base either side of the target. Rather
+    #than dropping it, fold it into whichever correctly sized sequence it is
+    #closest to - the same handling the FASTA block uses.
+    if includeSurrounding:
+        before = sum(counts.values())
+        foldSurroundingSequences(
+            counts,
+            shorterSequences=byLength.get(targetLength - 1, {}),
+            longerSequences=byLength.get(targetLength + 1, {}),
+            convert=convert,
+        )
+        print(f"Surrounding sequences folded in: {sum(counts.values()) - before} reads recovered")
+
+    if matchBarcodes:
+        counts = applyBarcodeFilter(counts, asAmino=asAmino, **kwargs)
+        print(f"{sum(counts.values())} sequences matched both barcodes")
+
+    if not counts:
+        raise ValueError("No sequences survived the target length and barcode filters. "
+                         "Check the target length and the barcode settings for this block.")
+
+    countDF = countsToDataFrame(counts, asAmino=asAmino, **kwargs)
+
+    if minimumCount > 1:
+        countDF = countDF[countDF["m_index"] >= minimumCount]
+
+    if normalizeCount and totalReads:
+        countDF["m_index"] = countDF["m_index"] / totalReads
+
+    if outputCSV:
+        countDF.to_csv(outputCSV)
+        print(f"Counted sequences saved to {outputCSV}")
+
+    if logoPlotPath:
+        logoplot(dict(countDF["m_index"]),
+                 validBases=kwargs.get("logoValidBases", "CS*TAGPDEQNHKRMILVWYF"),
+                 outputPath=logoPlotPath, dpi=dpi)
+        print(f"Logo plot saved to {logoPlotPath}")
+
+    return {
+        "counts": countDF,
+        "dataPath": outputCSV,
+        "lengthPlotPath": lengthPlotPath,
+        "logoPlotPath": logoPlotPath,
+        "totalReads": totalReads,
+    }
+
+
+#---------------------------------------------------------#
+#Function: applyBarcodeFilter
+#Description: Keeps only the sequences that carry both barcodes, reducing each
+#           one to the barcoded region so that the flanking noise is removed.
+#Inputs: counts - {sequence: count} - dict
+#        asAmino - whether the sequences are amino acids - bool
+#        **kwargs - the sequenceCount configuration values
+#Outputs: dict of {barcodedSequence: count}
+#---------------------------------------------------------#
+def applyBarcodeFilter(counts, asAmino=True, **kwargs):
+
+    statements = barcodeRegexStatements(
+        kwargs.get("sequenceStart", "SHSS"),
+        kwargs.get("sequenceEnd", "GGGS"),
+        kwargs.get("middleMinLength", 3),
+        kwargs.get("middleMaxLength", 10),
+        asAmino=asAmino,
+    )
+
+    matched = {}
+    remaining = dict(counts)
+
+    #Longest middle first, so a sequence is attributed to the longest barcoded
+    #region it contains and is then taken out of the running.
+    for statement in statements.values():
+        compiled = re.compile(statement)
+        for seq in list(remaining):
+            found = compiled.findall(seq)
+            if found:
+                matched[found[0]] = matched.get(found[0], 0) + remaining.pop(seq)
+
+    return matched
+
+
+#---------------------------------------------------------#
+#Function: countsToDataFrame
+#Description: Turns the {sequence: count} mapping into the sequence/m_index/
+#           s_index DataFrame the rest of the pipeline consumes. Direct counting
+#           uses the mapping as it stands; the clustering methods re-expand it
+#           so the existing DBSCAN and OPTICS routines can be reused unchanged.
+#Inputs: counts - {sequence: count} - dict
+#        method - direct, DBSCAN or OPTICS - str
+#        encoding - the encoding fed to the clustering methods - str
+#        asAmino - whether the sequences are amino acids - bool
+#        **kwargs - the sequenceCount configuration values
+#Outputs: DataFrame indexed by sequence with m_index and s_index columns
+#---------------------------------------------------------#
+def countsToDataFrame(counts, asAmino=True, **kwargs):
+
+    method = kwargs.get("method", "direct")
+    encoding = kwargs.get("encoding", "ONEHOT")
+
+    if method in ("DBSCAN", "OPTICS"):
+        expanded = [seq for seq, count in counts.items() for _ in range(count)]
+        maxSequenceLength = max(len(seq) for seq in counts)
+
+        encodingName = ("oneHotProtein" if asAmino else "oneHotDNA") if encoding == "ONEHOT" else encoding
+        encoded, _ = seqEncoding(encodingName, expanded, maxSequenceLength, **kwargs)
+
+        clustered, _ = (dbScanCount(encoded, encodingName, **kwargs) if method == "DBSCAN"
+                        else opticsCount(encoded, encodingName, **kwargs))
+        return clustered
+
+    if method != "direct":
+        print(f"Error: unknown method '{method}'. Using direct counting instead.")
+
+    countDF = pd.DataFrame.from_dict(counts, orient='index', columns=["m_index"])
+    countDF.index.name = "sequence"
+    countDF.sort_values(by=['m_index'], inplace=True, ascending=False)
+    countDF.insert(1, "s_index", 0)
+
+    return countDF
 
 #---------------------------------------------------------#
 #Function: countJsonFile
@@ -162,8 +456,8 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
     if(aminoConversion):
         
         
-        sequenceStart = re.sub(r"((?<!\\)\*)", "\*",sequenceStart.upper())
-        sequenceEnd = re.sub(r"((?<!\\)\*)", "\*",sequenceEnd.upper())
+        sequenceStart = re.sub(r"((?<!\\)\*)", r"\*",sequenceStart.upper())
+        sequenceEnd = re.sub(r"((?<!\\)\*)", r"\*",sequenceEnd.upper())
         
         regexStatement = '(?:.*)(sequenceStartsequenceMiddlesequenceEnd)'
         regexStatement = regexStatement.replace("sequenceStart", sequenceStart)
@@ -171,7 +465,7 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
         
         for i  in range( middleMaxLength, middleMinLength - 1, -1):
             
-            regexStatements[i] = regexStatement.replace("sequenceMiddle", f"(?:[A-Z\*]{{{i}}})")
+            regexStatements[i] = regexStatement.replace("sequenceMiddle", f"(?:[A-Z\\*]{{{i}}})")
     
     else:
         referenceDictionary = {        
@@ -220,8 +514,8 @@ def parse(data, aminoConversion = True, baseDirectory = "", **kwargs):
             # "TGA" : "*", 
 
         }
-        sequenceStart = re.sub(r"((?<!\\)\*)", "\*",sequenceStart.upper())
-        sequenceEnd = re.sub(r"((?<!\\)\*)", "\*",sequenceEnd.upper())
+        sequenceStart = re.sub(r"((?<!\\)\*)", r"\*",sequenceStart.upper())
+        sequenceEnd = re.sub(r"((?<!\\)\*)", r"\*",sequenceEnd.upper())
         
         regexStatement = '(?:.*)(sequenceStartsequenceMiddlesequenceEnd)'
         

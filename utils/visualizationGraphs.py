@@ -113,39 +113,101 @@ def graph_levenstein_distribution(data_file, output_path):
     plt.ylabel('Frequency')
     plt.title('Distribution of Levenstein Insert/Delete Operations \n in MON-BSA Merged Reads')
     plt.xticks(range(1, max(data[0]) + 1, 2))
-    plt.savefig(output_path)
+    plt.savefig(output_path, dpi=600)
     plt.show()
     
-def graph_sequence_length_distribution(data_path, output_path):
-    
-    data = np.load(data_path, allow_pickle=True)
-    
-    has_values = np.where(data > 0)[0]
-    
-    total = np.sum(data)
-    
-    percentages = (data / total) * 100
-    
-    fig = plt.figure(figsize=(8, 8))
-    
+def sequence_length_counts(data):
+    """
+    Normalise the many shapes a caller might have into {length: count}.
+
+    Accepts a path to a .npy array of counts indexed by length, a numpy array
+    of those same counts, a {length: count} mapping, or a plain iterable of
+    sequences or lengths as they come straight out of a run.
+    """
+    if isinstance(data, str):
+        data = np.load(data, allow_pickle=True)
+
+    if isinstance(data, np.ndarray):
+        return {int(length): int(count)
+                for length, count in enumerate(data) if count > 0}
+
+    if isinstance(data, dict):
+        return {int(length): int(count)
+                for length, count in data.items() if count > 0}
+
+    counts = {}
+    for entry in data:
+        length = len(entry) if isinstance(entry, str) else int(entry)
+        counts[length] = counts.get(length, 0) + 1
+
+    return {length: count for length, count in counts.items() if count > 0}
+
+
+def graph_sequence_length_distribution(data, output_path, target_length=None,
+                                       dpi=600, show=False, figsize=(8, 8)):
+    """
+    Plot the distribution of sequence lengths actually present in a run.
+
+    Every observed length is drawn, so the shape of the distribution is visible
+    rather than a single pre-chosen bin. When target_length is given it is
+    marked on the plot and the share of reads landing on it, and within one base
+    of it, is reported in the title.
+    """
+    counts = sequence_length_counts(data)
+
+    if not counts:
+        raise ValueError("No sequences to plot - the length distribution is empty")
+
+    lengths = np.array(sorted(counts))
+    values = np.array([counts[length] for length in lengths])
+
+    total = values.sum()
+    percentages = (values / total) * 100
+
+    fig = plt.figure(figsize=figsize)
     ax1 = fig.add_subplot(111)
-    
-    ax1.bar(np.arange(len(data)) + 1, data, width=1.0, alpha=0.7)
+
+    ax1.bar(lengths, values, width=1.0, alpha=0.7, label='Count')
     ax1.set_xlabel('Sequence Length (base pairs)')
-    ax1.set_xlim(min(has_values)-5, max(has_values)+5)
+    ax1.set_xlim(lengths.min() - 5, lengths.max() + 5)
     ax1.set_ylabel('Count')
     ax1.set_yscale('log')
-    
+
     ax2 = ax1.twinx()
-    ax2.plot(np.arange(len(data)) + 1, percentages, color='xkcd:burnt orange', marker='o', label='Percentage of Total Sequences')
+    ax2.plot(lengths, percentages, color='xkcd:burnt orange', marker='o',
+             label='Percentage of Total Sequences')
     ax2.set_ylabel('Percentage of Total Sequences (%)', color='xkcd:burnt orange')
     ax2.tick_params(axis='y')
-    ax2.set_ylim(bottom=0, top=max(percentages[has_values]) + 5)
-    
-    
-    plt.title(f'Distribution of Sequence Lengths - Target length 68 base pairs \n Percentage at Target Length: {percentages[68]:.2f}, Percetage within 1bp: {np.sum(percentages[67:69]):.2f}%')
-    plt.savefig(output_path)
-    plt.show()
+    ax2.set_ylim(bottom=0, top=percentages.max() + 5)
+
+    title = (f'Distribution of Sequence Lengths\n'
+             f'{len(lengths)} distinct lengths across {total} sequences')
+
+    if target_length is not None:
+        target_length = int(target_length)
+        at_target = counts.get(target_length, 0) / total * 100
+        within_one = sum(counts.get(target_length + offset, 0)
+                         for offset in (-1, 0, 1)) / total * 100
+
+        ax1.axvline(target_length, color='xkcd:dark red', linestyle='--',
+                    linewidth=1, label=f'Target length ({target_length} bp)')
+        ax1.legend(loc='upper left', fontsize=8)
+
+        title = (f'Distribution of Sequence Lengths - Target length {target_length} base pairs\n'
+                 f'Percentage at Target Length: {at_target:.2f}%, '
+                 f'Percentage within 1bp: {within_one:.2f}%')
+
+    ax1.set_title(title)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=dpi)
+
+    if show:
+        plt.show()
+
+    plt.close(fig)
+
+    return {"lengths": lengths, "counts": values, "percentages": percentages,
+            "total": int(total)}
     
 def graph_delta_score(json_file):
     data = {}
@@ -162,7 +224,7 @@ def graph_delta_score(json_file):
     # plt.title('Effect of Delta Threshold on Read Retention')
     plt.xticks(delta_lengths)
     plt.grid(True)
-    plt.savefig("dev_Tools/delta_score_effect.png")
+    plt.savefig("scratch/delta_score_effect.png")
     plt.show()
 
 def graph_improvements(json_file):
@@ -194,31 +256,31 @@ def graph_improvements(json_file):
     plt.ylabel('Percentage of Reads with Fixed Regions')
     #plt.title('Improvement in Read Retention After Merging')
     plt.grid(True)
-    plt.savefig("dev_Tools/merging_improvement.png")
+    plt.savefig("scratch/merging_improvement.png")
     plt.show()
     
     
         
 
 if __name__ == "__main__":
-    input_file = "dev_Tools/ratio.txt"
-    output_image = "dev_Tools/volcano_plot_distribution.png"
+    input_file = "scratch/ratio.txt"
+    output_image = "scratch/volcano_plot_distribution.png"
     
     # Count_Below_Pvalue - Blue and Red seperated by a1va2 ration
     # Count_Above_Pvalue - Yellow and Green seperated by a1va2 ration
-    ratio_ranges, counts, counts_below, counts_below_pvalue, counts_above_pvalue = load_distribution_data(input_file)
-    plot_distribution_2(ratio_ranges, counts, counts_below, output_image, counts_below_pvalue, counts_above_pvalue)
+    # ratio_ranges, counts, counts_below, counts_below_pvalue, counts_above_pvalue = load_distribution_data(input_file)
+    # plot_distribution_2(ratio_ranges, counts, counts_below, output_image, counts_below_pvalue, counts_above_pvalue)
     
-    # input_file = "leven_idel_Count.npy"
-    # output_image = "dev_Tools/levenstein_distribution.png"
-    # graph_levenstein_distribution(input_file, output_image)
+    input_file = "leven_idel_Count.npy"
+    output_image = "scratch/levenstein_distribution.png"
+    graph_levenstein_distribution(input_file, output_image)
     
-    # input_file = "sequence_length_distribution.npy"
-    # output_image = "dev_Tools/sequence_len_distribution.png"
-    # graph_sequence_length_distribution(input_file, output_image)
+    input_file = "sequence_length_distribution.npy"
+    output_image = "scratch/sequence_len_distribution.svg"
+    graph_sequence_length_distribution(input_file, output_image, target_length=68, show=True)
     
-    # input_file = "dev_Tools/p3anut_delta_evaluation.json"
+    # input_file = "scratch/p3anut_delta_evaluation.json"
     # graph_delta_score(input_file)
     
-    # input_file = "dev_Tools/p3anut_evaluation_1.json"
+    # input_file = "scratch/p3anut_evaluation_1.json"
     # graph_improvements(input_file)

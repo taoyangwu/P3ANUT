@@ -8,12 +8,12 @@ log.csv
 dist/
 build/
 *.fad
-dev_Tools/*.csv
-dev_Tools/*.fa
+scratch/*.csv
+scratch/*.fa
 HK_Nov*
 data/*
-dev_Tools/*.json
+scratch/*.json
 *.npy
 torch*
 !data/example
-dev_Tools/HK
+dev_Tools/

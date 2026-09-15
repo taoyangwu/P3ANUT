@@ -1,0 +1,187 @@
+{
+    "PID-1309-GAL-BSA-1-PC_S107": {
+        "forward_length": 1901706,
+        "reverse_length": 1901709,
+        "total_length": 3803415
+    },
+    "PID-1309-GAL-CA-2-PC_S106": {
+        "forward_length": 2362420,
+        "reverse_length": 2362420,
+        "total_length": 4724840
+    },
+    "PID-1309-GAL-CA-1-PC_S105": {
+        "forward_length": 2594545,
+        "reverse_length": 2594545,
+        "total_length": 5189090
+    },
+    "PID-1309-GAL-BSA-3-PC_S109": {
+        "forward_length": 1877343,
+        "reverse_length": 1877343,
+        "total_length": 3754686
+    },
+    "PID-1309-M7-MON-CONA-2_S86": {
+        "forward_length": 603015,
+        "reverse_length": 603017,
+        "total_length": 1206032
+    },
+    "PID-1309-M7-MON-GAL10-2_S80": {
+        "forward_length": 927182,
+        "reverse_length": 927191,
+        "total_length": 1854373
+    },
+    "PID-1309-M7-MON-CONA-1_S85": {
+        "forward_length": 777938,
+        "reverse_length": 777944,
+        "total_length": 1555882
+    },
+    "PID-1309-M7-MON-LECB2_S78": {
+        "forward_length": 898054,
+        "reverse_length": 898054,
+        "total_length": 1796108
+    },
+    "PID-1309-M7-MON-LECA2_S76": {
+        "forward_length": 1333152,
+        "reverse_length": 1333152,
+        "total_length": 2666304
+    },
+    "PID-1309-M7-MON-BSA-2_S88": {
+        "forward_length": 1474415,
+        "reverse_length": 1474416,
+        "total_length": 2948831
+    },
+    "PID-1309-M7-MON-RCA120-1_S83": {
+        "forward_length": 873878,
+        "reverse_length": 873878,
+        "total_length": 1747756
+    },
+    "PID-1309-M7-MON-RCA120-_S84": {
+        "forward_length": 1532748,
+        "reverse_length": 1532748,
+        "total_length": 3065496
+    },
+    "PID-1309-M7-MON-FIMH-2_S82": {
+        "forward_length": 870365,
+        "reverse_length": 870365,
+        "total_length": 1740730
+    },
+    "PID-1309-M7-MON-BSA-1_S87": {
+        "forward_length": 984878,
+        "reverse_length": 984869,
+        "total_length": 1969747
+    },
+    "PID-1309-M7-MON-FIMH-1_S81": {
+        "forward_length": 959896,
+        "reverse_length": 959896,
+        "total_length": 1919792
+    },
+    "PID-1309-M7-MON-LECB1_S77": {
+        "forward_length": 904565,
+        "reverse_length": 904565,
+        "total_length": 1809130
+    },
+    "PID-1309-M7-MON-LECA1_S75": {
+        "forward_length": 1375325,
+        "reverse_length": 1375325,
+        "total_length": 2750650
+    },
+    "PID-1309-M7-NAT-RCA120-2_S67": {
+        "forward_length": 1393700,
+        "reverse_length": 1393700,
+        "total_length": 2787400
+    },
+    "PID-1309-M7-NAT-CONA-1_S69": {
+        "forward_length": 1485861,
+        "reverse_length": 1485861,
+        "total_length": 2971722
+    },
+    "PID-1309-M7-NAT-BSA-3_S74": {
+        "forward_length": 1804813,
+        "reverse_length": 1804813,
+        "total_length": 3609626
+    },
+    "PID-1309-M7-NAT-RCA120-3_S68": {
+        "forward_length": 1736222,
+        "reverse_length": 1736234,
+        "total_length": 3472456
+    },
+    "PID-1309-M7-NAT-FIMH-1_S63": {
+        "forward_length": 1374950,
+        "reverse_length": 1374950,
+        "total_length": 2749900
+    },
+    "PID-1309-M7-NAT-BSA-2_S73": {
+        "forward_length": 1645999,
+        "reverse_length": 1645999,
+        "total_length": 3291998
+    },
+    "PID-1309-M7-NAT-GAL10-2_S61": {
+        "forward_length": 1878571,
+        "reverse_length": 1878559,
+        "total_length": 3757130
+    },
+    "PID-1309-M7-NAT-CONA-2_S70": {
+        "forward_length": 1247968,
+        "reverse_length": 1247968,
+        "total_length": 2495936
+    },
+    "PID-1309-M7-NAT-FIMH-3_S65": {
+        "forward_length": 1459363,
+        "reverse_length": 1459363,
+        "total_length": 2918726
+    },
+    "PID-1309-M7-NAT-LECB1_S57": {
+        "forward_length": 1534402,
+        "reverse_length": 1534402,
+        "total_length": 3068804
+    },
+    "PID-1309-M7-NAT-LECA2_S55": {
+        "forward_length": 3282043,
+        "reverse_length": 3282043,
+        "total_length": 6564086
+    },
+    "PID-1309-M7-NAT-FIMH-2_S64": {
+        "forward_length": 1180422,
+        "reverse_length": 1180422,
+        "total_length": 2360844
+    },
+    "PID-1309-M7-NAT-LECB2_S58": {
+        "forward_length": 2268157,
+        "reverse_length": 2268157,
+        "total_length": 4536314
+    },
+    "PID-1309-M7-NAT-GAL10-1_S60": {
+        "forward_length": 1767316,
+        "reverse_length": 1767316,
+        "total_length": 3534632
+    },
+    "PID-1309-M7-NAT-CONA-3_S71": {
+        "forward_length": 1003962,
+        "reverse_length": 1003962,
+        "total_length": 2007924
+    },
+    "PID-1309-M7-NAT-LECA1_S54": {
+        "forward_length": 1894226,
+        "reverse_length": 1894226,
+        "total_length": 3788452
+    },
+    "PID-1309-M7-NAT-GAL10-3_S62": {
+        "forward_length": 1601011,
+        "reverse_length": 1601003,
+        "total_length": 3202014
+    },
+    "PID-1309-M7-NAT-BSA-1_S72": {
+        "forward_length": 1194957,
+        "reverse_length": 1194957,
+        "total_length": 2389914
+    },
+    "PID-1309-M7-NAT-LECB3_S59": {
+        "forward_length": 2062502,
+        "reverse_length": 2062502,
+        "total_length": 4125004
+    },
+    "PID-1309-M7-NAT-LECA3_S56": {
+        "forward_length": 836322,
+        "reverse_length": 836322,
+        "total_length": 1672644
+    }
+}

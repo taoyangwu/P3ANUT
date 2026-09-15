@@ -24,10 +24,56 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 
 import numpy as np
+import pandas as pd
 
 # Import shared data logic from the GUI module without launching tkinter
 sys.path.insert(0, os.path.dirname(__file__))
 from rankingPlot import supportingLogic
+
+
+def aboveLineSequences(x, y, seqs, slope, b):
+    """
+    Return the sequences sitting on or above the separation line.
+
+    A point is above the line when its File B rank is at least slope * rank + b,
+    matching how supportingLogic.aboveBelowCounts splits the two groups.
+    """
+    y_line = np.array(x) * slope + b
+    mask = np.array(y) >= y_line
+
+    return [seq for seq, keep in zip(seqs, mask) if keep]
+
+
+def writeRankingCSV(output_path, seqs, x, y):
+    """
+    Write the rank change recorded by this step: one row per sequence with its
+    index in File A and its index in File B.
+    """
+    with open(output_path, "w") as f:
+        f.write("sequence,file_a_index,file_b_index\n")
+        for seq, x_val, y_val in zip(seqs, x, y):
+            f.write(f"{seq},{x_val},{y_val}\n")
+
+    return output_path
+
+
+def writeAboveLineData(source_csv, sequences, output_path):
+    """
+    Write the above-line sequences back out in the unified CSV layout, so the
+    result chains into any other block that accepts a Unifier connection.
+    """
+    frame = pd.read_csv(source_csv)
+    frame.set_index("sequence", inplace=True)
+
+    kept = [seq for seq in sequences if seq in frame.index]
+    selected = frame.loc[kept]
+
+    if "m_index" in selected.columns:
+        selected = selected.sort_values(by="m_index", ascending=False)
+
+    selected.to_csv(output_path)
+
+    return output_path
 
 
 def run_ranking_plot(
@@ -42,6 +88,11 @@ def run_ranking_plot(
     count_file2: bool = False,
     export_graph: bool = True,
     log_scale: bool = False,
+    ranking_output: str = None,
+    above_output: str = None,
+    figure_width: float = 6.0,
+    figure_height: float = 4.0,
+    dpi: int = 300,
 ) -> dict:
     """
     Run the Abundance Ranking Plot logic and optionally save the figure.
@@ -60,6 +111,13 @@ def run_ranking_plot(
     count_file2     : Include File 2 sequences in the ranking.
     export_graph    : Whether to save the figure to output_path.
     log_scale       : Use a log scale on the Y axis.
+    ranking_output  : Optional path for the rank change CSV, with columns
+                      sequence, file_a_index and file_b_index.
+    above_output    : Optional path for the above-line sequences, written in the
+                      unified CSV layout so they chain into further blocks.
+    figure_width    : Figure width in inches.
+    figure_height   : Figure height in inches.
+    dpi             : Resolution of the exported figure.
 
     Returns
     -------
@@ -69,6 +127,7 @@ def run_ranking_plot(
         "seqs"        – sequence labels
         "above_count" – sequences above the separation line
         "below_count" – sequences below the separation line
+        "above_seqs"  – the sequences above the separation line
     """
     # ------------------------------------------------------------------ data
     data = supportingLogic.csvComparision(file1path, file2path)
@@ -76,15 +135,25 @@ def run_ranking_plot(
         data, count_file1, count_file2, percent_or_count, points
     )
     above_count, below_count = supportingLogic.aboveBelowCounts(x, y, slope, b)
+    above_seqs = aboveLineSequences(x, y, seqs, slope, b)
 
     print(f"Sequences loaded: {len(seqs)}")
     print(f"Above line: {above_count}  |  Below line: {below_count}")
+
+    # ------------------------------------------------------------- data files
+    if ranking_output:
+        writeRankingCSV(ranking_output, seqs, x, y)
+        print(f"Ranking saved to: {ranking_output}")
+
+    if above_output:
+        writeAboveLineData(file1path, above_seqs, above_output)
+        print(f"Above-line data saved to: {above_output} ({len(above_seqs)} sequences)")
 
     # --------------------------------------------------------- optional graph
     if export_graph:
         fig, axes = plt.subplots(
             2, 2,
-            figsize=(6,4),
+            figsize=(figure_width, figure_height),
             gridspec_kw={"height_ratios": [5, 1], "width_ratios": [1, 5]},
         )
         ax1, ax2 = axes[0, 0], axes[0, 1]
@@ -170,7 +239,7 @@ def run_ranking_plot(
 
         fig.tight_layout()
         fig.subplots_adjust(wspace=0, hspace=0)
-        fig.savefig(output_path, dpi=300)
+        fig.savefig(output_path, dpi=dpi)
         plt.close(fig)
         print(f"Graph saved to: {output_path}")
 
@@ -180,6 +249,7 @@ def run_ranking_plot(
         "seqs": seqs,
         "above_count": above_count,
         "below_count": below_count,
+        "above_seqs": above_seqs,
     }
 
 
@@ -222,6 +292,14 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Save the figure to --output (default: on).")
     p.add_argument("--no-export-graph",  action="store_false", dest="export_graph",
                    help="Skip saving the figure.")
+    p.add_argument("--ranking-output",   dest="ranking_output", default=None,
+                   help="Path for the rank change CSV (sequence, file A index, "
+                        "file B index).")
+    p.add_argument("--above-output",     dest="above_output", default=None,
+                   help="Path for the above-line sequences, written in the unified "
+                        "CSV layout.")
+    p.add_argument("--dpi",              type=int, default=300,
+                   help="Resolution of the exported figure (default: 300).")
     return p
 
 
@@ -241,79 +319,11 @@ def main():
         count_file2     = args.count_file2,
         export_graph    = args.export_graph,
         log_scale       = args.log_scale,
+        ranking_output  = args.ranking_output,
+        above_output    = args.above_output,
+        dpi             = args.dpi,
     )
 
 
 if __name__ == "__main__":
-    # main()
-
-    slope = 1.0
-    b: float = 0.0
-    percent_or_count: str = "#"
-    count_file1: bool = True
-    count_file2: bool = False
-    export_graph: bool = True
-    log_scale: bool = True
-
-    filePaths = []
-
-    for direction in ["Reverse"]:
-
-        dir_short = "F" if direction == "Forward" else "R"
-
-        for i in [4,5,6,7]:
-            for length in ["", "_trimmed"]:
-                for count in [10,25,50,100,1000]:
-
-                    input_lambda = lambda run_num: f"data/Rhau/{direction}/R{run_num}_Rhau18_12aa_{dir_short}/R{run_num}_Rhau18_12aa_{dir_short}{length}.csv"
-                    output_lambda = lambda run_num: f"data/Rhau/{direction}/R{run_num}_Rhau18_12aa_{dir_short}/C_{count}/"
-
-                    os.makedirs(output_lambda(i), exist_ok=True)
-
-                    file1 = input_lambda(i)
-                    file2 = input_lambda(3)
-                    output = os.path.join(output_lambda(i), f"rankingPlot_{dir_short}{length}_C{count}.png")
-
-                    #filePaths.append((file1, file2, output, count))
-
-
-    for i in [4,5,6,7]:
-        for length in ["", "_trimmed"]:
-            for count in [10,25,50,100,1000]:
-
-                input_lambda = lambda run_num: f"data/Rhau/matched/R{run_num}_Rhau18_12aa/R{run_num}_A30{length}.csv"
-                output_lambda = lambda run_num: f"data/Rhau/matched/R{run_num}_Rhau18_12aa/C_{count}/"
-
-                os.makedirs(output_lambda(i), exist_ok=True)
-
-                file1 = input_lambda(i)
-                file2 = input_lambda(3)
-                output = os.path.join(output_lambda(i), f"rankingPlot_M{length}_C{count}.png")
-
-                filePaths.append((file1, file2, output, count))
-
-
-    for file1, file2, output, count in filePaths:
-        t = run_ranking_plot(
-            file1path       = file1,
-            file2path       = file2,
-            output_path     = output,
-            slope           = slope,
-            b               = b,
-            points          = count,
-            percent_or_count= percent_or_count,
-            count_file1     = count_file1,
-            count_file2     = count_file2,
-            export_graph    = export_graph,
-            log_scale       = log_scale,
-        )
-        
-        csv_output = output.replace(".png", ".csv")
-        with open(csv_output, "w") as f:
-            f.write("sequence,rank_file1,rank_file2\n")
-            for seq, x_val, y_val in zip(t["seqs"], t["x"], t["y"]):
-                f.write(f"{seq},{x_val},{y_val}\n")
-        
-        pass
-
-
+    main()

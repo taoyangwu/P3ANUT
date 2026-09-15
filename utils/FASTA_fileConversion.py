@@ -11,54 +11,150 @@ import argparse
 Each file has the entry on every other line
 '''
 
-def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=36, normalizeCount=True, outputDirectory='', 
-                           outputAmino= True, createLogoplot=True, motrif_presequence_length : int = 0, motrif_postsequence_length : int = 0,
-                           dataEnteryLength : int = 2, flip_sequence : bool = False):
-    raw_data = []
-    
-    FLIP_DICT = str.maketrans('ATCG', 'TAGC')
-    
-    motrif_postsequence_length = -motrif_postsequence_length if motrif_postsequence_length != 0 else None
-    
+FLIP_DICT = str.maketrans('ATCG', 'TAGC')
+
+DNA_BASES = ('A', 'T', 'C', 'G')
+
+
+#------------------------------------------------------------------------------#
+# Function Name: readFastaEntries()
+# Description: Reads a legacy, score-less sequencing file and returns the raw
+#              sequence strings. This is the only part of this module the FASTA
+#              block in the node graph calls: it handles the different possible
+#              record layouts (dataEnteryLength lines per record) and the
+#              optional reverse complement and motif trimming, but performs no
+#              amino conversion, counting or plotting.
+# Inputs: filePath - path to the file to read - str
+#         dataEnteryLength - lines that make up one record (2 for FASTA,
+#                            4 for FASTQ) - int
+#         flip_sequence - reverse complement each read - bool
+#         motrif_presequence_length - bases trimmed from the front - int
+#         motrif_postsequence_length - bases trimmed from the end - int
+# Outputs: list of sequence strings
+#------------------------------------------------------------------------------#
+def readFastaEntries(filePath, dataEnteryLength: int = 2, flip_sequence: bool = False,
+                     motrif_presequence_length: int = 0, motrif_postsequence_length: int = 0):
+
+    if dataEnteryLength < 2:
+        raise ValueError("dataEnteryLength must be at least 2 - the sequence is read "
+                         "from the second line of every record")
+
     with open(filePath, 'r') as file:
         lines = file.readlines()
-        raw_data = [lines[i].strip() for i in range(len(lines)) if i % dataEnteryLength == 1]
-        
-    sequence_Counts = {}
-    t_skipped = 0
+
+    #The sequence always sits on the second line of a record
+    raw_data = [lines[i].strip() for i in range(len(lines)) if i % dataEnteryLength == 1]
+
+    trimEnd = -motrif_postsequence_length if motrif_postsequence_length else None
+
+    entries = []
     for entry in raw_data:
-        entry_length = len(entry)
-        
-        if(entry_length < (motrif_presequence_length or 0) + (motrif_postsequence_length or 0)):
-             
+        #Skip reads too short to survive the trimming
+        if len(entry) <= motrif_presequence_length + motrif_postsequence_length:
             continue
-        
+
         local_entry = entry[::-1].translate(FLIP_DICT) if flip_sequence else entry
-        motif_seq = local_entry[(motrif_presequence_length or 0): motrif_postsequence_length]
-        len_motif_seq = len(motif_seq)
-        
-        if len_motif_seq not in sequence_Counts:
-            sequence_Counts[len_motif_seq] = {}
-        
-        if motif_seq not in sequence_Counts[len_motif_seq]:
-            t_skipped += 1 
-            sequence_Counts[len_motif_seq][motif_seq] = 1
-        else:
-            t_skipped += 1 
-            sequence_Counts[len_motif_seq][motif_seq] += 1
-        
+        entries.append(local_entry[motrif_presequence_length:trimEnd])
+
+    return entries
+
+
+#------------------------------------------------------------------------------#
+# Function Name: fastaToPipelineData()
+# Description: Wraps readFastaEntries so a legacy file enters the pipeline in the
+#              same JSON style representation the Paired Assembler produces,
+#              letting every downstream block treat both paths identically.
+# Inputs: filePath - path to the file to read - str
+#         dnaDatatag - JSON tag the sequence is stored under - str
+#         **kwargs - forwarded to readFastaEntries
+# Outputs: dict of {recordKey: {dnaDatatag: sequence}}
+#------------------------------------------------------------------------------#
+def fastaToPipelineData(filePath, dnaDatatag: str = "sequences", **kwargs):
+    entries = readFastaEntries(filePath, **kwargs)
+    fileBaseName = splitext(basename(filePath))[0]
+
+    return {f"{fileBaseName}_{i}": {dnaDatatag: seq} for i, seq in enumerate(entries)}
+
+
+#------------------------------------------------------------------------------#
+# Function Name: countByLength()
+# Description: Buckets sequences by their length and counts each distinct
+#              sequence within a bucket, highest count first.
+# Inputs: entries - the sequences to bucket - iterable of str
+# Outputs: dict of {length: {sequence: count}}
+#------------------------------------------------------------------------------#
+def countByLength(entries):
+    sequence_Counts = {}
+    for motif_seq in entries:
+        sequence_Counts.setdefault(len(motif_seq), {})
+        sequence_Counts[len(motif_seq)][motif_seq] = sequence_Counts[len(motif_seq)].get(motif_seq, 0) + 1
+
     for key, value in sequence_Counts.items():
-        sequence_Counts[key] = dict(sorted(value.items(), key=lambda item: item[1], reverse=True))    
-        
-    totalCount = 0
+        sequence_Counts[key] = dict(sorted(value.items(), key=lambda item: item[1], reverse=True))
+
+    return sequence_Counts
+
+
+#------------------------------------------------------------------------------#
+# Function Name: foldSurroundingSequences()
+# Description: Folds "surrounding" sequences - those exactly one base off the
+#              target length - into the counted result instead of dropping them.
+#              Each one is matched to whichever correctly sized sequence it is
+#              closest to, meaning the most common sequence reachable by adding
+#              or removing a single base. The Sequence Counter block shares this
+#              function so both ingestion paths behave identically.
+# Inputs: targetDictionary - counts keyed by the converted target length
+#                            sequence, modified in place - dict
+#         shorterSequences - {sequence: count} one base below the target - dict
+#         longerSequences - {sequence: count} one base above the target - dict
+#         convert - maps a DNA sequence onto the key space of targetDictionary
+# Outputs: targetDictionary, modified in place
+#------------------------------------------------------------------------------#
+def foldSurroundingSequences(targetDictionary, shorterSequences=None, longerSequences=None,
+                             convert=None):
+
+    convert = aminoConversion if convert is None else convert
+
+    #One base short - try inserting every base at every position
+    for seq, counts in (shorterSequences or {}).items():
+        largest_matched = ""
+        for i in range(len(seq) + 1):
+            for base in DNA_BASES:
+                candidate = convert(seq[:i] + base + seq[i:])
+                if targetDictionary.get(candidate, 0) > targetDictionary.get(largest_matched, 0):
+                    largest_matched = candidate
+
+        if largest_matched != "":
+            targetDictionary[largest_matched] = targetDictionary.get(largest_matched, 0) + counts
+
+    #One base long - try removing every base in turn
+    for seq, counts in (longerSequences or {}).items():
+        largest_matched = ""
+        for i in range(len(seq)):
+            candidate = convert(seq[:i] + seq[i + 1:])
+            if targetDictionary.get(candidate, 0) > targetDictionary.get(largest_matched, 0):
+                largest_matched = candidate
+
+        if largest_matched != "":
+            targetDictionary[largest_matched] = targetDictionary.get(largest_matched, 0) + counts
+
+    return targetDictionary
+
+
+def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=36, normalizeCount=True, outputDirectory='',
+                           outputAmino= True, createLogoplot=True, motrif_presequence_length : int = 0, motrif_postsequence_length : int = 0,
+                           dataEnteryLength : int = 2, flip_sequence : bool = False):
+
+    raw_data = readFastaEntries(filePath, dataEnteryLength=dataEnteryLength, flip_sequence=flip_sequence,
+                                motrif_presequence_length=motrif_presequence_length,
+                                motrif_postsequence_length=motrif_postsequence_length)
+
+    sequence_Counts = countByLength(raw_data)
+
     for key, value in sequence_Counts.items():
-        sequenceLengthCount = 0
-        for seq, count in value.items():
-            sequenceLengthCount += count
-            totalCount += count
-            
+        sequenceLengthCount = sum(value.values())
         print(f'Length: {key}, Unique Sequences: {len(value)}, Total Sequences: {sequenceLengthCount}')
-    
+
     if(outputAmino):
         aminoDictionary = {}
         for seq, counts in sequence_Counts[targetBaseLength].items():
@@ -75,36 +171,18 @@ def intermediateProcessing(filePath, includeSurrounding=False, targetBaseLength=
         logoplot(aminoDictionary, fileBase=fileBaseName, outputDirectory=outputDirectory)
         
     if(includeSurrounding):
-        #Include the sequences that are one base pair shorter
-        for seq, counts in sequence_Counts.get(targetBaseLength - 1, {}).items():
-            largest_matched = ""
-            debug_Scores = []
-            for i in range(len(seq) + 1):
-                for base in ['A', 'T', 'C', 'G']:
-                    modified_seq = seq[:i] + base + seq[i:]
-                    amio_seq = aminoConversion(modified_seq)
-                    debug_Scores.append((amio_seq, aminoDictionary.get(amio_seq, -1)))
-                    if(aminoDictionary.get(amio_seq, 0) > aminoDictionary.get(largest_matched, 0)):
-                        largest_matched = amio_seq
-            if(largest_matched != ""):
-                aminoDictionary[largest_matched] = aminoDictionary.get(largest_matched, 0) + counts
-            pass
-                
-        for seq, counts in sequence_Counts.get(targetBaseLength + 1, {}).items():
-            largest_matched = ""
-            for i in range(len(seq)):
-                modified_seq = seq[:i] + seq[i+1:]
-                amio_seq = aminoConversion(modified_seq)
-                if(aminoDictionary.get(amio_seq, 0) > aminoDictionary.get(largest_matched, 0)):
-                    largest_matched = amio_seq
-            if(largest_matched != ""):
-                aminoDictionary[largest_matched] = aminoDictionary.get(largest_matched, 0) + counts
-        
+        foldSurroundingSequences(
+            aminoDictionary,
+            shorterSequences=sequence_Counts.get(targetBaseLength - 1, {}),
+            longerSequences=sequence_Counts.get(targetBaseLength + 1, {}),
+            convert=aminoConversion if outputAmino else (lambda s: s),
+        )
+
     sorted_amino = dict(sorted(aminoDictionary.items(), key=lambda item: item[1], reverse=True))
     
     file_set_size = len(raw_data)
 
-    with open(join(outputDirectory, f"{fileBaseName}.csv"), 'w') as f:
+    with open(join(outputDirectory, f"{fileBaseName}_1.csv"), 'w') as f:
         f.write("sequence,m_index,s_index\n")
         f.write(f"NORMALIZED_ONE_COUNT,{1/file_set_size if normalizeCount else 1},0\n")
         for seq, count in sorted_amino.items():
@@ -134,18 +212,23 @@ def aminoConversion(seqParameter):
     return "".join(conversionDicitionary[t] for t in ["".join([seqParameter[j] for j in range(i, i+3)]) for i in range(0, len(seqParameter) - 2, 3) ])
     
     
-def logoplot(sequenceCounts, fileBase="TempLogoPlot", outputDirectory="."):
+def logoplot(sequenceCounts, fileBase="TempLogoPlot", outputDirectory=".",
+             validBases="CS*TAGPDEQNHKRMILVWYF", outputPath=None, dpi=None):
     import logomaker as lm
-    validBases = "CS*TAGPDEQNHKRMILVWYF"
-    
+
+    if not sequenceCounts:
+        raise ValueError("No sequences to build a logo plot from")
+
     validBasedict = {base: idx for idx, base in enumerate(validBases)}
-    
+
     matrix = np.zeros((len(validBases), max(len(seq) for seq in sequenceCounts.keys())))
-    
+
     for seq, count in sequenceCounts.items():
         for position, base in enumerate(seq):
-            matrix[validBasedict[base], position] += count
-            
+            #A base outside the chosen alphabet carries no information here
+            if base in validBasedict:
+                matrix[validBasedict[base], position] += count
+
     matrixDataFrame = pd.DataFrame(matrix.T, columns=list(validBases))
     logo = lm.Logo(matrixDataFrame, color_scheme= {
         'A': '#f76ab4',
@@ -173,7 +256,12 @@ def logoplot(sequenceCounts, fileBase="TempLogoPlot", outputDirectory="."):
     logo.ax.set_ylabel('Frequency')
     logo.ax.set_xlabel('Position')
     logo.ax.set_title('Amino Acid Frequency')
-    logo.ax.figure.savefig(join(outputDirectory, f"{fileBase}_logoplot.png"))
+
+    destination = outputPath or join(outputDirectory, f"{fileBase}_logoplot.png")
+    logo.ax.figure.savefig(destination, **({"dpi": dpi} if dpi else {}))
+    plt.close(logo.ax.figure)
+
+    return destination
     
 def comparisionScatter(file1, file2, point = 25, minCount = 0.003):
     data1 = {}
@@ -284,7 +372,7 @@ def comparisionScatter2(file1, file2):
 def overlappingPatched():
     rect1 = plt.Rectangle((1, 1), 20, 2, color='blue', alpha=0.5)
     rect2 = plt.Rectangle((2, 2), 20, 2, color='red', alpha=0.5)
-    
+
     fig, ax = plt.subplots()
     ax.add_patch(rect1)
     ax.add_patch(rect2)
@@ -292,54 +380,77 @@ def overlappingPatched():
     plt.ylim(0, 5)
     plt.xscale('log')
     plt.show()
-    
-args = argparse.ArgumentParser()
-args.add_argument('--filePath', type=str, required=True, help='Path to the input file')
-args.add_argument('--includeSurrounding', type=bool, default=False, help='Attempt to include and correct sequences that are one base pair shorter or longer')
-args.add_argument('--targetBaseLength', type=int, default=36, help='Target base length to process in DNA base pairs. So 12 amino acids = 36 base pairs')
-args.add_argument('--normalizeCount', type=bool, default=True, help='Normalize the counts in the output file with the same method in P3ANUT')
-args.add_argument('--outputDirectory', type=str, default='output/', help='Output directory for the processed files and graphs')
-args.add_argument('--createLogoplot', type=bool, default=True, help='Create logoplot for the amino acid frequencies')
-args.add_argument('--motrif_presequence_length', type=int, default=0, help='Length of pre-sequence before motif to trim off')
-args.add_argument('--motrif_postsequence_length', type=int, default=0, help='Length of post-sequence after motif to trim off')
 
 
-for i in [3,4,5,6,7]:
-    intermediateProcessing(f"data/Rhau/Reverse/R{i}_Rhau18_12aa_R/Rhau18_12aa_R.fastq", includeSurrounding=True, targetBaseLength= 90,
-                            outputDirectory=f'data/Rhau/Reverse/R{i}_Rhau18_12aa_R/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-                            motrif_presequence_length= 9, motrif_postsequence_length= 9 , dataEnteryLength=4, flip_sequence = True)
+# --------------------------------------------------------------------------- #
+#  CLI entry point                                                             #
+# --------------------------------------------------------------------------- #
 
-# for i in [1,2,3,4]:
-#     intermediateProcessing(f"data/rG4/P{i}.merge.fa", includeSurrounding=True, targetBaseLength= 36,
-#                             outputDirectory=f'data/rG4/R{i+2}', outputAmino=True, normalizeCount=True, createLogoplot=True,
-#                             motrif_presequence_length= 0, motrif_postsequence_length= 0 , dataEnteryLength=4)
+def _build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="FASTA_fileConversion",
+        description="Convert a legacy, score-less sequencing file into the counted "
+                    "CSV the rest of P3ANUT consumes, or dump the parsed reads as JSON.",
+    )
+    p.add_argument('--filePath', type=str, required=True,
+                   help='Path to the input file')
+    p.add_argument('--outputDirectory', type=str, default='output/',
+                   help='Output directory for the processed files and graphs')
+    p.add_argument('--dataEnteryLength', type=int, default=2,
+                   help='Lines per record: 2 for FASTA, 4 for FASTQ (default: 2)')
+    p.add_argument('--flip-sequence', dest='flip_sequence', action='store_true',
+                   default=False, help='Reverse complement every read as it is parsed')
+    p.add_argument('--motrif_presequence_length', type=int, default=0,
+                   help='Length of pre-sequence before motif to trim off')
+    p.add_argument('--motrif_postsequence_length', type=int, default=0,
+                   help='Length of post-sequence after motif to trim off')
+    p.add_argument('--targetBaseLength', type=int, default=36,
+                   help='Target base length in DNA base pairs, so 12 amino acids = 36')
+    p.add_argument('--includeSurrounding', action='store_true', default=False,
+                   help='Fold in sequences one base pair shorter or longer')
+    p.add_argument('--no-normalizeCount', dest='normalizeCount', action='store_false',
+                   default=True, help='Write raw counts instead of normalized counts')
+    p.add_argument('--no-createLogoplot', dest='createLogoplot', action='store_false',
+                   default=True, help='Skip the logo plot')
+    p.add_argument('--no-outputAmino', dest='outputAmino', action='store_false',
+                   default=True, help='Count DNA sequences rather than converting to amino acids')
+    p.add_argument('--parse-only', dest='parse_only', metavar='OUTPUT.json', default=None,
+                   help='Only run the file parsing step - the part the FASTA block uses - '
+                        'and write the parsed reads to this JSON file')
+    return p
 
 
-# intermediateProcessing("data/Rhau/Forward/R3_Rhau18_12aa_F/Rhau18_12aa_F.fastq", includeSurrounding=True, targetBaseLength= 36,
-#                         outputDirectory='HK_Nov/Database 2.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-#                         motrif_presequence_length= 18 * 3, motrif_postsequence_length= 0)             
-# intermediateProcessing("HK_Nov/Database 2.fasta/R6.fasta", includeSurrounding=True, targetBaseLength=36,
-#                         outputDirectory='HK_Nov/Database 2.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-#                         motrif_presequence_length= 18 * 3, motrif_postsequence_length= 0)
-# intermediateProcessing("HK_Nov/Database 2.fasta/R7.fasta", includeSurrounding=True, targetBaseLength=36,
-#                         outputDirectory='HK_Nov/Database 2.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-#                         motrif_presequence_length= 18 * 3, motrif_postsequence_length= 0)
+def main():
+    args = _build_parser().parse_args()
 
-# intermediateProcessing("HK_Nov/Database 3.fasta/R3.fasta", includeSurrounding=True, targetBaseLength=36,
-#                         outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-#                         motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)           
-# intermediateProcessing("HK_Nov/Database 3.fasta/R6.fasta", includeSurrounding=True, targetBaseLength=36,
-#                         outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-#                         motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)  
-# intermediateProcessing("HK_Nov/Database 3.fasta/R7.fasta", includeSurrounding=True, targetBaseLength=36,
-#                         outputDirectory='HK_Nov/Database 3.fasta/', outputAmino=True, normalizeCount=True, createLogoplot=True,
-#                         motrif_presequence_length= 0, motrif_postsequence_length= 18 * 3)  
+    if args.parse_only:
+        import json
+        data = fastaToPipelineData(
+            args.filePath,
+            dataEnteryLength=args.dataEnteryLength,
+            flip_sequence=args.flip_sequence,
+            motrif_presequence_length=args.motrif_presequence_length,
+            motrif_postsequence_length=args.motrif_postsequence_length,
+        )
+        with open(args.parse_only, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"Parsed {len(data)} reads to {args.parse_only}")
+        return
 
-# # print(aminoConversion("GCGCAGCGTTAGCATCCTCATGTGCCTAAGTGTCAG"))
+    intermediateProcessing(
+        args.filePath,
+        includeSurrounding=args.includeSurrounding,
+        targetBaseLength=args.targetBaseLength,
+        normalizeCount=args.normalizeCount,
+        outputDirectory=args.outputDirectory,
+        outputAmino=args.outputAmino,
+        createLogoplot=args.createLogoplot,
+        motrif_presequence_length=args.motrif_presequence_length,
+        motrif_postsequence_length=args.motrif_postsequence_length,
+        dataEnteryLength=args.dataEnteryLength,
+        flip_sequence=args.flip_sequence,
+    )
 
-# comparisionScatter("dev_Tools/P1.merge.csv", "dev_Tools/P3.merge.csv")
-# overlappingPatched()
 
-#Flip sequence
-
-            
+if __name__ == "__main__":
+    main()

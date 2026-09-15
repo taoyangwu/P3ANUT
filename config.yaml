@@ -139,12 +139,12 @@ pairedAssembler:
     Description: The ending barcode of the target protein sequence
     Type: String
     UsedFunctions: aminoConversion
-    Value: CGG
+    Value: GGGS
   desiredStartingProteinBase:
     Description: The starting barcode of the target protein sequence
     Type: String
     UsedFunctions: aminoConversion
-    Value: IFM
+    Value: SHSS
   errorFileName:
     Description: Name or location of the file to append the error results to
     Type: String
@@ -187,7 +187,7 @@ pairedAssembler:
       significantly speeds up the pipeline but takes more memory
     Type: Boolean
     UsedFunctions: parseFastqFile
-    Value: true
+    Value: false
   processLimit:
     Description: Limit of concurrent processes, 0 means use all available resources
     Type: Int
@@ -203,18 +203,18 @@ pairedAssembler:
     Description: The radius of k-mer pairs to be considered when merging the sequences
     Type: Int
     UsedFunctions: mergeInsertOperation, mergeDeleteOperation, multiprocess
-    Value: 2
+    Value: 5
   scoreOffset:
     Description: The difference in score that is needed to merge based on k-mers
     Type: Int
     UsedFunctions: mergeInsertOperation, mergeDeleteOperation, multiprocess
-    Value: 11
+    Value: 3
   targetLength:
     Description: Define an optimal length for the sequences that the pipeline will
       try to hit
     Type: Int
     UsedFunctions: mergeMisMatchedLengths
-    Value: 90
+    Value: 66
   level_threshold:
     Description: The maximum number of inserts or deletions found through Levenshtein
       before sequences are dropped. Sequences less than or equal to the threshold
@@ -245,7 +245,7 @@ sequenceCount:
       the Target Length literal input when one is connected.
     Type: Int
     UsedFunctions: countSequences
-    Value: 90
+    Value: 36
   includeSurrounding:
     Description: Fold in sequences that are exactly one base off the target length
       by matching each of them to the closest correctly sized sequence, instead of
@@ -257,12 +257,12 @@ sequenceCount:
     Description: The starting peptide barcode a counted sequence must contain
     Type: String
     UsedFunctions: countSequences
-    Value: IFM
+    Value: SHSS
   sequenceEnd:
     Description: The ending peptide barcode a counted sequence must contain
     Type: String
     UsedFunctions: countSequences
-    Value: CGG
+    Value: GGGS
   matchBarcodes:
     Description: Require the start and end barcodes to be present. When false every
       sequence of the target length is counted.

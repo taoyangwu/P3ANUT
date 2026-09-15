@@ -2,15 +2,30 @@
 
 
 a = Analysis(
-    ['src/unifiedGUI.py'],
-    pathex=[],
+    ['P3ANUT.py'],
+    pathex=['src'],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=[
+        ('config.yaml', '.'),
+    ],
+    hiddenimports=[
+        'p3anut_ui',
+        'sequenceCounter',
+        'multiprocessedPairAssembler',
+        'runUnifier',
+        'volcanoPlot',
+        'upsetPlot',
+        'rankingPlot',
+        'CLI_VolcanoPlot',
+        'CLI_upsetplot',
+        'CLI_rankingPlot',
+        'utils.FASTA_fileConversion',
+        'utils.visualizationGraphs',
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['tkinter'],
     noarchive=False,
     optimize=0,
 )

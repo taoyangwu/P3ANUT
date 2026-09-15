@@ -405,7 +405,7 @@ if __name__ == "__main__":
     
     # forFile = "/Users/ethankoland/Desktop/Undergrad/Year 3/3rd Year Project/code/data/PID-1309-GAL-BSA-1-PC_S107_R1_001.fastq"
     # revFile = "/Users/ethankoland/Desktop/Undergrad/Year 3/3rd Year Project/code/data/PID-1309-GAL-BSA-1-PC_S107_R2_001.fastq"
-    # mergeFile = "/Users/ethankoland/Desktop/Side Projects/P3ANUT/dev_Tools/mergeMismatchData.json"
+    # mergeFile = "/Users/ethankoland/Desktop/Side Projects/P3ANUT/scratch/mergeMismatchData.json"
 
     # t1 = evalutate_fastq_file(forFile, start_barcode="GACTATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", flip=False, minQualityScore=20, minQualityScoreCount=5, proteinConversion=True, aminoBaseRange=6)
     # t2 = evalutate_fastq_file(revFile, start_barcode="GACTATTCTCACTCTTCT", end_barcode="GGTGGAGGTTCG", flip=True, minQualityScore=20, minQualityScoreCount=5, proteinConversion=True, aminoBaseRange=6)
