@@ -444,6 +444,12 @@ upsetPlot:
 # Ranking Plot block
 #-----------------------------------------------------------------------------#
 rankingPlot:
+  inputCount:
+    Description: Number of target sequence inputs the block starts with. The plus
+      and minus buttons on the block change this after it has been placed.
+    Type: Int
+    UsedFunctions: run_ranking_plot
+    Value: 1
   slope:
     Description: Slope of the separation line. Overridden by the Slope literal input
       when one is connected.

@@ -11,6 +11,7 @@ Usage (CLI):
         [--percent-or-count #] \
         [--count-file1] [--count-file2] \
         [--log-scale] \
+        [--target SEQUENCE ...] \
         [--export-graph]
 """
 
@@ -42,6 +43,24 @@ def aboveLineSequences(x, y, seqs, slope, b):
     mask = np.array(y) >= y_line
 
     return [seq for seq, keep in zip(seqs, mask) if keep]
+
+
+def findTargets(targets, seqs, x, y):
+    """
+    Locate the requested target sequences on the plot.
+
+    Each target is matched literally against the plotted sequences. A target that
+    is not on the plot is dropped, so only sequences that were found get a box.
+    Returns a list of (sequence, x, y).
+    """
+    position = {seq: (px, py) for seq, px, py in zip(seqs, x, y)}
+
+    found = []
+    for target in dict.fromkeys(t.strip() for t in (targets or []) if t and t.strip()):
+        if target in position:
+            found.append((target, *position[target]))
+
+    return found
 
 
 def writeRankingCSV(output_path, seqs, x, y):
@@ -93,6 +112,7 @@ def run_ranking_plot(
     figure_width: float = 6.0,
     figure_height: float = 4.0,
     dpi: int = 300,
+    target_sequences: list = None,
 ) -> dict:
     """
     Run the Abundance Ranking Plot logic and optionally save the figure.
@@ -118,6 +138,8 @@ def run_ranking_plot(
     figure_width    : Figure width in inches.
     figure_height   : Figure height in inches.
     dpi             : Resolution of the exported figure.
+    target_sequences: Sequences to label on the plot. Each is matched literally;
+                      a box is drawn only for those found among the plotted points.
 
     Returns
     -------
@@ -128,6 +150,7 @@ def run_ranking_plot(
         "above_count" – sequences above the separation line
         "below_count" – sequences below the separation line
         "above_seqs"  – the sequences above the separation line
+        "targets"     – the (sequence, x, y) targets found on the plot
     """
     # ------------------------------------------------------------------ data
     data = supportingLogic.csvComparision(file1path, file2path)
@@ -136,6 +159,7 @@ def run_ranking_plot(
     )
     above_count, below_count = supportingLogic.aboveBelowCounts(x, y, slope, b)
     above_seqs = aboveLineSequences(x, y, seqs, slope, b)
+    found_targets = findTargets(target_sequences, seqs, x, y)
 
     print(f"Sequences loaded: {len(seqs)}")
     print(f"Above line: {above_count}  |  Below line: {below_count}")
@@ -150,6 +174,7 @@ def run_ranking_plot(
         print(f"Above-line data saved to: {above_output} ({len(above_seqs)} sequences)")
 
     # --------------------------------------------------------- optional graph
+    print(f"Exporting graph: {export_graph}")
     if export_graph:
         fig, axes = plt.subplots(
             2, 2,
@@ -217,6 +242,24 @@ def run_ranking_plot(
         if log_scale:
             ax2.set_yscale("log")
 
+        # Boxed labels for the target sequences that were found. Each box is
+        # pushed toward the middle of the plot so it stays clear of the axes.
+        for n, (target, tx, ty) in enumerate(found_targets):
+            ax2.scatter([tx], [ty], c="red", s=14, zorder=3)
+
+            fx, fy = ax2.transAxes.inverted().transform(ax2.transData.transform((tx, ty)))
+            dx = -1 if fx > 0.5 else 1
+            dy = -1 if fy > 0.5 else 1
+            ax2.annotate(
+                target, (tx, ty),
+                xytext=(dx * 14, dy * (14 + 16 * n)), textcoords="offset points",
+                ha="right" if dx < 0 else "left",
+                va="top" if dy < 0 else "bottom",
+                fontsize=7, zorder=4, annotation_clip=False,
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", lw=0.8),
+                arrowprops=dict(arrowstyle="-", color="red", lw=0.8),
+            )
+
         # --- ax3: above / below count summary -------------------------------
         corner1 = Polygon([[0, 0], [1, 1], [0, 1]], closed=True,
                            color="orange", alpha=0.5)
@@ -250,6 +293,7 @@ def run_ranking_plot(
         "above_count": above_count,
         "below_count": below_count,
         "above_seqs": above_seqs,
+        "targets": found_targets,
     }
 
 
@@ -298,6 +342,10 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--above-output",     dest="above_output", default=None,
                    help="Path for the above-line sequences, written in the unified "
                         "CSV layout.")
+    p.add_argument("--target",           action="append", default=[],
+                   dest="target_sequences",
+                   help="Sequence to box on the plot. Repeat for several. Ignored "
+                        "when the sequence is not among the plotted points.")
     p.add_argument("--dpi",              type=int, default=300,
                    help="Resolution of the exported figure (default: 300).")
     return p
@@ -322,6 +370,7 @@ def main():
         ranking_output  = args.ranking_output,
         above_output    = args.above_output,
         dpi             = args.dpi,
+        target_sequences= args.target_sequences,
     )
 
 

@@ -511,6 +511,11 @@ def _executeRanking(node, inputs, ctx):
     fileB = _require(inputs, "fileB", "Ranking Plot", "File B")
 
     params = dict(node.params)
+
+    #Unconnected target ports are skipped; the plot only boxes what is wired in
+    targets = [str(inputs[spec.key].value) for spec in node.inputs()
+               if spec.key.startswith("target") and inputs.get(spec.key) is not None]
+
     topN = value(inputs, "topN", params.get("points", 100))
     slope = value(inputs, "slope", params.get("slope", 1.0))
 
@@ -534,6 +539,7 @@ def _executeRanking(node, inputs, ctx):
         figure_width=float(params.get("figureWidth", 6.0)),
         figure_height=float(params.get("figureHeight", 4.0)),
         dpi=int(params.get("dpi", 300)),
+        target_sequences=targets,
     )
 
     return {"above": abovePath, "graph": graphPath, "ranking": rankingPath}
@@ -543,11 +549,15 @@ RANKING_BLOCK = BlockDefinition(
     key="rankingPlot",
     label="Ranking Plot",
     configSection="rankingPlot",
+    configKeys=["slope", "b", "points", "percentOrCount", "countFile1",
+                "countFile2", "logScale", "figureWidth", "figureHeight", "dpi"],
     inputs=lambda node: [
         PortSpec("fileA", "File A", C.UNIFIER),
         PortSpec("fileB", "File B", C.UNIFIER),
         PortSpec("topN", "Top N", C.LITERAL),
         PortSpec("slope", "Slope (M)", C.LITERAL),
+        *[PortSpec(f"target{i + 1}", f"Target {i + 1}", C.LITERAL)
+          for i in range(max(1, node.inputCount))],
     ],
     outputs=lambda node: [
         PortSpec("above", "Above-Line Data", C.UNIFIER),
@@ -555,6 +565,8 @@ RANKING_BLOCK = BlockDefinition(
         PortSpec("ranking", "Ranking", C.RANKING_OUTPUT),
     ],
     execute=_executeRanking,
+    dynamicInputs=True,
+    dynamicLabel="Target",
     description="Compares two unified runs by rank, splitting them on a line.",
 )
 

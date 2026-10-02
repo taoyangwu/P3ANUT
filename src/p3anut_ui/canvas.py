@@ -188,7 +188,7 @@ class Canvas(QGraphicsView):
 
         #Edges to removed ports are gone from the model; redraw to match
         self.rebuild()
-        self.statusMessage.emit(f"{node.label} now has {newCount} file inputs")
+        self.statusMessage.emit(f"{node.label} now has {newCount} {node.definition.dynamicLabel.lower()} inputs")
 
     def openParameters(self, nodeItem):
         dialog = ParameterDialog(nodeItem.node, self.graph.template, self)

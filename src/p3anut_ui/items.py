@@ -257,8 +257,9 @@ class NodeItem(QGraphicsItem):
         remove = ButtonItem(self, "−", lambda: self.canvas.changeInputCount(self, -1))
         remove.setPos(NODE_WIDTH - 22, y)
 
-        add.setToolTip("Add another file input")
-        remove.setToolTip("Remove the last file input")
+        label = self.node.definition.dynamicLabel.lower()
+        add.setToolTip(f"Add another {label} input")
+        remove.setToolTip(f"Remove the last {label} input")
 
         self.buttons = [add, remove]
 
